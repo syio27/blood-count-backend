@@ -1,6 +1,6 @@
 package com.pja.bloodcount.config;
 
-import com.pja.bloodcount.service.JwtService;
+import com.pja.bloodcount.service.auth.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;

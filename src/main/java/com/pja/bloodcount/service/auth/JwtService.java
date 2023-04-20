@@ -1,4 +1,4 @@
-package com.pja.bloodcount.service;
+package com.pja.bloodcount.service.auth;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
