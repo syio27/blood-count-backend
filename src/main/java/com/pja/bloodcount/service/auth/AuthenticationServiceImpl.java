@@ -1,4 +1,4 @@
-package com.pja.bloodcount.service;
+package com.pja.bloodcount.service.auth;
 
 import com.pja.bloodcount.dto.request.AuthenticationRequest;
 import com.pja.bloodcount.dto.request.RegisterRequest;

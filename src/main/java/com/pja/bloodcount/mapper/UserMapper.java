@@ -21,14 +21,6 @@ public class UserMapper {
                 .build();
     }
 
-    public UserRequest mapToRequestDTO(User user){
-        return UserRequest.builder()
-                .name(user.getName())
-                .email(user.getEmail())
-                .password(user.getPassword())
-                .build();
-    }
-
     //Used for put method (update existing user entity)
     public User mapToUserModel(UserRequest request, UUID id){
         return User.builder()
@@ -50,17 +42,6 @@ public class UserMapper {
                         .email(user.getEmail())
                         .password(user.getPassword())
                 .build())
-                .toList();
-    }
-
-    public List<UserRequest> mapToRequestListDTO(List<User> users){
-        return users.stream()
-                .map(user -> UserRequest
-                        .builder()
-                        .name(user.getName())
-                        .email(user.getEmail())
-                        .password(user.getPassword())
-                        .build())
                 .toList();
     }
 }
