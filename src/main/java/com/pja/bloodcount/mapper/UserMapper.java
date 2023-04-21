@@ -10,6 +10,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Mapper Class to Map DTO -> Model,
+ *                     Model -> DTO
+ */
 @Component
 public class UserMapper {
 
@@ -22,7 +26,12 @@ public class UserMapper {
                 .build();
     }
 
-    //Used for put method (update existing user entity)
+    /**
+     * Map incoming user details to existing user entity
+     * @param request user request dto
+     * @param id existing user entity id
+     * @return User object instance
+     */
     public static User mapToUserModel(UserRequest request, UUID id){
         return User.builder()
                 .id(id)

@@ -52,7 +52,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 authenticationRequest.getPassword()
             )
         );
-        User user = userRepository.findUserByEmail(authenticationRequest.getEmail()).orElseThrow(() -> new UserNotFoundException(authenticationRequest.getEmail()));
+        User user = userRepository
+                .findUserByEmail(authenticationRequest.getEmail())
+                .orElseThrow(() -> new UserNotFoundException(authenticationRequest.getEmail()));
+
         log.info("User {} {} is authenticated", user.getId(), user.getEmail());
         var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder().token(jwtToken).build();

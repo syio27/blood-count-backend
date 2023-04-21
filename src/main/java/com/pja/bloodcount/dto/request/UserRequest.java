@@ -4,7 +4,6 @@ import lombok.*;
 
 import javax.persistence.Column;
 import javax.validation.constraints.Email;
-import java.util.UUID;
 
 @Data
 @Builder

@@ -2,9 +2,7 @@ package com.pja.bloodcount.controller;
 
 import com.pja.bloodcount.dto.request.UserRequest;
 import com.pja.bloodcount.dto.response.UserResponse;
-import com.pja.bloodcount.mapper.UserMapper;
 import com.pja.bloodcount.service.contract.UserService;
-import com.pja.bloodcount.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;

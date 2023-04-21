@@ -2,8 +2,6 @@ package com.pja.bloodcount.dto.request;
 
 import lombok.*;
 
-import java.util.UUID;
-
 @Data
 @Builder
 @AllArgsConstructor
