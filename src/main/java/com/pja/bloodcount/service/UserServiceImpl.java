@@ -1,5 +1,8 @@
 package com.pja.bloodcount.service;
 
+import com.pja.bloodcount.dto.request.UserRequest;
+import com.pja.bloodcount.dto.response.UserResponse;
+import com.pja.bloodcount.mapper.UserMapper;
 import com.pja.bloodcount.model.User;
 import com.pja.bloodcount.repository.UserRepository;
 import com.pja.bloodcount.service.contract.UserService;
@@ -26,22 +29,22 @@ public class UserServiceImpl implements UserService {
     private final UserValidator validator;
 
     @Override
-    public User getUserById(UUID id) {
+    public UserResponse getUserById(UUID id) {
         log.info("User is retrieved {} ", id);
-        return validator.validateIfExistsAndGet(id);
+        return UserMapper.mapToResponseDTO(validator.validateIfExistsAndGet(id));
     }
 
     @Override
-    public User getUserByEmail(String email) {
+    public UserResponse getUserByEmail(String email) {
         log.info("User is retrieved {} ", email);
-        return validator.validateEmailAndGet(email);
+        return UserMapper.mapToResponseDTO(validator.validateEmailAndGet(email));
     }
 
     @Override
-    public List<User> getUsers() {
-        List<User> users = repository.findAll();
-        log.info("Users are retrieved {} ->", users);
-        return users;
+    public List<UserResponse> getUsers() {
+        List<UserResponse> userResponseList = UserMapper.mapToResponseListDTO(validator.validateIfAnyExistsAndGet());
+        log.info("Users are retrieved {} ->", userResponseList);
+        return userResponseList;
     }
 
     @Override
@@ -51,22 +54,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void update(UUID id, User incommingUser) {
+    public void update(UUID id, UserRequest incomingUserRequest) {
         User user = validator.validateIfExistsAndGet(id);
-
-        if(repository.findUserByEmail(incommingUser.getEmail()).isPresent()
-                && !user.getEmail().equals(incommingUser.getEmail())){
-            throw new ResourceConflictException(incommingUser.getEmail());
+        User incomingUser = UserMapper.mapToUserModel(incomingUserRequest, id);
+        if(repository.findUserByEmail(incomingUser.getEmail()).isPresent()
+                && !user.getEmail().equals(incomingUser.getEmail())){
+            throw new ResourceConflictException(incomingUser.getEmail());
         }
 
-        repository.save(incommingUser);
+        repository.save(incomingUser);
     }
 
     @Override
-    public Page<User> getUsers(Pageable pageable) {
+    public Page<UserResponse> getUsers(Pageable pageable) {
         Page<User> entityPage = repository.findAll(pageable);
         List<User> users = entityPage.getContent();
-        return new PageImpl<>(users, pageable, entityPage.getTotalElements());
+        return new PageImpl<>(UserMapper.mapToResponseListDTO(users), pageable, entityPage.getTotalElements());
     }
 
     /**
