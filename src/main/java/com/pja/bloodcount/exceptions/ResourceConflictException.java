@@ -14,7 +14,7 @@ public class ResourceConflictException extends RuntimeException {
     private static final long serialVersionUID = -1509978774214489327L;
     private final String email;
     public ResourceConflictException(String email) {
-        super(String.format("CONFLICT! - User with email %s already exists", email));
+        super();
         this.email = email;
     }
 }

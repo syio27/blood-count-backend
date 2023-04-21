@@ -1,6 +1,7 @@
 package com.pja.bloodcount.validation;
 
 import com.pja.bloodcount.exceptions.UserNotFoundException;
+import com.pja.bloodcount.exceptions.UserWithEmailNotFoundException;
 import com.pja.bloodcount.model.User;
 import com.pja.bloodcount.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,7 @@ public class UserValidator extends EntityValidator<User, UUID> {
     }
 
     /**
-     * Validates if User entity with Email exists, if not throws Runtime Exception (UserNotFoundException)
+     * Validates if User entity with Email exists, if not throws Runtime Exception (UserWithEmailNotFoundException)
      * @param email of type String
      * @return User object instance
      */
@@ -40,6 +41,6 @@ public class UserValidator extends EntityValidator<User, UUID> {
     }
 
     protected RuntimeException getNotFoundException(String email) {
-        return new UserNotFoundException(email);
+        return new UserWithEmailNotFoundException(email);
     }
 }
