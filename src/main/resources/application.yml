@@ -26,3 +26,6 @@ spring:
     properties:
       hibernate:
         check_nullability: true
+
+app:
+  secretKey: 792F423F4428472B4B6250655368566D597133743677397A244326462948404D
