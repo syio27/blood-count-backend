@@ -45,7 +45,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         userRepository.save(user);
         log.info("User {} {} is registered", user.getId(), user.getEmail());
         var jwtToken = jwtService.generateToken(user);
-        return AuthenticationResponse.builder().token(jwtToken).build();
+        var jwtExpirationDate = jwtService.extractExpiration(jwtToken);
+        return AuthenticationResponse.builder()
+                .token(jwtToken)
+                .expirationDate(jwtExpirationDate)
+                .build();
     }
 
     @Override
@@ -66,6 +70,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         log.info("User {} {} is authenticated", user.getId(), user.getEmail());
         var jwtToken = jwtService.generateToken(user);
-        return AuthenticationResponse.builder().token(jwtToken).build();
+        var jwtExpirationDate = jwtService.extractExpiration(jwtToken);
+        return AuthenticationResponse.builder()
+                .token(jwtToken)
+                .expirationDate(jwtExpirationDate)
+                .build();
     }
 }
