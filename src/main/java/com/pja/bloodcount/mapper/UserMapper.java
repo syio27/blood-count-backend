@@ -4,15 +4,16 @@ import com.pja.bloodcount.dto.request.UserRequest;
 import com.pja.bloodcount.dto.response.UserResponse;
 import com.pja.bloodcount.model.User;
 import com.pja.bloodcount.model.enums.Role;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
-@Service
+@Component
 public class UserMapper {
 
-    public UserResponse mapToResponseDTO(User user){
+    public static UserResponse mapToResponseDTO(User user){
         return UserResponse.builder()
                 .id(user.getId())
                 .name(user.getName())
@@ -22,7 +23,7 @@ public class UserMapper {
     }
 
     //Used for put method (update existing user entity)
-    public User mapToUserModel(UserRequest request, UUID id){
+    public static User mapToUserModel(UserRequest request, UUID id){
         return User.builder()
                 .id(id)
                 .name(request.getName())
@@ -32,7 +33,7 @@ public class UserMapper {
                 .build();
     }
 
-    public List<UserResponse> mapToResponseListDTO(List<User> users){
+    public static List<UserResponse> mapToResponseListDTO(List<User> users){
 
         return users.stream()
                 .map(user -> UserResponse

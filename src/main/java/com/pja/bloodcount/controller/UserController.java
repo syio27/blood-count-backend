@@ -27,23 +27,22 @@ import java.util.UUID;
 public class UserController {
 
     private final UserService service;
-    private final UserMapper mapper;
 
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
     public List<UserResponse> getAllUsers(){
-        return mapper.mapToResponseListDTO(service.getUsers());
+        return UserMapper.mapToResponseListDTO(service.getUsers());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<UserResponse> getUserById(@PathVariable UUID id){
-        UserResponse userResponse = mapper.mapToResponseDTO(service.getUserById(id));
+        UserResponse userResponse = UserMapper.mapToResponseDTO(service.getUserById(id));
         return ResponseEntity.ok(userResponse);
     }
 
     @GetMapping("/email/{email}")
     public ResponseEntity<UserResponse> getUserByEmail(@PathVariable String email){
-        UserResponse userResponse = mapper.mapToResponseDTO(service.getUserByEmail(email));
+        UserResponse userResponse = UserMapper.mapToResponseDTO(service.getUserByEmail(email));
         return ResponseEntity.ok(userResponse);
     }
 
@@ -54,7 +53,7 @@ public class UserController {
         if(bindingResult.hasErrors()){
             return new ResponseEntity<>(bindingResult.getAllErrors(), HttpStatus.UNPROCESSABLE_ENTITY);
         }
-        User user = mapper.mapToUserModel(userRequest, id);
+        User user = UserMapper.mapToUserModel(userRequest, id);
         service.update(id, user);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
@@ -64,7 +63,7 @@ public class UserController {
     public List<UserResponse> pageQuery(Pageable pageable){
         Page<User> userPage = service.getUsers(pageable);
         List<UserResponse> userResponseList = userPage.stream()
-                .map(mapper::mapToResponseDTO).toList();
+                .map(UserMapper::mapToResponseDTO).toList();
         return new PageImpl<>(userResponseList, pageable, userPage.getTotalElements()).toList();
     }
 
