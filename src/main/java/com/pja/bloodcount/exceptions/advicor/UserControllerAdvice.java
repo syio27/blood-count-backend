@@ -1,5 +1,6 @@
 package com.pja.bloodcount.exceptions.advicor;
 
+import com.pja.bloodcount.exceptions.InvalidCredentialsException;
 import com.pja.bloodcount.exceptions.ResourceConflictException;
 import com.pja.bloodcount.exceptions.UserNotFoundException;
 import com.pja.bloodcount.exceptions.UserWithEmailNotFoundException;
@@ -52,5 +53,15 @@ public class UserControllerAdvice extends ResponseEntityExceptionHandler {
         payload.put("timestamp", LocalDateTime.now());
         payload.put("message", "DOEST EXIST! - User with " + ex.getEmail() + " not found");
         return new ResponseEntity<>(payload, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<Object> handleInvalidCredentialsException(
+            InvalidCredentialsException ex, WebRequest request) {
+
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("timestamp", LocalDateTime.now());
+        payload.put("message", ex.getMessage());
+        return new ResponseEntity<>(payload, HttpStatus.UNAUTHORIZED);
     }
 }

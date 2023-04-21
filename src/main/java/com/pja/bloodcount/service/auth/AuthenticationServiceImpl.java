@@ -3,6 +3,7 @@ package com.pja.bloodcount.service.auth;
 import com.pja.bloodcount.dto.request.AuthenticationRequest;
 import com.pja.bloodcount.dto.request.RegisterRequest;
 import com.pja.bloodcount.dto.response.AuthenticationResponse;
+import com.pja.bloodcount.exceptions.InvalidCredentialsException;
 import com.pja.bloodcount.exceptions.ResourceConflictException;
 import com.pja.bloodcount.exceptions.UserNotFoundException;
 import com.pja.bloodcount.exceptions.UserWithEmailNotFoundException;
@@ -10,6 +11,7 @@ import com.pja.bloodcount.service.contract.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -48,11 +50,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public AuthenticationResponse authenticate(AuthenticationRequest authenticationRequest) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                authenticationRequest.getEmail(),
-                authenticationRequest.getPassword()
-            )
-        );
+        try{
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                        authenticationRequest.getEmail(),
+                        authenticationRequest.getPassword()
+            ));
+        }
+        catch (BadCredentialsException ex){
+            throw new InvalidCredentialsException("Email or password is not correct, please try again");
+        }
+
         User user = userRepository
                 .findUserByEmail(authenticationRequest.getEmail())
                 .orElseThrow(() -> new UserWithEmailNotFoundException(authenticationRequest.getEmail()));
