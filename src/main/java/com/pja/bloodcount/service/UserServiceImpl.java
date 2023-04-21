@@ -3,14 +3,15 @@ package com.pja.bloodcount.service;
 import com.pja.bloodcount.model.User;
 import com.pja.bloodcount.repository.UserRepository;
 import com.pja.bloodcount.service.contract.UserService;
+import com.pja.bloodcount.validation.UserValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import com.pja.bloodcount.exceptions.UserNotFoundException;
 import com.pja.bloodcount.exceptions.ResourceConflictException;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -18,21 +19,22 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class UserServiceImpl implements UserService {
 
     private final UserRepository repository;
+    private final UserValidator validator;
 
     @Override
     public User getUserById(UUID id) {
         log.info("User is retrieved {} ", id);
-        return repository.findUserById(id).orElseThrow(() -> new UserNotFoundException(id));
+        return validator.validateIfExistsAndGet(id);
     }
 
     @Override
     public User getUserByEmail(String email) {
         log.info("User is retrieved {} ", email);
-        return repository.findUserByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException(email));
+        return validator.validateEmailAndGet(email);
     }
 
     @Override
@@ -44,13 +46,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void delete(UUID id) {
-        findById(id);
+        validator.validateIfExistsAndGet(id);
         repository.deleteById(id);
     }
 
     @Override
     public void update(UUID id, User incommingUser) {
-        User user = findById(id);
+        User user = validator.validateIfExistsAndGet(id);
 
         if(repository.findUserByEmail(incommingUser.getEmail()).isPresent()
                 && !user.getEmail().equals(incommingUser.getEmail())){
@@ -67,10 +69,12 @@ public class UserServiceImpl implements UserService {
         return new PageImpl<>(users, pageable, entityPage.getTotalElements());
     }
 
-    // Find user by id or throw UserNotFound Exception || HTTP Status Code 404
+    /**
+     * find user by id or throw RuntimeException
+     * @param id of User entity
+     * @return User
+     */
     private User findById(UUID id){
-        return repository
-                .findUserById(id)
-                .orElseThrow(() -> new UserNotFoundException(id));
+        return validator.validateIfExistsAndGet(id);
     }
 }
