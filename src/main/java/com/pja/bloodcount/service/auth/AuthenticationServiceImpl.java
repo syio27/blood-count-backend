@@ -4,10 +4,11 @@ import com.pja.bloodcount.dto.request.AuthenticationRequest;
 import com.pja.bloodcount.dto.request.RegisterRequest;
 import com.pja.bloodcount.dto.response.AuthenticationResponse;
 import com.pja.bloodcount.exceptions.InvalidCredentialsException;
+import com.pja.bloodcount.exceptions.PasswordValidationException;
 import com.pja.bloodcount.exceptions.ResourceConflictException;
-import com.pja.bloodcount.exceptions.UserNotFoundException;
 import com.pja.bloodcount.exceptions.UserWithEmailNotFoundException;
 import com.pja.bloodcount.service.contract.AuthenticationService;
+import com.pja.bloodcount.utils.ValidationUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -33,6 +34,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public AuthenticationResponse register(RegisterRequest registerRequest) {
         if(userRepository.findUserByEmail(registerRequest.getEmail()).isPresent()){
             throw new ResourceConflictException(registerRequest.getEmail());
+        }
+
+        if(!ValidationUtil.validatePassword(registerRequest.getPassword())){
+            throw new PasswordValidationException("Password is not valid, doesnt match regex rule");
         }
 
         User user = User.builder()

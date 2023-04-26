@@ -36,9 +36,7 @@ public class UserMapper {
         return User.builder()
                 .id(id)
                 .name(request.getName())
-                .password(request.getPassword())
                 .email(request.getEmail())
-                .role(Role.STUDENT)
                 .build();
     }
 

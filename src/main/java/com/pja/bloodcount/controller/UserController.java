@@ -1,5 +1,6 @@
 package com.pja.bloodcount.controller;
 
+import com.pja.bloodcount.dto.request.PasswordChangeDTO;
 import com.pja.bloodcount.dto.request.UserRequest;
 import com.pja.bloodcount.dto.response.UserResponse;
 import com.pja.bloodcount.service.contract.UserService;
@@ -55,15 +56,26 @@ public class UserController {
 
     @GetMapping("page-query")
     @ResponseStatus(HttpStatus.OK)
-    public List<UserResponse> pageQuery(Pageable pageable){
+    public ResponseEntity<List<UserResponse>> pageQuery(Pageable pageable){
         Page<UserResponse> userPage = service.getUsers(pageable);
         List<UserResponse> userResponseList = userPage.stream().toList();
-        return new PageImpl<>(userResponseList, pageable, userPage.getTotalElements()).toList();
+        return ResponseEntity.ok(new PageImpl<>(userResponseList, pageable, userPage.getTotalElements()).toList());
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUserById(@PathVariable UUID id){
         service.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PutMapping("{id}/password")
+    public ResponseEntity<?> updatePassword(@PathVariable UUID id,
+                                            @Valid @RequestBody PasswordChangeDTO passwordChangeDTO,
+                                            BindingResult bindingResult){
+        if(bindingResult.hasErrors()){
+            return new ResponseEntity<>(bindingResult.getAllErrors(), HttpStatus.UNPROCESSABLE_ENTITY);
+        }
+        service.changePassword(id, passwordChangeDTO);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

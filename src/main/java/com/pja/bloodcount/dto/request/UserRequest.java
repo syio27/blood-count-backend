@@ -1,5 +1,6 @@
 package com.pja.bloodcount.dto.request;
 
+import com.pja.bloodcount.model.enums.Role;
 import lombok.*;
 
 import javax.persistence.Column;
@@ -12,7 +13,6 @@ import javax.validation.constraints.Email;
 public class UserRequest {
     @Column(nullable = false)
     private String name;
-    private String password;
     @Email
     @Column(unique = true, nullable = false)
     private String email;

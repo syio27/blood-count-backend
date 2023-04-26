@@ -10,6 +10,6 @@ public class BloodCountApplication {
 		SpringApplication.run(BloodCountApplication.class, args);
 	}
 
-
-	//TODO: implement ControllerAdvice to handle all exceptions
+	//TODO: add swagger
+	//TODO: add tests
 }

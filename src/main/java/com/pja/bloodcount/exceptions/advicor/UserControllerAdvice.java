@@ -1,9 +1,6 @@
 package com.pja.bloodcount.exceptions.advicor;
 
-import com.pja.bloodcount.exceptions.InvalidCredentialsException;
-import com.pja.bloodcount.exceptions.ResourceConflictException;
-import com.pja.bloodcount.exceptions.UserNotFoundException;
-import com.pja.bloodcount.exceptions.UserWithEmailNotFoundException;
+import com.pja.bloodcount.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -63,5 +60,45 @@ public class UserControllerAdvice extends ResponseEntityExceptionHandler {
         payload.put("timestamp", LocalDateTime.now());
         payload.put("message", ex.getMessage());
         return new ResponseEntity<>(payload, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(PasswordValidationException.class)
+    public ResponseEntity<Object> handlePasswordValidationException(
+            PasswordValidationException ex, WebRequest request) {
+
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("timestamp", LocalDateTime.now());
+        payload.put("message", ex.getMessage());
+        return new ResponseEntity<>(payload, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(PasswordSameAsOldException.class)
+    public ResponseEntity<Object> handlePasswordSameAsOldException(
+            PasswordSameAsOldException ex, WebRequest request) {
+
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("timestamp", LocalDateTime.now());
+        payload.put("message", ex.getMessage());
+        return new ResponseEntity<>(payload, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(PasswordRepeatException.class)
+    public ResponseEntity<Object> handlePasswordRepeatException(
+            PasswordRepeatException ex, WebRequest request) {
+
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("timestamp", LocalDateTime.now());
+        payload.put("message", ex.getMessage());
+        return new ResponseEntity<>(payload, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(IncorrectOldPasswordException.class)
+    public ResponseEntity<Object> handleOldPasswordNotCorrectException(
+            IncorrectOldPasswordException ex, WebRequest request) {
+
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("timestamp", LocalDateTime.now());
+        payload.put("message", ex.getMessage());
+        return new ResponseEntity<>(payload, HttpStatus.BAD_REQUEST);
     }
 }
