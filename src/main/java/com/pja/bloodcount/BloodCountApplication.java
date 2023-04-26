@@ -12,4 +12,6 @@ public class BloodCountApplication {
 
 	//TODO: add swagger
 	//TODO: add tests
+	//TODO: ensure current user can access only his data/resources/apis
+	//TODO: add CORS configuration
 }
