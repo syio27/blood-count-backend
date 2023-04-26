@@ -29,9 +29,11 @@ public class ValidationUtil {
     /**
      * Email regex pattern
      * ^                 # start-of-string
-     * [A-Za-z0-9+_.-]+  # must start with string in the bracket [ ], must contains one or more (+)
-     * @                 # must contains a '@' symbol
-     * (.+)              # domain name with more than one character
+     * [A-Z0-9._%+-]+    # match characters and symbols in the list, a-z, 0-9, underscore, dot, percent, plus, hyphen
+     * @                 # must contain @ symbol
+     * [A-Z0-9.-]+       # match characters and symbols in the list, a-z, 0-9, dot, hyphen
+     * \.                # must contain a dot character
+     * {2,6}             # match between 2 and 6 characters
      * $                 # end-of-string
      */
     private static final Pattern EMAIL_REGEX = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
