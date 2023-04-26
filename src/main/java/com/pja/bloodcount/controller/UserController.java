@@ -19,7 +19,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:4200")
 @Slf4j
 public class UserController {
 
