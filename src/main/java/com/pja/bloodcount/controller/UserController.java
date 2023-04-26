@@ -11,10 +11,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 
@@ -45,11 +43,7 @@ public class UserController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateUserById(@PathVariable UUID id,
-                                               @Valid @RequestBody UserRequest userRequest,
-                                               BindingResult bindingResult){
-        if(bindingResult.hasErrors()){
-            return new ResponseEntity<>(bindingResult.getAllErrors(), HttpStatus.UNPROCESSABLE_ENTITY);
-        }
+                                            @RequestBody UserRequest userRequest){
         service.update(id, userRequest);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
@@ -70,11 +64,7 @@ public class UserController {
 
     @PutMapping("{id}/password")
     public ResponseEntity<?> updatePassword(@PathVariable UUID id,
-                                            @Valid @RequestBody PasswordChangeDTO passwordChangeDTO,
-                                            BindingResult bindingResult){
-        if(bindingResult.hasErrors()){
-            return new ResponseEntity<>(bindingResult.getAllErrors(), HttpStatus.UNPROCESSABLE_ENTITY);
-        }
+                                            @RequestBody PasswordChangeDTO passwordChangeDTO){
         service.changePassword(id, passwordChangeDTO);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

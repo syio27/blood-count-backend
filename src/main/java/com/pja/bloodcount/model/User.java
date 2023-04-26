@@ -36,7 +36,6 @@ public class User implements Serializable, UserDetails {
     @Column(nullable = false)
     private String name;
     private String password;
-    @Email(message = "email not valid")
     @Column(unique = true, nullable = false)
     private String email;
     @Enumerated(EnumType.STRING)
