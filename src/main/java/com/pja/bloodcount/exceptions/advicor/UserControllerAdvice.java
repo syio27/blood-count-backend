@@ -101,4 +101,14 @@ public class UserControllerAdvice extends ResponseEntityExceptionHandler {
         payload.put("message", ex.getMessage());
         return new ResponseEntity<>(payload, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(EmailValidationException.class)
+    public ResponseEntity<Object> handleEmailValidationException(
+            EmailValidationException ex, WebRequest request) {
+
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("timestamp", LocalDateTime.now());
+        payload.put("message", ex.getMessage());
+        return new ResponseEntity<>(payload, HttpStatus.BAD_REQUEST);
+    }
 }

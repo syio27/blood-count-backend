@@ -2,6 +2,9 @@ package com.pja.bloodcount.utils;
 
 import org.springframework.stereotype.Service;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * ValidationUtil class is used to validate user password and user email
  * @author baglan
@@ -21,7 +24,7 @@ public class ValidationUtil {
      * .{8,}             # anything, at least eight places though
      * $                 # end-of-string
      */
-    private static final String PASSWORD_REGEX = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!])(?=\\S+$).{8,}$";
+    private static final Pattern PASSWORD_REGEX = Pattern.compile("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!])(?=\\S+$).{8,}$", Pattern.CASE_INSENSITIVE);
 
     /**
      * Email regex pattern
@@ -31,12 +34,14 @@ public class ValidationUtil {
      * (.+)              # domain name with more than one character
      * $                 # end-of-string
      */
-    private static final String EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@(.+)$";
+    private static final Pattern EMAIL_REGEX = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
 
     public static boolean validatePassword(String password) {
-        return password.matches(PASSWORD_REGEX);
+        Matcher matcher = PASSWORD_REGEX.matcher(password);
+        return matcher.matches();
     }
     public static boolean validateEmail(String email) {
-        return email.matches(EMAIL_REGEX);
+        Matcher matcher = EMAIL_REGEX.matcher(email);
+        return matcher.matches();
     }
 }

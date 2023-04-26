@@ -62,12 +62,18 @@ public class UserServiceImpl implements UserService {
     public void update(UUID id, UserRequest incomingUserRequest) {
         User user = validator.validateIfExistsAndGet(id);
         User updatedUserDetails = UserMapper.mapToUserModel(incomingUserRequest, id);
-        updatedUserDetails.setRole(getRoleOfUser(user));
-        updatedUserDetails.setPassword(getPasswordOfUser(user));
+
+        if(!ValidationUtil.validateEmail(incomingUserRequest.getEmail())){
+            throw new EmailValidationException("Email is not valid, does not contain @ or .");
+        }
+
         if(repository.findUserByEmail(updatedUserDetails.getEmail()).isPresent()
                 && !user.getEmail().equals(updatedUserDetails.getEmail())){
             throw new ResourceConflictException(updatedUserDetails.getEmail());
         }
+
+        updatedUserDetails.setRole(getRoleOfUser(user));
+        updatedUserDetails.setPassword(getPasswordOfUser(user));
 
         repository.save(updatedUserDetails);
     }
