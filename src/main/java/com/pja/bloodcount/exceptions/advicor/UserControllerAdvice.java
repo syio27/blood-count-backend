@@ -111,4 +111,26 @@ public class UserControllerAdvice extends ResponseEntityExceptionHandler {
         payload.put("message", ex.getMessage());
         return new ResponseEntity<>(payload, HttpStatus.BAD_REQUEST);
     }
+
+    //TEST EXCEPTION -- SOON MIGHT BE CHANGED!
+    @ExceptionHandler(RoleAccessException.class)
+    public ResponseEntity<Object> handleRoleAccessException(
+            RoleAccessException ex, WebRequest request) {
+
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("timestamp", LocalDateTime.now());
+        payload.put("message", ex.getMessage());
+        return new ResponseEntity<>(payload, HttpStatus.FORBIDDEN);
+    }
+
+    //TEST EXCEPTION -- SOON MIGHT BE CHANGED!
+    @ExceptionHandler(UserNotAllowedException.class)
+    public ResponseEntity<Object> handleUserNotAllowedException(
+            UserNotAllowedException ex, WebRequest request){
+
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("timestamp", LocalDateTime.now());
+        payload.put("message", ex.getMessage());
+        return new ResponseEntity<>(payload, HttpStatus.FORBIDDEN);
+    }
 }

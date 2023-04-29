@@ -9,4 +9,5 @@ import lombok.*;
 public class AuthenticationRequest{
     private String email;
     private String password;
+    private Integer timezoneOffset;
 }

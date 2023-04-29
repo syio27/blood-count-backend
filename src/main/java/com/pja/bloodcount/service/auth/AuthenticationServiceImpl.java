@@ -50,7 +50,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         userRepository.save(user);
         log.info("User {} {} is registered", user.getId(), user.getEmail());
-        var jwtToken = jwtService.generateToken(user);
+        var jwtToken = jwtService.generateToken(user, registerRequest.getTimezoneOffset());
         var jwtExpirationDate = jwtService.extractExpiration(jwtToken);
         return AuthenticationResponse.builder()
                 .token(jwtToken)
@@ -75,7 +75,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .orElseThrow(() -> new UserWithEmailNotFoundException(authenticationRequest.getEmail()));
 
         log.info("User {} {} is authenticated", user.getId(), user.getEmail());
-        var jwtToken = jwtService.generateToken(user);
+        var jwtToken = jwtService.generateToken(user, authenticationRequest.getTimezoneOffset());
         var jwtExpirationDate = jwtService.extractExpiration(jwtToken);
         return AuthenticationResponse.builder()
                 .token(jwtToken)

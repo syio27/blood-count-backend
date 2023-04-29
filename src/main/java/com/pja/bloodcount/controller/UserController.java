@@ -3,6 +3,9 @@ package com.pja.bloodcount.controller;
 import com.pja.bloodcount.dto.request.PasswordChangeDTO;
 import com.pja.bloodcount.dto.request.UserRequest;
 import com.pja.bloodcount.dto.response.UserResponse;
+import com.pja.bloodcount.exceptions.RoleAccessException;
+import com.pja.bloodcount.exceptions.UserNotAllowedException;
+import com.pja.bloodcount.model.User;
 import com.pja.bloodcount.service.contract.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,8 +14,13 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,7 +34,10 @@ public class UserController {
 
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
-    public List<UserResponse> getAllUsers(){
+    public List<UserResponse> getAllUsers(Authentication authentication){
+        if(!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ADMIN"))){
+            throw new RoleAccessException("Access Restricted, user's doest have granted authority to this url");
+        }
         return service.getUsers();
     }
 
@@ -42,7 +53,16 @@ public class UserController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateUserById(@PathVariable UUID id,
-                                            @RequestBody UserRequest userRequest){
+                                            @RequestBody UserRequest userRequest,
+                                            Authentication authentication){
+        User userDetails = (User) authentication.getPrincipal();
+        log.info("request coming from user with email-> {}", userDetails.getEmail());
+        if(!userDetails.getId().equals(id)){
+            throw new UserNotAllowedException(
+                    "Access restricted, user with email: " +
+                    userDetails.getEmail() +
+                    " not allowed to this url");
+        }
         service.update(id, userRequest);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
@@ -56,15 +76,39 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUserById(@PathVariable UUID id){
+    public ResponseEntity<Void> deleteUserById(@PathVariable UUID id,
+                                               Authentication authentication){
+        User userDetails = (User) authentication.getPrincipal();
+        log.info("request coming from user with email-> {}", userDetails.getEmail());
+        if(!userDetails.getId().equals(id)){
+            throw new UserNotAllowedException(
+                    "Access restricted, user with email: " +
+                            userDetails.getEmail() +
+                            " not allowed to this url");
+        }
         service.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @PutMapping("{id}/password")
     public ResponseEntity<?> updatePassword(@PathVariable UUID id,
-                                            @RequestBody PasswordChangeDTO passwordChangeDTO){
+                                            @RequestBody PasswordChangeDTO passwordChangeDTO,
+                                            Authentication authentication){
+        User userDetails = (User) authentication.getPrincipal();
+        log.info("request coming from user with email-> {}", userDetails.getEmail());
+        if(!userDetails.getId().equals(id)){
+            throw new UserNotAllowedException(
+                    "Access restricted, user with email: " +
+                            userDetails.getEmail() +
+                            " not allowed to this url");
+        }
         service.changePassword(id, passwordChangeDTO);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @GetMapping("/current")
+    public ResponseEntity<UserDetails> getCurrentUser(Authentication authentication) {
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        return new ResponseEntity<>(userDetails, HttpStatus.OK);
     }
 }
