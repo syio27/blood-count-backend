@@ -1,7 +1,7 @@
 package com.pja.bloodcount.service;
 
 import com.pja.bloodcount.dto.request.PasswordChangeDTO;
-import com.pja.bloodcount.dto.request.UserRequest;
+import com.pja.bloodcount.dto.request.EmailChangeRequest;
 import com.pja.bloodcount.dto.response.UserResponse;
 import com.pja.bloodcount.exceptions.*;
 import com.pja.bloodcount.mapper.UserMapper;
@@ -59,11 +59,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void update(UUID id, UserRequest incomingUserRequest) {
+    public UserResponse update(UUID id, EmailChangeRequest incomingEmailChangeRequest) {
         User user = validator.validateIfExistsAndGet(id);
-        User updatedUserDetails = UserMapper.mapToUserModel(incomingUserRequest, id);
+        User updatedUserDetails = UserMapper.mapToUserModel(incomingEmailChangeRequest, id);
 
-        if(!ValidationUtil.validateEmail(incomingUserRequest.getEmail())){
+        if(!ValidationUtil.validateEmail(incomingEmailChangeRequest.getEmail())){
             throw new EmailValidationException("Email is not valid, does not contain @ or .");
         }
 
@@ -72,10 +72,12 @@ public class UserServiceImpl implements UserService {
             throw new ResourceConflictException(updatedUserDetails.getEmail());
         }
 
+        updatedUserDetails.setName(user.getName());
         updatedUserDetails.setRole(getRoleOfUser(user));
         updatedUserDetails.setPassword(getPasswordOfUser(user));
 
-        repository.save(updatedUserDetails);
+        var savedUser = repository.save(updatedUserDetails);
+        return UserMapper.mapToResponseDTO(savedUser);
     }
 
     @Override

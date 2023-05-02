@@ -1,11 +1,9 @@
 package com.pja.bloodcount.mapper;
 
-import com.pja.bloodcount.dto.request.UserRequest;
+import com.pja.bloodcount.dto.request.EmailChangeRequest;
 import com.pja.bloodcount.dto.response.UserResponse;
 import com.pja.bloodcount.model.User;
-import com.pja.bloodcount.model.enums.Role;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
@@ -32,10 +30,9 @@ public class UserMapper {
      * @param id existing user entity id
      * @return User object instance
      */
-    public static User mapToUserModel(UserRequest request, UUID id){
+    public static User mapToUserModel(EmailChangeRequest request, UUID id){
         return User.builder()
                 .id(id)
-                .name(request.getName())
                 .email(request.getEmail())
                 .build();
     }

@@ -1,7 +1,7 @@
 package com.pja.bloodcount.controller;
 
 import com.pja.bloodcount.dto.request.PasswordChangeDTO;
-import com.pja.bloodcount.dto.request.UserRequest;
+import com.pja.bloodcount.dto.request.EmailChangeRequest;
 import com.pja.bloodcount.dto.response.UserResponse;
 import com.pja.bloodcount.exceptions.RoleAccessException;
 import com.pja.bloodcount.exceptions.UserNotAllowedException;
@@ -14,13 +14,11 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
@@ -51,9 +49,9 @@ public class UserController {
         return ResponseEntity.ok(service.getUserByEmail(email));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateUserById(@PathVariable UUID id,
-                                            @RequestBody UserRequest userRequest,
+    @PutMapping("/{id}/email")
+    public ResponseEntity<UserResponse> updateEmail(@PathVariable UUID id,
+                                            @RequestBody EmailChangeRequest emailChangeRequest,
                                             Authentication authentication){
         User userDetails = (User) authentication.getPrincipal();
         log.info("request coming from user with email-> {}", userDetails.getEmail());
@@ -63,8 +61,7 @@ public class UserController {
                     userDetails.getEmail() +
                     " not allowed to this url");
         }
-        service.update(id, userRequest);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return ResponseEntity.ok(service.update(id, emailChangeRequest));
     }
 
     @GetMapping("page-query")
