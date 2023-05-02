@@ -91,7 +91,7 @@ public class UserController {
     }
 
     @PutMapping("{id}/password")
-    public ResponseEntity<?> updatePassword(@PathVariable UUID id,
+    public ResponseEntity<Void> updatePassword(@PathVariable UUID id,
                                             @RequestBody PasswordChangeDTO passwordChangeDTO,
                                             Authentication authentication){
         User userDetails = (User) authentication.getPrincipal();
@@ -103,7 +103,7 @@ public class UserController {
                             " not allowed to this url");
         }
         service.changePassword(id, passwordChangeDTO);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @GetMapping("/current")

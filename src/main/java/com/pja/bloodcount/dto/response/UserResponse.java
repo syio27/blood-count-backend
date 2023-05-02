@@ -1,5 +1,6 @@
 package com.pja.bloodcount.dto.response;
 
+import com.pja.bloodcount.model.enums.Role;
 import lombok.*;
 
 import java.util.UUID;
@@ -11,6 +12,6 @@ import java.util.UUID;
 public class UserResponse{
     private UUID id;
     private String name;
-    private String password;
     private String email;
+    private Role role;
 }

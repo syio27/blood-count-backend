@@ -92,7 +92,7 @@ public class JwtService {
         Instant now = Instant.now();
         ZonedDateTime zonedNow = ZonedDateTime.ofInstant(now, ZoneOffset.UTC)
                 .plusMinutes(timezoneOffset);
-        ZonedDateTime zonedExpiration = zonedNow.plusMinutes(120);
+        ZonedDateTime zonedExpiration = zonedNow.plusMinutes(360);
 
         this.issuedAt = Date.from(zonedNow.toInstant());
         this.expiresAt = Date.from(zonedExpiration.toInstant());

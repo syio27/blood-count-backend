@@ -22,7 +22,7 @@ public class UserMapper {
                 .id(user.getId())
                 .name(user.getName())
                 .email(user.getEmail())
-                .password(user.getPassword())
+                .role(user.getRole())
                 .build();
     }
 
@@ -48,7 +48,7 @@ public class UserMapper {
                         .id(user.getId())
                         .name(user.getName())
                         .email(user.getEmail())
-                        .password(user.getPassword())
+                        .role(user.getRole())
                 .build())
                 .toList();
     }
