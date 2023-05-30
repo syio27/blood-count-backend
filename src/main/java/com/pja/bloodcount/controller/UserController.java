@@ -1,11 +1,13 @@
 package com.pja.bloodcount.controller;
 
+import com.pja.bloodcount.dto.request.InviteUserRequest;
 import com.pja.bloodcount.dto.request.PasswordChangeDTO;
 import com.pja.bloodcount.dto.request.EmailChangeRequest;
 import com.pja.bloodcount.dto.response.UserResponse;
 import com.pja.bloodcount.exceptions.RoleAccessException;
 import com.pja.bloodcount.exceptions.UserNotAllowedException;
 import com.pja.bloodcount.model.User;
+import com.pja.bloodcount.service.AdminService;
 import com.pja.bloodcount.service.contract.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +31,7 @@ import java.util.UUID;
 public class UserController {
 
     private final UserService service;
+    private final AdminService adminService;
 
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
@@ -53,6 +56,7 @@ public class UserController {
     public ResponseEntity<UserResponse> updateEmail(@PathVariable UUID id,
                                             @RequestBody EmailChangeRequest emailChangeRequest,
                                             Authentication authentication){
+        log.info("Email from request -> {}", emailChangeRequest.getEmail());
         User userDetails = (User) authentication.getPrincipal();
         log.info("request coming from user with email-> {}", userDetails.getEmail());
         if(!userDetails.getId().equals(id)){
@@ -107,5 +111,14 @@ public class UserController {
     public ResponseEntity<UserDetails> getCurrentUser(Authentication authentication) {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         return new ResponseEntity<>(userDetails, HttpStatus.OK);
+    }
+
+    @PostMapping("/invite")
+    public ResponseEntity<Void> invite(@RequestBody InviteUserRequest inviteRequest, Authentication authentication) {
+        if(!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ADMIN"))){
+            throw new RoleAccessException("Access Restricted, user's doest have granted authority to this url");
+        }
+        adminService.invite(inviteRequest);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

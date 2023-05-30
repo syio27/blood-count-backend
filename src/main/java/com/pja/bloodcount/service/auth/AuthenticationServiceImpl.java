@@ -29,23 +29,23 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public AuthenticationResponse register(RegisterRequest registerRequest) {
-        if(!ValidationUtil.validateEmail(registerRequest.getEmail())){
+        if (!ValidationUtil.validateEmail(registerRequest.getEmail())) {
             throw new EmailValidationException("Email is not valid, doesnt match regex rule");
         }
 
-        if(userRepository.findUserByEmail(registerRequest.getEmail()).isPresent()){
+        if (userRepository.findUserByEmail(registerRequest.getEmail()).isPresent()) {
             throw new ResourceConflictException(registerRequest.getEmail());
         }
 
-        if(!ValidationUtil.validatePassword(registerRequest.getPassword())){
+        if (!ValidationUtil.validatePassword(registerRequest.getPassword())) {
             throw new PasswordValidationException("Password is not valid, doesnt match regex rule");
         }
 
         User user = User.builder()
-                .name(registerRequest.getName())
                 .email(registerRequest.getEmail())
+                .name(registerRequest.getName())
                 .password(passwordEncoder.encode(registerRequest.getPassword()))
-                .role(Role.STUDENT)
+                .role(Role.ADMIN)
                 .build();
 
         userRepository.save(user);
