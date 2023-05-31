@@ -48,12 +48,14 @@ public class AdminService {
                 .role(inviteRequest.getRole())
                 .build();
 
+        final String profileUrl = "http://localhost:4200/profile";
         final String subject = "Invitation letter";
         final String message = "Dear " + user.getName() + ",\n\n"
                 + "You have been invited to join our application as a supervisor.\n\n"
                 + "Here are your login credentials:\n"
                 + "Email: " + inviteRequest.getEmail() + "\n"
                 + "Temporary password: " + generatedPassword + "\n\n"
+                + "Profile page URL: " + profileUrl + "\n\n"
                 + "Please log in using these details. We strongly recommend that you change your password immediately after your first login for security purposes.\n\n"
                 + "If you have any issues, please feel free to contact us.\n\n"
                 + "Best regards,\n"

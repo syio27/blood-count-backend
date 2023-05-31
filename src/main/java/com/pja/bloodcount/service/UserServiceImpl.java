@@ -2,12 +2,14 @@ package com.pja.bloodcount.service;
 
 import com.pja.bloodcount.dto.request.PasswordChangeDTO;
 import com.pja.bloodcount.dto.request.EmailChangeRequest;
+import com.pja.bloodcount.dto.response.AuthenticationResponse;
 import com.pja.bloodcount.dto.response.UserResponse;
 import com.pja.bloodcount.exceptions.*;
 import com.pja.bloodcount.mapper.UserMapper;
 import com.pja.bloodcount.model.User;
 import com.pja.bloodcount.model.enums.Role;
 import com.pja.bloodcount.repository.UserRepository;
+import com.pja.bloodcount.service.auth.JwtService;
 import com.pja.bloodcount.service.contract.UserService;
 import com.pja.bloodcount.utils.ValidationUtil;
 import com.pja.bloodcount.validation.UserValidator;
@@ -16,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +35,8 @@ public class UserServiceImpl implements UserService {
     private final UserRepository repository;
     private final UserValidator validator;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
+    private final AuthenticationManager authenticationManager;
 
     @Override
     public UserResponse getUserById(UUID id) {
@@ -87,7 +92,7 @@ public class UserServiceImpl implements UserService {
         return new PageImpl<>(UserMapper.mapToResponseListDTO(users), pageable, entityPage.getTotalElements());
     }
 
-    public void changePassword(UUID id, PasswordChangeDTO passwordChangeDTO){
+    public AuthenticationResponse changePassword(UUID id, PasswordChangeDTO passwordChangeDTO){
         User user = findById(id);
 
         if(!ValidationUtil.validatePassword(passwordChangeDTO.getNewPassword())){
@@ -105,9 +110,14 @@ public class UserServiceImpl implements UserService {
         if(!passwordChangeDTO.getNewPassword().equals(passwordChangeDTO.getNewPasswordRepeat())){
             throw new PasswordRepeatException("New password and new password confirmation are not the same");
         }
-
-        user.setPassword(passwordEncoder.encode(passwordChangeDTO.getNewPassword()));
         repository.save(user);
+        user.setPassword(passwordEncoder.encode(passwordChangeDTO.getNewPassword()));
+        var jwtToken = jwtService.generateToken(user, 0);
+        var jwtExpirationDate = jwtService.extractExpiration(jwtToken);
+        return AuthenticationResponse.builder()
+                .token(jwtToken)
+                .expirationDate(jwtExpirationDate)
+                .build();
     }
 
     /**

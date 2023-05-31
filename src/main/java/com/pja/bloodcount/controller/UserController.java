@@ -3,6 +3,7 @@ package com.pja.bloodcount.controller;
 import com.pja.bloodcount.dto.request.InviteUserRequest;
 import com.pja.bloodcount.dto.request.PasswordChangeDTO;
 import com.pja.bloodcount.dto.request.EmailChangeRequest;
+import com.pja.bloodcount.dto.response.AuthenticationResponse;
 import com.pja.bloodcount.dto.response.UserResponse;
 import com.pja.bloodcount.exceptions.RoleAccessException;
 import com.pja.bloodcount.exceptions.UserNotAllowedException;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -33,12 +35,13 @@ public class UserController {
     private final UserService service;
     private final AdminService adminService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
     public List<UserResponse> getAllUsers(Authentication authentication){
-        if(!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ADMIN"))){
-            throw new RoleAccessException("Access Restricted, user's doest have granted authority to this url");
-        }
+//        if(!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ADMIN"))){
+//            throw new RoleAccessException("Access Restricted, user's doest have granted authority to this url");
+//        }
         return service.getUsers();
     }
 
@@ -92,9 +95,9 @@ public class UserController {
     }
 
     @PutMapping("{id}/password")
-    public ResponseEntity<Void> updatePassword(@PathVariable UUID id,
-                                            @RequestBody PasswordChangeDTO passwordChangeDTO,
-                                            Authentication authentication){
+    public ResponseEntity<AuthenticationResponse> updatePassword(@PathVariable UUID id,
+                                                                 @RequestBody PasswordChangeDTO passwordChangeDTO,
+                                                                 Authentication authentication){
         User userDetails = (User) authentication.getPrincipal();
         log.info("request coming from user with email-> {}", userDetails.getEmail());
         if(!userDetails.getId().equals(id)){
@@ -103,8 +106,7 @@ public class UserController {
                             userDetails.getEmail() +
                             " not allowed to this url");
         }
-        service.changePassword(id, passwordChangeDTO);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return ResponseEntity.ok(service.changePassword(id, passwordChangeDTO));
     }
 
     @GetMapping("/current")
@@ -113,11 +115,9 @@ public class UserController {
         return new ResponseEntity<>(userDetails, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ROOT')")
     @PostMapping("/invite")
     public ResponseEntity<Void> invite(@RequestBody InviteUserRequest inviteRequest, Authentication authentication) {
-        if(!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ADMIN"))){
-            throw new RoleAccessException("Access Restricted, user's doest have granted authority to this url");
-        }
         adminService.invite(inviteRequest);
         return new ResponseEntity<>(HttpStatus.OK);
     }
