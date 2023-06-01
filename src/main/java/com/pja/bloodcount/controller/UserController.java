@@ -8,6 +8,7 @@ import com.pja.bloodcount.dto.response.UserResponse;
 import com.pja.bloodcount.exceptions.RoleAccessException;
 import com.pja.bloodcount.exceptions.UserNotAllowedException;
 import com.pja.bloodcount.model.User;
+import com.pja.bloodcount.model.enums.Role;
 import com.pja.bloodcount.service.AdminService;
 import com.pja.bloodcount.service.contract.UserService;
 import lombok.RequiredArgsConstructor;
@@ -36,11 +37,10 @@ public class UserController {
     private final AdminService adminService;
 
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping()
+    @GetMapping(params = "role")
     @ResponseStatus(HttpStatus.OK)
-    public List<UserResponse> getAllUsers(Authentication authentication){
-
-        return service.getUsers();
+    public List<UserResponse> getAllUsers(@RequestParam("role") Role role){
+        return service.getUsersByRole(role);
     }
 
     @GetMapping("/{id}")
