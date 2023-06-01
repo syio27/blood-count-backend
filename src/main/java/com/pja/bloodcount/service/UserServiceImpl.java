@@ -51,7 +51,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserResponse> getUsers() {
+    public List<UserResponse> getUsersByRole(Role role) {
         List<UserResponse> userResponseList = UserMapper.mapToResponseListDTO(validator.validateIfAnyExistsAndGet());
         log.info("Users are retrieved {} ->", userResponseList);
         return userResponseList;

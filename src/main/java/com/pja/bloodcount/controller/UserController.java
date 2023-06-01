@@ -39,9 +39,7 @@ public class UserController {
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
     public List<UserResponse> getAllUsers(Authentication authentication){
-//        if(!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ADMIN"))){
-//            throw new RoleAccessException("Access Restricted, user's doest have granted authority to this url");
-//        }
+
         return service.getUsers();
     }
 
