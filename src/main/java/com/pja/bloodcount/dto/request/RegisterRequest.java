@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class RegisterRequest {
     private String name;
+    private String groupNumber;
     private String email;
     private String password;
     private Integer timezoneOffset;

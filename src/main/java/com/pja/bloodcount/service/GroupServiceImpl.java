@@ -5,8 +5,12 @@ import com.pja.bloodcount.dto.response.GroupResponse;
 import com.pja.bloodcount.exceptions.GroupConflictException;
 import com.pja.bloodcount.mapper.GroupMapper;
 import com.pja.bloodcount.model.Group;
+import com.pja.bloodcount.model.User;
+import com.pja.bloodcount.model.enums.GroupType;
 import com.pja.bloodcount.repository.GroupRepository;
+import com.pja.bloodcount.repository.UserRepository;
 import com.pja.bloodcount.service.contract.GroupService;
+import com.pja.bloodcount.service.contract.UserService;
 import com.pja.bloodcount.validation.GroupValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +28,7 @@ public class GroupServiceImpl implements GroupService {
 
     private final GroupRepository repository;
     private final GroupValidator validator;
+    private final UserRepository userRepository;
 
     @Override
     public GroupResponse getGroupByNumber(String groupNumber) {
@@ -40,6 +45,7 @@ public class GroupServiceImpl implements GroupService {
         Group newGroup = Group
                 .builder()
                 .groupNumber(request.getGroupNumber())
+                .groupType(request.getGroupType())
                 .build();
         return GroupMapper.mapToResponseDTO(repository.save(newGroup));
     }
@@ -47,5 +53,21 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public List<GroupResponse> getAllGroups() {
         return GroupMapper.mapToResponseListDTO(repository.findAll());
+    }
+
+    @Override
+    public List<GroupResponse> getAllGroupsByType(GroupType type){
+        return GroupMapper.mapToResponseListDTO(repository.findByGroupType(type));
+    }
+
+    @Transactional
+    @Override
+    public void clearGroupFromUsers(String groupNumber) {
+        validator.validateIfExistsAndGet(groupNumber);
+        List<User> usersInGroup = userRepository.findByGroup_GroupNumber(groupNumber);
+        Group defaultNoGroup = validator.validateIfExistsAndGet("NO_GR");
+        usersInGroup.forEach(user -> user.setGroup(defaultNoGroup));
+        log.info("Group: {} has been successfully cleared", groupNumber);
+        userRepository.saveAll(usersInGroup);
     }
 }

@@ -127,6 +127,7 @@ public class UserServiceImpl implements UserService {
                 .build();
     }
 
+    @Transactional
     public void assignUserToGroup(UUID id, UserGroupAssignmentRequest request){
         User user = userValidator.validateIfExistsAndGet(id);
         Group group = groupValidator.validateIfExistsAndGet(request.getGroupNumber());

@@ -14,6 +14,7 @@ public class GroupMapper {
         return GroupResponse
                 .builder()
                 .groupNumber(group.getGroupNumber())
+                .groupType(group.getGroupType())
                 .build();
     }
 
@@ -22,6 +23,7 @@ public class GroupMapper {
                 .map(group -> GroupResponse
                         .builder()
                         .groupNumber(group.getGroupNumber())
+                        .groupType(group.getGroupType())
                         .build())
                 .toList();
     }
