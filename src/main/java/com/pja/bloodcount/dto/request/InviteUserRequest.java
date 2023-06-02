@@ -14,4 +14,5 @@ public class InviteUserRequest {
 
     private String email;
     private Role role;
+    private String groupNumber;
 }
