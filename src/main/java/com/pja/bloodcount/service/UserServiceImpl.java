@@ -129,7 +129,7 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     public void assignUserToGroup(UUID id, UserGroupAssignmentRequest request){
-        User user = userValidator.validateIfExistsAndGet(id);
+        User user = findById(id);
         Group group = groupValidator.validateIfExistsAndGet(request.getGroupNumber());
         group.addUser(user);
         log.info("User with email: {} has been successfully added to {} group", user.getEmail(), group.getGroupNumber());
@@ -141,7 +141,7 @@ public class UserServiceImpl implements UserService {
         Group group = groupValidator.validateIfExistsAndGet(request.getGroupNumber());
 
         for (UUID userId : request.getUserIds()) {
-            User user = userValidator.validateIfExistsAndGet(userId);
+            User user = findById(userId);
 
             group.addUser(user);
         }
@@ -149,6 +149,12 @@ public class UserServiceImpl implements UserService {
         repository.saveAll(request.getUserIds().stream()
                 .map(userValidator::validateIfExistsAndGet)
                 .collect(Collectors.toList()));
+    }
+
+    @Override
+    public List<UserResponse> getGroupParticipants(String groupNumber){
+        groupValidator.validateIfExistsAndGet(groupNumber);
+        return UserMapper.mapToResponseListDTO(repository.findByGroup_GroupNumber(groupNumber));
     }
 
     /**

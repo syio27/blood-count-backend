@@ -153,4 +153,10 @@ public class UserController {
                         .build());
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ROOT')")
+    @GetMapping(value = "/group", params = "groupNumber")
+    public ResponseEntity<List<UserResponse>> getGroupParticipants(@RequestParam String groupNumber){
+        return ResponseEntity.ok(service.getGroupParticipants(groupNumber));
+    }
 }

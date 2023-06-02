@@ -24,4 +24,5 @@ public interface UserService {
     AuthenticationResponse changePassword(UUID id, PasswordChangeDTO passwordChangeDTO);
     void assignUserToGroup(UUID id, UserGroupAssignmentRequest request);
     void assignGroupToUsers(UserGroupBatchAssignmentRequest request);
+    List<UserResponse> getGroupParticipants(String groupNumber);
 }
