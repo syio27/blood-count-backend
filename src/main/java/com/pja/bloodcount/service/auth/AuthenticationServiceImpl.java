@@ -34,7 +34,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
 
         if (userRepository.findUserByEmail(registerRequest.getEmail()).isPresent()) {
-            throw new ResourceConflictException(registerRequest.getEmail());
+            throw new UserConflictException(registerRequest.getEmail());
         }
 
         if (!ValidationUtil.validatePassword(registerRequest.getPassword())) {

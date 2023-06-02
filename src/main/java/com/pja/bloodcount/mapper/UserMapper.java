@@ -21,6 +21,7 @@ public class UserMapper {
                 .name(user.getName())
                 .email(user.getEmail())
                 .role(user.getRole())
+                .groupNumber(user.getGroup().getGroupNumber())
                 .build();
     }
 
@@ -38,7 +39,6 @@ public class UserMapper {
     }
 
     public static List<UserResponse> mapToResponseListDTO(List<User> users){
-
         return users.stream()
                 .map(user -> UserResponse
                         .builder()
@@ -46,6 +46,7 @@ public class UserMapper {
                         .name(user.getName())
                         .email(user.getEmail())
                         .role(user.getRole())
+                        .groupNumber(user.getGroup().getGroupNumber())
                 .build())
                 .toList();
     }

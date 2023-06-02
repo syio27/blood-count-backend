@@ -36,7 +36,6 @@ public class AuthenticationController {
     public ResponseEntity<AuthenticationResponse> authenticate(
             @RequestBody AuthenticationRequest authenticationRequest
     ) {
-        log.info("API triggered");
         return ResponseEntity.ok(authenticationService.authenticate(authenticationRequest));
     }
 }

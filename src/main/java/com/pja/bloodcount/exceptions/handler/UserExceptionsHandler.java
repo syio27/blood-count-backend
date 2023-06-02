@@ -1,4 +1,4 @@
-package com.pja.bloodcount.exceptions.advicor;
+package com.pja.bloodcount.exceptions.handler;
 
 import com.pja.bloodcount.exceptions.*;
 import org.springframework.http.HttpStatus;
@@ -20,11 +20,11 @@ import java.util.Map;
  * UserWithEmailNotFoundException
  */
 @ControllerAdvice
-public class UserControllerAdvice extends ResponseEntityExceptionHandler {
+public class UserExceptionsHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(ResourceConflictException.class)
+    @ExceptionHandler(UserConflictException.class)
     public ResponseEntity<Object> handleResourceConflictException(
-            ResourceConflictException ex, WebRequest request) {
+            UserConflictException ex, WebRequest request) {
 
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("timestamp", LocalDateTime.now());
