@@ -1,5 +1,6 @@
 package com.pja.bloodcount.dto.request;
 
+import com.pja.bloodcount.model.enums.GroupType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,10 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegisterRequest {
-    private String name;
+public class GroupRequest {
     private String groupNumber;
-    private String email;
-    private String password;
-    private Integer timezoneOffset;
+    private GroupType groupType;
 }

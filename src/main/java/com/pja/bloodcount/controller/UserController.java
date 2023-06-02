@@ -1,8 +1,6 @@
 package com.pja.bloodcount.controller;
 
-import com.pja.bloodcount.dto.request.InviteUserRequest;
-import com.pja.bloodcount.dto.request.PasswordChangeDTO;
-import com.pja.bloodcount.dto.request.EmailChangeRequest;
+import com.pja.bloodcount.dto.request.*;
 import com.pja.bloodcount.dto.response.AuthenticationResponse;
 import com.pja.bloodcount.dto.response.UserResponse;
 import com.pja.bloodcount.exceptions.RoleAccessException;
@@ -118,5 +116,47 @@ public class UserController {
     public ResponseEntity<Void> invite(@RequestBody InviteUserRequest inviteRequest, Authentication authentication) {
         adminService.invite(inviteRequest);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasRole('STUDENT')")
+    @PostMapping("{id}/group")
+    public ResponseEntity<Void> assignUserToGroup(@PathVariable UUID id,
+                                                  @RequestBody UserGroupAssignmentRequest request,
+                                                  Authentication authentication){
+        User userDetails = (User) authentication.getPrincipal();
+        log.info("request coming from user with email-> {}", userDetails.getEmail());
+        if(!userDetails.getId().equals(id)){
+            throw new UserNotAllowedException(
+                    "Access restricted, user with email: " +
+                            userDetails.getEmail() +
+                            " not allowed to this url");
+        }
+        service.assignUserToGroup(id, request);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PreAuthorize("hasRole('ROOT') or hasRole('ADMIN') or hasRole('SUPERVISOR')")
+    @PostMapping("/group")
+    public ResponseEntity<Void> assignGroupToUsers(@RequestBody UserGroupBatchAssignmentRequest request){
+        service.assignGroupToUsers(request);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ROOT')")
+    @PutMapping("/user/group")
+    public ResponseEntity<Void> assignUserToAnotherGroup(@RequestBody UserToNewGroupAssignRequest request){
+        service.assignUserToGroup(
+                request.getId(),
+                UserGroupAssignmentRequest
+                        .builder()
+                        .groupNumber(request.getGroupNumber())
+                        .build());
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ROOT')")
+    @GetMapping(value = "/group", params = "groupNumber")
+    public ResponseEntity<List<UserResponse>> getGroupParticipants(@RequestParam String groupNumber){
+        return ResponseEntity.ok(service.getGroupParticipants(groupNumber));
     }
 }

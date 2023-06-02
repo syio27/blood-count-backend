@@ -1,20 +1,14 @@
 package com.pja.bloodcount.service;
 
 import com.pja.bloodcount.dto.request.InviteUserRequest;
-import com.pja.bloodcount.dto.request.RegisterRequest;
-import com.pja.bloodcount.dto.response.AuthenticationResponse;
 import com.pja.bloodcount.exceptions.EmailValidationException;
-import com.pja.bloodcount.exceptions.PasswordValidationException;
-import com.pja.bloodcount.exceptions.ResourceConflictException;
+import com.pja.bloodcount.exceptions.UserConflictException;
 import com.pja.bloodcount.model.User;
-import com.pja.bloodcount.model.enums.Role;
 import com.pja.bloodcount.repository.UserRepository;
-import com.pja.bloodcount.service.auth.JwtService;
 import com.pja.bloodcount.utils.PasswordGeneratorUtil;
 import com.pja.bloodcount.utils.ValidationUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +28,7 @@ public class AdminService {
         }
 
         if (userRepository.findUserByEmail(inviteRequest.getEmail()).isPresent()) {
-            throw new ResourceConflictException(inviteRequest.getEmail());
+            throw new UserConflictException(inviteRequest.getEmail());
         }
 
         String generatedPassword = PasswordGeneratorUtil.generateRandomPassword();

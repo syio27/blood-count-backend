@@ -4,8 +4,10 @@ import com.pja.bloodcount.dto.request.AuthenticationRequest;
 import com.pja.bloodcount.dto.request.RegisterRequest;
 import com.pja.bloodcount.dto.response.AuthenticationResponse;
 import com.pja.bloodcount.exceptions.*;
+import com.pja.bloodcount.model.Group;
 import com.pja.bloodcount.service.contract.AuthenticationService;
 import com.pja.bloodcount.utils.ValidationUtil;
+import com.pja.bloodcount.validation.GroupValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,6 +28,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final GroupValidator groupValidator;
 
     @Override
     public AuthenticationResponse register(RegisterRequest registerRequest) {
@@ -34,19 +37,23 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
 
         if (userRepository.findUserByEmail(registerRequest.getEmail()).isPresent()) {
-            throw new ResourceConflictException(registerRequest.getEmail());
+            throw new UserConflictException(registerRequest.getEmail());
         }
 
         if (!ValidationUtil.validatePassword(registerRequest.getPassword())) {
             throw new PasswordValidationException("Password is not valid, doesnt match regex rule");
         }
 
+        Group group = groupValidator.validateIfExistsAndGet(registerRequest.getGroupNumber());
+
         User user = User.builder()
                 .email(registerRequest.getEmail())
                 .name(registerRequest.getName())
                 .password(passwordEncoder.encode(registerRequest.getPassword()))
-                .role(Role.ADMIN)
+                .role(Role.STUDENT)
                 .build();
+
+        group.addUser(user);
 
         userRepository.save(user);
         log.info("User {} {} is registered", user.getId(), user.getEmail());
