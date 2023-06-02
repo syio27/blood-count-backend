@@ -141,4 +141,16 @@ public class UserController {
         service.assignGroupToUsers(request);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ROOT')")
+    @PutMapping("/user/group")
+    public ResponseEntity<Void> assignUserToAnotherGroup(@RequestBody UserToNewGroupAssignRequest request){
+        service.assignUserToGroup(
+                request.getId(),
+                UserGroupAssignmentRequest
+                        .builder()
+                        .groupNumber(request.getGroupNumber())
+                        .build());
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }
