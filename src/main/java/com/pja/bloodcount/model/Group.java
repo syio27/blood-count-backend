@@ -40,7 +40,7 @@ public class Group implements Serializable {
         user.setGroup(this);
     }
 
-    public void removeTag(User user) {
+    public void removeUser(User user) {
         if (this.users != null) {
             this.users.remove(user);
             user.setGroup(null);
