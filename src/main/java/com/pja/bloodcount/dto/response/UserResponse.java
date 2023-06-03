@@ -11,7 +11,6 @@ import java.util.UUID;
 @NoArgsConstructor
 public class UserResponse{
     private UUID id;
-    private String name;
     private String email;
     private Role role;
     private String groupNumber;

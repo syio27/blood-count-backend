@@ -43,7 +43,6 @@ public class AdminService {
         log.info("User's password generated {}", generatedPassword);
 
         User user = User.builder()
-                .name("Baglan") // TODO: delete name attribute for user entity
                 .email(inviteRequest.getEmail())
                 .password(passwordEncoder.encode(generatedPassword))
                 .role(inviteRequest.getRole())
@@ -53,7 +52,7 @@ public class AdminService {
 
         final String profileUrl = "http://localhost:4200/profile";
         final String subject = "Invitation letter";
-        final String message = "Dear " + user.getName() + ",\n\n"
+        final String message = "Dear new User\n\n"
                 + "You have been invited to join our application as a " + inviteRequest.getRole().toString().toLowerCase() + ".\n\n"
                 + "Here are your login credentials:\n"
                 + "Email: " + inviteRequest.getEmail() + "\n"

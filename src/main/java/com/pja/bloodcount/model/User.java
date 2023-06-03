@@ -36,8 +36,6 @@ public class User implements Serializable, UserDetails {
     @Type(type = "org.hibernate.type.UUIDCharType")
     @Column(length = 36, columnDefinition = "varchar(36)", updatable = false, nullable = false, unique = true)
     private UUID id;
-    @Column(nullable = false)
-    private String name;
     private String password;
     @Column(unique = true, nullable = false)
     private String email;
@@ -81,7 +79,6 @@ public class User implements Serializable, UserDetails {
     public String toString() {
         return "User{" +
                 "id=" + id +
-                ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 ", role=" + role +
                 ", groupNumber=" + (group != null ? group.getGroupNumber() : null) +

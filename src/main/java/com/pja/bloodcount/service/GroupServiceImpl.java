@@ -10,7 +10,6 @@ import com.pja.bloodcount.model.enums.GroupType;
 import com.pja.bloodcount.repository.GroupRepository;
 import com.pja.bloodcount.repository.UserRepository;
 import com.pja.bloodcount.service.contract.GroupService;
-import com.pja.bloodcount.service.contract.UserService;
 import com.pja.bloodcount.validation.GroupValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

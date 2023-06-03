@@ -18,7 +18,6 @@ public class UserMapper {
     public static UserResponse mapToResponseDTO(User user){
         return UserResponse.builder()
                 .id(user.getId())
-                .name(user.getName())
                 .email(user.getEmail())
                 .role(user.getRole())
                 .groupNumber(user.getGroup().getGroupNumber())
@@ -43,7 +42,6 @@ public class UserMapper {
                 .map(user -> UserResponse
                         .builder()
                         .id(user.getId())
-                        .name(user.getName())
                         .email(user.getEmail())
                         .role(user.getRole())
                         .groupNumber(user.getGroup().getGroupNumber())
