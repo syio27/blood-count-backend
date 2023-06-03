@@ -84,7 +84,6 @@ public class UserServiceImpl implements UserService {
             throw new UserConflictException(updatedUserDetails.getEmail());
         }
 
-        updatedUserDetails.setName(user.getName());
         updatedUserDetails.setRole(getRoleOfUser(user));
         updatedUserDetails.setPassword(getPasswordOfUser(user));
 

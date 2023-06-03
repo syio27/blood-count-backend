@@ -48,7 +48,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         User user = User.builder()
                 .email(registerRequest.getEmail())
-                .name(registerRequest.getName())
                 .password(passwordEncoder.encode(registerRequest.getPassword()))
                 .role(Role.STUDENT)
                 .build();
