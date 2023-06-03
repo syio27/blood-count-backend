@@ -46,6 +46,8 @@ public class GroupServiceImpl implements GroupService {
                 .groupNumber(request.getGroupNumber())
                 .groupType(request.getGroupType())
                 .build();
+
+        newGroup.addUser(null);
         return GroupMapper.mapToResponseDTO(repository.save(newGroup));
     }
 

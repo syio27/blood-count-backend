@@ -13,4 +13,5 @@ import lombok.NoArgsConstructor;
 public class GroupResponse {
     private String groupNumber;
     private GroupType groupType;
+    private Integer totalParticipants;
 }

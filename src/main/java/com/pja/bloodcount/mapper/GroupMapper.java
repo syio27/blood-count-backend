@@ -15,6 +15,7 @@ public class GroupMapper {
                 .builder()
                 .groupNumber(group.getGroupNumber())
                 .groupType(group.getGroupType())
+                .totalParticipants(group.getUsers().size())
                 .build();
     }
 
@@ -24,6 +25,7 @@ public class GroupMapper {
                         .builder()
                         .groupNumber(group.getGroupNumber())
                         .groupType(group.getGroupType())
+                        .totalParticipants(group.getUsers().size())
                         .build())
                 .toList();
     }

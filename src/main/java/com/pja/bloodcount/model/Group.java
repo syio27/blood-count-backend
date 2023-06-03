@@ -31,6 +31,11 @@ public class Group implements Serializable {
         if (this.users == null) {
             this.users = new ArrayList<>();
         }
+        // pass null user to this method to create empty list of users.
+        if(user == null) {
+            this.users = new ArrayList<>();
+            return;
+        }
         users.add(user);
         user.setGroup(this);
     }
