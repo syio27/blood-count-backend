@@ -2,7 +2,6 @@ package com.pja.bloodcount.controller;
 
 import com.pja.bloodcount.dto.request.GroupRequest;
 import com.pja.bloodcount.dto.response.GroupResponse;
-import com.pja.bloodcount.dto.response.UserResponse;
 import com.pja.bloodcount.model.enums.GroupType;
 import com.pja.bloodcount.service.contract.GroupService;
 import lombok.RequiredArgsConstructor;
