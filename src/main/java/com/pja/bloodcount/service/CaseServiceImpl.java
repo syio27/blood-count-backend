@@ -30,16 +30,6 @@ public class CaseServiceImpl implements CaseService {
     private final CaseValidator validator;
 
     @Override
-    public List<CaseResponse> getAllCases() {
-        return CaseMapper.mapToResponseListDTO(repository.findAll());
-    }
-
-    @Override
-    public CaseResponse getCaseById(Long id) {
-        return CaseMapper.mapToResponseDTO(validator.validateIfExistsAndGet(id));
-    }
-
-    @Override
     public CaseResponse createCase(CreateCaseRequest request) {
 
         if(request.getSecondMinAge() != 0 && request.getSecondMaxAge() != 0){

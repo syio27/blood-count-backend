@@ -28,16 +28,6 @@ public class CaseController {
         return ResponseEntity.ok(service.createCase(request));
     }
 
-    @GetMapping
-    public ResponseEntity<List<CaseResponse>> getAllCases(){
-        return ResponseEntity.ok(service.getAllCases());
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<CaseResponse> getCase(@PathVariable Long id){
-        return ResponseEntity.ok(service.getCaseById(id));
-    }
-
     @PreAuthorize("hasRole('ROOT') or hasRole('ADMIN')")
     @PostMapping("/{caseId}/abnormality")
     public ResponseEntity<Void> createAbnormality(@PathVariable Long caseId, @RequestBody CreateAbnormalityRequest request){

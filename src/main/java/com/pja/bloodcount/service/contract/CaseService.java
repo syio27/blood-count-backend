@@ -8,8 +8,6 @@ import com.pja.bloodcount.model.Case;
 import java.util.List;
 
 public interface CaseService {
-    List<CaseResponse> getAllCases();
-    CaseResponse getCaseById(Long id);
     CaseResponse createCase(CreateCaseRequest request);
     void createBCAbnormality(Long caseId, CreateAbnormalityRequest request);
     CaseResponse getCaseWithAbnormalities(Long id);
