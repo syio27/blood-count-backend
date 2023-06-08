@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface CaseService {
     CaseResponse createCase(CreateCaseRequest request);
-    void createBCAbnormality(Long caseId, CreateAbnormalityRequest request);
+    void createBCAbnormality(Long caseId, List<CreateAbnormalityRequest> request);
     CaseResponse getCaseWithAbnormalities(Long id);
     List<CaseResponse> getAllCasesWithAbnormalities();
     void deleteCase(Long id);

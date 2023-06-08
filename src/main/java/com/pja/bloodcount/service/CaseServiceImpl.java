@@ -58,18 +58,22 @@ public class CaseServiceImpl implements CaseService {
     }
 
     @Override
-    public void createBCAbnormality(Long caseId, CreateAbnormalityRequest request) {
+    public void createBCAbnormality(Long caseId, List<CreateAbnormalityRequest> createAbnormalityRequestList) {
         Case aCase = validator.validateIfExistsAndGet(caseId);
 
-        BloodCountAbnormality abnormality = BloodCountAbnormality
-                .builder()
-                .parameter(request.getParameter())
-                .minValue(request.getMinValue())
-                .maxValue(request.getMaxValue())
-                .type(request.getType())
-                .build();
+        log.info("request size: {}", createAbnormalityRequestList.size());
+        for(CreateAbnormalityRequest abnormalityRequest : createAbnormalityRequestList){
+            BloodCountAbnormality abnormality = BloodCountAbnormality
+                    .builder()
+                    .parameter(abnormalityRequest.getParameter())
+                    .minValue(abnormalityRequest.getMinValue())
+                    .maxValue(abnormalityRequest.getMaxValue())
+                    .type(abnormalityRequest.getType())
+                    .build();
 
-        aCase.addAbnormality(abnormality);
+            aCase.addAbnormality(abnormality);
+        }
+
         repository.save(aCase);
     }
 

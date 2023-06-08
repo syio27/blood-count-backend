@@ -29,8 +29,8 @@ public class CaseController {
     }
 
     @PreAuthorize("hasRole('ROOT') or hasRole('ADMIN')")
-    @PostMapping("/{caseId}/abnormality")
-    public ResponseEntity<Void> createAbnormality(@PathVariable Long caseId, @RequestBody CreateAbnormalityRequest request){
+    @PostMapping("/{caseId}/abnormalities")
+    public ResponseEntity<Void> createAbnormality(@PathVariable Long caseId, @RequestBody List<CreateAbnormalityRequest> request){
         service.createBCAbnormality(caseId, request);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
