@@ -1,13 +1,11 @@
 package com.pja.bloodcount;
 
-import com.pja.bloodcount.model.BloodCountReference;
-import com.pja.bloodcount.model.Group;
-import com.pja.bloodcount.model.User;
+import com.pja.bloodcount.model.*;
+import com.pja.bloodcount.model.enums.AffectedGender;
 import com.pja.bloodcount.model.enums.GroupType;
+import com.pja.bloodcount.model.enums.LevelType;
 import com.pja.bloodcount.model.enums.Role;
-import com.pja.bloodcount.repository.BCReferenceRepository;
-import com.pja.bloodcount.repository.GroupRepository;
-import com.pja.bloodcount.repository.UserRepository;
+import com.pja.bloodcount.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,6 +18,8 @@ public class DataLoader implements CommandLineRunner {
     private final GroupRepository groupRepository;
     private final UserRepository userRepository;
     private final BCReferenceRepository bcReferenceRepository;
+    private final CaseRepository caseRepository;
+    private final AbnormalityRepository abnormalityRepository;
     private final PasswordEncoder passwordEncoder;
 
 
@@ -27,10 +27,12 @@ public class DataLoader implements CommandLineRunner {
     private static final String NO_GROUP = "NO_GR";
 
     @Autowired
-    public DataLoader(GroupRepository groupRepository, UserRepository userRepository, BCReferenceRepository bcReferenceRepository, PasswordEncoder passwordEncoder) {
+    public DataLoader(GroupRepository groupRepository, UserRepository userRepository, BCReferenceRepository bcReferenceRepository, CaseRepository caseRepository, AbnormalityRepository abnormalityRepository, PasswordEncoder passwordEncoder) {
         this.groupRepository = groupRepository;
         this.userRepository = userRepository;
         this.bcReferenceRepository = bcReferenceRepository;
+        this.caseRepository = caseRepository;
+        this.abnormalityRepository = abnormalityRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -255,6 +257,27 @@ public class DataLoader implements CommandLineRunner {
                 .minMale(0d)
                 .maxMale(2d)
                 .build();
+
+        Case case1 = Case
+                .builder()
+                .firstMinAge(18)
+                .firstMaxAge(75)
+                .affectedGender(AffectedGender.FEMALE)
+                .anemiaType("N. mikrocytowa")
+                .diagnosis("Niedokrwistość z niedoboru żelaza z powodu nadmiernych miesiączek")
+                .build();
+
+        BloodCountAbnormality abnormality = BloodCountAbnormality
+                .builder()
+                .parameter("HGB")
+                .minValue(9.5)
+                .maxValue(10.9)
+                .type(LevelType.DECREASED)
+                .build();
+
+
+        case1.addAbnormality(abnormality);
+        caseRepository.save(case1);
 
         defaultAdminGroup.addUser(defaultAdmin);
         bcReferenceRepository.saveAll(

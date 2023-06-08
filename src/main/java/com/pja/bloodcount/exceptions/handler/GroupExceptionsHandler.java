@@ -32,7 +32,7 @@ public class GroupExceptionsHandler extends ResponseEntityExceptionHandler {
 
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("timestamp", LocalDateTime.now());
-        payload.put("message", "Group with group number" + ex.getGroupNumber() + " already exists");
+        payload.put("message", "Group with group number " + ex.getGroupNumber() + " already exists");
         return new ResponseEntity<>(payload, HttpStatus.CONFLICT);
     }
 }

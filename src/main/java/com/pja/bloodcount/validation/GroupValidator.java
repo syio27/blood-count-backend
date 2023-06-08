@@ -4,11 +4,12 @@ import com.pja.bloodcount.exceptions.GroupNotFoundException;
 import com.pja.bloodcount.model.Group;
 import com.pja.bloodcount.repository.GroupRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
-@Service
+@Component
 public class GroupValidator extends EntityValidator<Group, String> {
 
     private final GroupRepository groupRepository;
@@ -19,7 +20,7 @@ public class GroupValidator extends EntityValidator<Group, String> {
     }
 
     @Override
-    public Group validateIfExistsAndGet(String  id){
+    public Group validateIfExistsAndGet(String id){
         return groupRepository.findByGroupNumber(id).orElseThrow(() -> getNotFoundException(id));
     }
 
