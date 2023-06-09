@@ -99,18 +99,28 @@ public class CaseServiceImpl implements CaseService {
         repository.delete(aCase);
     }
 
-    private void validateRanges(int firstMinAge, int firstMaxAge, int secondMinAge, int secondMaxAge) throws RangeArgumentException{
+    private void validateRanges(int firstMinAge, int firstMaxAge,
+                                int secondMinAge, int secondMaxAge) throws RangeArgumentException{
         if(firstMinAge < 18 || firstMinAge >= firstMaxAge){
-            throw new RangeArgumentException("Bad min age");
+            throw new RangeArgumentException("First min age should be higher than or equal to 18");
         }
         if(firstMaxAge > 75){
-            throw new RangeArgumentException("Bad max age");
+            throw new RangeArgumentException("First max age should be less than or equal to 75");
         }
         if(secondMinAge < 18 || secondMinAge >= secondMaxAge){
-            throw new RangeArgumentException("Bad min age");
+            throw new RangeArgumentException("Second min age should be higher than or equal to 18");
         }
         if(secondMaxAge > 75){
-            throw new RangeArgumentException("Bad max age");
+            throw new RangeArgumentException("Second max age should be less than or equal to 75");
+        }
+        if(firstMinAge > secondMinAge ){
+            throw new RangeArgumentException("First min age cannot be higher than second min age");
+        }
+        if(firstMaxAge > secondMaxAge){
+            throw new RangeArgumentException("First max age cannot be higher than second max age");
+        }
+        if(firstMaxAge > secondMinAge){
+            throw new RangeArgumentException("First max age should be less than Second min age");
         }
     }
 
