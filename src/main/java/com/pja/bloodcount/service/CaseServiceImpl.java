@@ -92,7 +92,6 @@ public class CaseServiceImpl implements CaseService {
                 .stream()
                 .distinct()
                 .collect(Collectors.toList());
-        log.info("Size of all cases: {}", cases.size());
         return CaseMapper.mapToResponseListDTO(cases);
     }
 
