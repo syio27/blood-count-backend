@@ -5,9 +5,6 @@ import com.pja.bloodcount.model.Group;
 import com.pja.bloodcount.repository.GroupRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
-
-import java.util.UUID;
 
 @Component
 public class GroupValidator extends EntityValidator<Group, String> {

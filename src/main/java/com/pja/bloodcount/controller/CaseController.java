@@ -3,7 +3,6 @@ package com.pja.bloodcount.controller;
 import com.pja.bloodcount.dto.request.CreateAbnormalityRequest;
 import com.pja.bloodcount.dto.request.CreateCaseRequest;
 import com.pja.bloodcount.dto.response.CaseResponse;
-import com.pja.bloodcount.model.Case;
 import com.pja.bloodcount.service.contract.CaseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

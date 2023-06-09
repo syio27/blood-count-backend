@@ -2,7 +2,6 @@ package com.pja.bloodcount.service;
 
 import com.pja.bloodcount.dto.request.CreateAbnormalityRequest;
 import com.pja.bloodcount.dto.request.CreateCaseRequest;
-import com.pja.bloodcount.dto.response.AbnormalityResponse;
 import com.pja.bloodcount.dto.response.CaseResponse;
 import com.pja.bloodcount.exceptions.CaseNotFoundException;
 import com.pja.bloodcount.exceptions.RangeArgumentException;
@@ -16,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;

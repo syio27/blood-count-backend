@@ -19,7 +19,6 @@ public class DataLoader implements CommandLineRunner {
     private final UserRepository userRepository;
     private final BCReferenceRepository bcReferenceRepository;
     private final CaseRepository caseRepository;
-    private final AbnormalityRepository abnormalityRepository;
     private final PasswordEncoder passwordEncoder;
 
 
@@ -27,12 +26,15 @@ public class DataLoader implements CommandLineRunner {
     private static final String NO_GROUP = "NO_GR";
 
     @Autowired
-    public DataLoader(GroupRepository groupRepository, UserRepository userRepository, BCReferenceRepository bcReferenceRepository, CaseRepository caseRepository, AbnormalityRepository abnormalityRepository, PasswordEncoder passwordEncoder) {
+    public DataLoader(GroupRepository groupRepository,
+                      UserRepository userRepository,
+                      BCReferenceRepository bcReferenceRepository,
+                      CaseRepository caseRepository,
+                      PasswordEncoder passwordEncoder) {
         this.groupRepository = groupRepository;
         this.userRepository = userRepository;
         this.bcReferenceRepository = bcReferenceRepository;
         this.caseRepository = caseRepository;
-        this.abnormalityRepository = abnormalityRepository;
         this.passwordEncoder = passwordEncoder;
     }
 

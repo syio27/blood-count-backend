@@ -6,7 +6,6 @@ import com.pja.bloodcount.dto.request.UserGroupAssignmentRequest;
 import com.pja.bloodcount.dto.request.UserGroupBatchAssignmentRequest;
 import com.pja.bloodcount.dto.response.AuthenticationResponse;
 import com.pja.bloodcount.dto.response.UserResponse;
-import com.pja.bloodcount.model.User;
 import com.pja.bloodcount.model.enums.Role;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

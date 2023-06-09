@@ -1,14 +1,11 @@
 package com.pja.bloodcount.dto.response;
 
-import com.pja.bloodcount.model.BloodCountAbnormality;
 import com.pja.bloodcount.model.enums.AffectedGender;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import java.util.ArrayList;
 import java.util.List;
 
