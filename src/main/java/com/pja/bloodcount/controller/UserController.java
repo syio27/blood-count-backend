@@ -90,7 +90,7 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PutMapping("{id}/password")
+    @PutMapping("/{id}/password")
     public ResponseEntity<AuthenticationResponse> updatePassword(@PathVariable UUID id,
                                                                  @RequestBody PasswordChangeDTO passwordChangeDTO,
                                                                  Authentication authentication){
