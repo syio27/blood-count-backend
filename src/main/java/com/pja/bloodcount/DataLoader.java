@@ -194,10 +194,10 @@ public class DataLoader implements CommandLineRunner {
                 .builder()
                 .parameter("EOS")
                 .unit("10^9/L")
-                .minFemale(0.19)
-                .maxFemale(0.77)
-                .minMale(0.19)
-                .maxMale(0.77)
+                .minFemale(0.02)
+                .maxFemale(0.5)
+                .minMale(0.02)
+                .maxMale(0.5)
                 .build();
 
         final BloodCountReference BASO = BloodCountReference
@@ -205,9 +205,9 @@ public class DataLoader implements CommandLineRunner {
                 .parameter("BASO")
                 .unit("10^9/L")
                 .minFemale(0.02)
-                .maxFemale(0.5)
+                .maxFemale(0.1)
                 .minMale(0.02)
-                .maxMale(0.5)
+                .maxMale(0.1)
                 .build();
 
         final BloodCountReference NEU_p = BloodCountReference
