@@ -1,6 +1,7 @@
 package com.pja.bloodcount.controller;
 
 import com.pja.bloodcount.dto.response.GroupResponse;
+import com.pja.bloodcount.model.enums.GroupType;
 import com.pja.bloodcount.service.contract.GroupService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,6 @@ public class PublicController {
     @GetMapping("/groups")
     @ResponseStatus(HttpStatus.OK)
     public List<GroupResponse> getAllGroupsPublic(){
-        return service.getAllGroups();
+        return service.getAllGroupsByType(GroupType.STUDENT_GROUP);
     }
 }
