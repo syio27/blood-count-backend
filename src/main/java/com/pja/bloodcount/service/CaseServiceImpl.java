@@ -64,6 +64,7 @@ public class CaseServiceImpl implements CaseService {
             BloodCountAbnormality abnormality = BloodCountAbnormality
                     .builder()
                     .parameter(abnormalityRequest.getParameter())
+                    .unit(abnormalityRequest.getUnit())
                     .minValue(abnormalityRequest.getMinValue())
                     .maxValue(abnormalityRequest.getMaxValue())
                     .type(abnormalityRequest.getType())

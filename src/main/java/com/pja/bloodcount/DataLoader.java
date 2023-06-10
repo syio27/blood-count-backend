@@ -272,6 +272,7 @@ public class DataLoader implements CommandLineRunner {
         BloodCountAbnormality abnormality = BloodCountAbnormality
                 .builder()
                 .parameter("HGB")
+                .unit("g/dl")
                 .minValue(9.5)
                 .maxValue(10.9)
                 .type(LevelType.DECREASED)

@@ -14,6 +14,7 @@ public class AbnormalityResponse {
 
     private Long id;
     private String parameter;
+    private String unit;
     private Double minValue;
     private Double maxValue;
     private LevelType type;

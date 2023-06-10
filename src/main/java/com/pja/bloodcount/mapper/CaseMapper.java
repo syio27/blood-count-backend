@@ -21,7 +21,7 @@ public class CaseMapper {
                 .anemiaType(aCase.getAnemiaType())
                 .affectedGender(aCase.getAffectedGender())
                 .diagnosis(aCase.getDiagnosis())
-                .abnormalities(mapToAbnormalityDTO(aCase.getAbnormalities()))
+                .abnormalities(mapToAbnormalityDTOList(aCase.getAbnormalities()))
                 .build();
     }
 
@@ -37,18 +37,19 @@ public class CaseMapper {
                         .anemiaType(aCase.getAnemiaType())
                         .affectedGender(aCase.getAffectedGender())
                         .diagnosis(aCase.getDiagnosis())
-                        .abnormalities(mapToAbnormalityDTO(aCase.getAbnormalities()))
+                        .abnormalities(mapToAbnormalityDTOList(aCase.getAbnormalities()))
                         .build())
                 .toList();
     }
 
-    private static List<AbnormalityResponse> mapToAbnormalityDTO(List<BloodCountAbnormality> abnormalities){
+    private static List<AbnormalityResponse> mapToAbnormalityDTOList(List<BloodCountAbnormality> abnormalities){
         if(abnormalities != null){
             return abnormalities.stream()
                     .map(abnormality -> AbnormalityResponse
                             .builder()
                             .id(abnormality.getId())
                             .parameter(abnormality.getParameter())
+                            .unit(abnormality.getUnit())
                             .minValue(abnormality.getMinValue())
                             .maxValue(abnormality.getMaxValue())
                             .type(abnormality.getType())

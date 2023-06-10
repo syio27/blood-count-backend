@@ -26,6 +26,7 @@ public class BloodCountAbnormality implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String parameter;
+    private String unit;
     private Double minValue;
     private Double maxValue;
     @Enumerated(EnumType.STRING)
