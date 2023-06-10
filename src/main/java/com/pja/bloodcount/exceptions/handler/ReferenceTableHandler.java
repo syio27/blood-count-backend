@@ -1,7 +1,6 @@
 package com.pja.bloodcount.exceptions.handler;
 
 import com.pja.bloodcount.exceptions.ReferenceTableException;
-import com.pja.bloodcount.exceptions.UserConflictException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

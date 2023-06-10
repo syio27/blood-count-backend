@@ -12,5 +12,4 @@ public class BloodCountApplication {
 
 	//TODO: add swagger
 	//TODO: add tests
-	//TODO: FIX -> NullPointerException if user's group is null
 }

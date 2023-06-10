@@ -1,9 +1,7 @@
 package com.pja.bloodcount.mapper;
 
 import com.pja.bloodcount.dto.response.GroupResponse;
-import com.pja.bloodcount.dto.response.UserResponse;
 import com.pja.bloodcount.model.Group;
-import com.pja.bloodcount.model.User;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

@@ -19,7 +19,6 @@ public class DataLoader implements CommandLineRunner {
     private final UserRepository userRepository;
     private final BCReferenceRepository bcReferenceRepository;
     private final CaseRepository caseRepository;
-    private final AbnormalityRepository abnormalityRepository;
     private final PasswordEncoder passwordEncoder;
 
 
@@ -27,12 +26,15 @@ public class DataLoader implements CommandLineRunner {
     private static final String NO_GROUP = "NO_GR";
 
     @Autowired
-    public DataLoader(GroupRepository groupRepository, UserRepository userRepository, BCReferenceRepository bcReferenceRepository, CaseRepository caseRepository, AbnormalityRepository abnormalityRepository, PasswordEncoder passwordEncoder) {
+    public DataLoader(GroupRepository groupRepository,
+                      UserRepository userRepository,
+                      BCReferenceRepository bcReferenceRepository,
+                      CaseRepository caseRepository,
+                      PasswordEncoder passwordEncoder) {
         this.groupRepository = groupRepository;
         this.userRepository = userRepository;
         this.bcReferenceRepository = bcReferenceRepository;
         this.caseRepository = caseRepository;
-        this.abnormalityRepository = abnormalityRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -192,10 +194,10 @@ public class DataLoader implements CommandLineRunner {
                 .builder()
                 .parameter("EOS")
                 .unit("10^9/L")
-                .minFemale(0.19)
-                .maxFemale(0.77)
-                .minMale(0.19)
-                .maxMale(0.77)
+                .minFemale(0.02)
+                .maxFemale(0.5)
+                .minMale(0.02)
+                .maxMale(0.5)
                 .build();
 
         final BloodCountReference BASO = BloodCountReference
@@ -203,9 +205,9 @@ public class DataLoader implements CommandLineRunner {
                 .parameter("BASO")
                 .unit("10^9/L")
                 .minFemale(0.02)
-                .maxFemale(0.5)
+                .maxFemale(0.1)
                 .minMale(0.02)
-                .maxMale(0.5)
+                .maxMale(0.1)
                 .build();
 
         final BloodCountReference NEU_p = BloodCountReference
@@ -270,6 +272,7 @@ public class DataLoader implements CommandLineRunner {
         BloodCountAbnormality abnormality = BloodCountAbnormality
                 .builder()
                 .parameter("HGB")
+                .unit("g/dl")
                 .minValue(9.5)
                 .maxValue(10.9)
                 .type(LevelType.DECREASED)

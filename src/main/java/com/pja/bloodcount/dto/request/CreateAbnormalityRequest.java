@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 public class CreateAbnormalityRequest {
 
     private String parameter;
+    private String unit;
     private Double minValue;
     private Double maxValue;
     private LevelType type;

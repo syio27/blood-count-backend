@@ -2,7 +2,6 @@ package com.pja.bloodcount.service;
 
 import com.pja.bloodcount.dto.request.CreateAbnormalityRequest;
 import com.pja.bloodcount.dto.request.CreateCaseRequest;
-import com.pja.bloodcount.dto.response.AbnormalityResponse;
 import com.pja.bloodcount.dto.response.CaseResponse;
 import com.pja.bloodcount.exceptions.CaseNotFoundException;
 import com.pja.bloodcount.exceptions.RangeArgumentException;
@@ -16,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -66,6 +64,7 @@ public class CaseServiceImpl implements CaseService {
             BloodCountAbnormality abnormality = BloodCountAbnormality
                     .builder()
                     .parameter(abnormalityRequest.getParameter())
+                    .unit(abnormalityRequest.getUnit())
                     .minValue(abnormalityRequest.getMinValue())
                     .maxValue(abnormalityRequest.getMaxValue())
                     .type(abnormalityRequest.getType())
@@ -92,7 +91,6 @@ public class CaseServiceImpl implements CaseService {
                 .stream()
                 .distinct()
                 .collect(Collectors.toList());
-        log.info("Size of all cases: {}", cases.size());
         return CaseMapper.mapToResponseListDTO(cases);
     }
 
@@ -102,18 +100,28 @@ public class CaseServiceImpl implements CaseService {
         repository.delete(aCase);
     }
 
-    private void validateRanges(int firstMinAge, int firstMaxAge, int secondMinAge, int secondMaxAge) throws RangeArgumentException{
+    private void validateRanges(int firstMinAge, int firstMaxAge,
+                                int secondMinAge, int secondMaxAge) throws RangeArgumentException{
         if(firstMinAge < 18 || firstMinAge >= firstMaxAge){
-            throw new RangeArgumentException("Bad min age");
+            throw new RangeArgumentException("First min age should be higher than or equal to 18");
         }
         if(firstMaxAge > 75){
-            throw new RangeArgumentException("Bad max age");
+            throw new RangeArgumentException("First max age should be less than or equal to 75");
         }
         if(secondMinAge < 18 || secondMinAge >= secondMaxAge){
-            throw new RangeArgumentException("Bad min age");
+            throw new RangeArgumentException("Second min age should be higher than or equal to 18");
         }
         if(secondMaxAge > 75){
-            throw new RangeArgumentException("Bad max age");
+            throw new RangeArgumentException("Second max age should be less than or equal to 75");
+        }
+        if(firstMinAge > secondMinAge ){
+            throw new RangeArgumentException("First min age cannot be higher than second min age");
+        }
+        if(firstMaxAge > secondMaxAge){
+            throw new RangeArgumentException("First max age cannot be higher than second max age");
+        }
+        if(firstMaxAge > secondMinAge){
+            throw new RangeArgumentException("First max age should be less than Second min age");
         }
     }
 

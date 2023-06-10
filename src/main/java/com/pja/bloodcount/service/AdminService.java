@@ -7,7 +7,6 @@ import com.pja.bloodcount.model.Group;
 import com.pja.bloodcount.model.User;
 import com.pja.bloodcount.repository.GroupRepository;
 import com.pja.bloodcount.repository.UserRepository;
-import com.pja.bloodcount.service.contract.GroupService;
 import com.pja.bloodcount.utils.PasswordGeneratorUtil;
 import com.pja.bloodcount.utils.ValidationUtil;
 import com.pja.bloodcount.validation.GroupValidator;

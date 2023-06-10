@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.security.Key;
 import java.time.*;
-import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,11 +20,6 @@ import java.util.function.Function;
 @Service
 @Slf4j
 public class JwtService {
-
-//    private final LocalDateTime now = LocalDateTime.now();
-//    private final LocalDateTime expiration = now.plusMinutes(24);
-//    private final LocalDateTime issuedAt = LocalDateTime.from(now);
-//    private final LocalDateTime expiresAt = LocalDateTime.from(expiration);
     private Date issuedAt;
     private Date expiresAt;
 
