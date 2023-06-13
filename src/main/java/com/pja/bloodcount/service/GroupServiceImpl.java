@@ -97,4 +97,11 @@ public class GroupServiceImpl implements GroupService {
         user.setGroup(defaultNoGroup);
         userRepository.save(user);
     }
+
+    @Override
+    public List<GroupResponse> getPublicGroups(){
+        List<Group> studentGroups = repository.findByGroupType(GroupType.STUDENT_GROUP);
+        studentGroups.removeIf(group -> group.getGroupNumber().equals("NO_GR"));
+        return GroupMapper.mapToResponseListDTO(studentGroups);
+    }
 }

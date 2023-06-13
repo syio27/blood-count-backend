@@ -24,6 +24,6 @@ public class PublicController {
     @GetMapping("/groups")
     @ResponseStatus(HttpStatus.OK)
     public List<GroupResponse> getAllGroupsPublic(){
-        return service.getAllGroupsByType(GroupType.STUDENT_GROUP);
+        return service.getPublicGroups();
     }
 }

@@ -15,4 +15,5 @@ public interface GroupService {
     void clearGroupFromUsers(String groupNumber);
     void deleteGroup(String groupNumber);
     void deleteUserFromGroup(String groupNumber, UUID userId);
+    List<GroupResponse> getPublicGroups();
 }
