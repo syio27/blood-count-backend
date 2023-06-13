@@ -9,6 +9,7 @@ import com.pja.bloodcount.model.BloodCountReference;
 import com.pja.bloodcount.model.Patient;
 import com.pja.bloodcount.model.enums.AffectedGender;
 import com.pja.bloodcount.model.enums.Gender;
+import com.pja.bloodcount.model.enums.LevelType;
 import com.pja.bloodcount.repository.BloodCountRepository;
 import com.pja.bloodcount.repository.PatientRepository;
 import com.pja.bloodcount.service.contract.BCReferenceService;
@@ -19,6 +20,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -69,14 +71,32 @@ public class GenerationService {
         // create blood count table with normal values from reference table
         for(BloodCountReference reference : referenceTable){
             double value = 0d;
+            double roundedValue = 0d;
+            String referenceValueRange = "";
+            LevelType levelType = LevelType.NORMAL;
+
             // if blood count's value doest need to be calculated, then it will be randomly generated based on the range
             if(!needsToBeCalculated(reference.getParameter(), reference.getUnit())){
                 // check the patient gender, if male generate value from male value range or otherwise
                 if(patient.getGender().equals(Gender.FEMALE)){
                     value = randomizeValue(reference.getParameter(), reference.getUnit(), reference.getMinFemale(), reference.getMaxFemale());
+                    roundedValue = roundFormat(value);
+                    referenceValueRange = reference.getMinFemale() + " - " + reference.getMaxFemale();
+                    if(roundedValue < reference.getMinFemale()){
+                        levelType = LevelType.DECREASED;
+                    } else if(roundedValue > reference.getMaxFemale()){
+                        levelType = LevelType.INCREASED;
+                    }
                 }
                 if(patient.getGender().equals(Gender.MALE)){
                     value = randomizeValue(reference.getParameter(), reference.getUnit(), reference.getMinMale(), reference.getMaxMale());
+                    roundedValue = roundFormat(value);
+                    referenceValueRange = reference.getMinMale() + " - " + reference.getMaxMale();
+                    if(roundedValue < reference.getMinMale()){
+                        levelType = LevelType.DECREASED;
+                    } else if(roundedValue > reference.getMaxMale()){
+                        levelType = LevelType.INCREASED;
+                    }
                 }
 
                 // create blood count instance, add to patient and save it to DataBase
@@ -84,12 +104,14 @@ public class GenerationService {
                         .builder()
                         .parameter(reference.getParameter())
                         .unit(reference.getUnit())
-                        .value(Math.round(value * 10.0) / 10.0)
+                        .value(roundedValue)
+                        .referenceValueRange(referenceValueRange)
+                        .levelType(levelType)
                         .build();
                 patient.addBloodCount(bloodCount);
                 patientRepository.save(patient);
 
-                // if value of BC has to be calculated, then use calculat### methods to calculate the value of BC
+                // if value of BC has to be calculated, then use calculate### methods to calculate the value of BC
             } else {
                 value = switch (reference.getParameter()) {
                     case "MCV" -> calculateBCUtil.calculateMCV("HCT", "%", "RBC", "10^12/L", patient);
@@ -102,12 +124,32 @@ public class GenerationService {
                     case "BASO" -> calculateBCUtil.calculateCommon("BASO", "10^9/L", "WBC", "10^9/L", patient);
                     default -> 0d;
                 };
+                roundedValue = roundFormat(value);
+                if(patient.getGender().equals(Gender.FEMALE)){
+                    referenceValueRange = reference.getMinFemale() + " - " + reference.getMaxFemale();
+                    if(roundedValue < reference.getMinFemale()){
+                        levelType = LevelType.DECREASED;
+                    } else if(roundedValue > reference.getMaxFemale()){
+                        levelType = LevelType.INCREASED;
+                    }
+                }
+                if(patient.getGender().equals(Gender.MALE)){
+                    referenceValueRange = reference.getMinMale() + " - " + reference.getMaxMale();
+                    if(roundedValue < reference.getMinMale()){
+                        levelType = LevelType.DECREASED;
+                    } else if(roundedValue > reference.getMaxMale()){
+                        levelType = LevelType.INCREASED;
+                    }
+                }
+
                 // create blood count instance, add to patient and save it to DataBase
                 BloodCount bloodCount = BloodCount
                         .builder()
                         .parameter(reference.getParameter())
                         .unit(reference.getUnit())
-                        .value(Math.round(value * 10.0) / 10.0)
+                        .value(roundedValue)
+                        .referenceValueRange(referenceValueRange)
+                        .levelType(levelType)
                         .build();
                 patient.addBloodCount(bloodCount);
                 patientRepository.save(patient);
@@ -127,8 +169,53 @@ public class GenerationService {
             if (matchingAbnormality.isPresent()) {
                 log.info("Blood Count - {} with unit - {} needs to be adjusted by abnormality", bloodCount.getParameter(), bloodCount.getUnit());
                 double value = randomizeValue(bloodCount.getParameter(), bloodCount.getUnit(), matchingAbnormality.get().getMinValue(), matchingAbnormality.get().getMaxValue());
-                log.info("Adjusted value us -> {}", value);
-                bloodCount.setValue(Math.round(value * 10.0) / 10.0);
+                double roundedValue = roundFormat(value);
+                log.info("Adjusted value is -> {}", roundedValue);
+                bloodCount.setValue(roundedValue);
+                String[] referenceRange = bloodCount.getReferenceValueRange().split(" - ");
+                double minValue = Double.parseDouble(referenceRange[0]);
+                double maxValue = Double.parseDouble(referenceRange[1]);
+                LevelType levelType = LevelType.NORMAL;
+                if(roundedValue < minValue){
+                    levelType = LevelType.DECREASED;
+                } else if(roundedValue > maxValue){
+                    levelType = LevelType.INCREASED;
+                }
+                bloodCount.setLevelType(levelType);
+                bloodCountRepository.save(bloodCount);
+            }
+        }
+        log.info("Recalculating BC");
+        // Recalculate by abnormalities change
+        List<BloodCount> adjustedByAbnoBCList = patient.getBloodCounts();
+        for(BloodCount bloodCount : adjustedByAbnoBCList){
+            double value;
+            double roundedValue;
+
+            if(needsToBeCalculated(bloodCount.getParameter(), bloodCount.getUnit())){
+                value = switch (bloodCount.getParameter()) {
+                    case "MCV" -> calculateBCUtil.calculateMCV("HCT", "%", "RBC", "10^12/L", patient);
+                    case "MCH" -> calculateBCUtil.calculateMCH("HGB", "g/dl", "RBC", "10^12/L", patient);
+                    case "MCHC" -> calculateBCUtil.calculateMCHC("HGB", "g/dl", "HCT", "%", patient);
+                    case "NEU" -> calculateBCUtil.calculateCommon("NEU", "10^9/L", "WBC", "10^9/L", patient);
+                    case "LYM" -> calculateBCUtil.calculateCommon("LYM", "10^9/L", "WBC", "10^9/L", patient);
+                    case "MONO" -> calculateBCUtil.calculateCommon("MONO", "10^9/L", "WBC", "10^9/L", patient);
+                    case "EOS" -> calculateBCUtil.calculateCommon("EOS", "10^9/L", "WBC", "10^9/L", patient);
+                    case "BASO" -> calculateBCUtil.calculateCommon("BASO", "10^9/L", "WBC", "10^9/L", patient);
+                    default -> 0d;
+                };
+                roundedValue = roundFormat(value);
+                bloodCount.setValue(roundedValue);
+                String[] referenceRange = bloodCount.getReferenceValueRange().split(" - ");
+                double minValue = Double.parseDouble(referenceRange[0]);
+                double maxValue = Double.parseDouble(referenceRange[1]);
+                LevelType levelType = LevelType.NORMAL;
+                if(roundedValue < minValue){
+                    levelType = LevelType.DECREASED;
+                } else if(roundedValue > maxValue){
+                    levelType = LevelType.INCREASED;
+                }
+                bloodCount.setLevelType(levelType);
                 bloodCountRepository.save(bloodCount);
             }
         }
@@ -188,5 +275,12 @@ public class GenerationService {
             return ThreadLocalRandom.current().nextBoolean() ? Gender.MALE : Gender.FEMALE;
         }
         return null;
+    }
+
+    public Double roundFormat(double value){
+        System.out.println("Formatting value: " + value);
+        DecimalFormat df = new DecimalFormat("#.##");
+        String formattedNumber = df.format(value).replace(",", ".");
+        return Double.parseDouble(formattedNumber);
     }
 }

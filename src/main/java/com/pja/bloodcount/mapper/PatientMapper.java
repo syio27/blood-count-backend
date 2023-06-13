@@ -43,6 +43,8 @@ public class PatientMapper {
                             .parameter(bloodCount.getParameter())
                             .unit(bloodCount.getUnit())
                             .value(bloodCount.getValue())
+                            .referenceValueRange(bloodCount.getReferenceValueRange())
+                            .levelType(bloodCount.getLevelType())
                             .build())
                     .toList();
         }

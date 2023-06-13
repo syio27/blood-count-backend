@@ -2,6 +2,7 @@ package com.pja.bloodcount.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.pja.bloodcount.model.enums.LevelType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,6 +27,9 @@ public class BloodCount {
     private String unit;
     @Column(name = "`value`")
     private Double value;
+    private String referenceValueRange;
+    @Enumerated(EnumType.STRING)
+    private LevelType levelType;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id")
     private Patient patient;
