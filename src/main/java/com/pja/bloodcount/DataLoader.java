@@ -1,16 +1,15 @@
 package com.pja.bloodcount;
 
 import com.pja.bloodcount.model.*;
-import com.pja.bloodcount.model.enums.AffectedGender;
-import com.pja.bloodcount.model.enums.GroupType;
-import com.pja.bloodcount.model.enums.LevelType;
-import com.pja.bloodcount.model.enums.Role;
+import com.pja.bloodcount.model.enums.*;
 import com.pja.bloodcount.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 
 @Component
@@ -19,6 +18,7 @@ public class DataLoader implements CommandLineRunner {
     private final UserRepository userRepository;
     private final BCReferenceRepository bcReferenceRepository;
     private final CaseRepository caseRepository;
+    private final GameRepository gameRepository;
     private final PasswordEncoder passwordEncoder;
 
 
@@ -30,11 +30,12 @@ public class DataLoader implements CommandLineRunner {
                       UserRepository userRepository,
                       BCReferenceRepository bcReferenceRepository,
                       CaseRepository caseRepository,
-                      PasswordEncoder passwordEncoder) {
+                      GameRepository gameRepository, PasswordEncoder passwordEncoder) {
         this.groupRepository = groupRepository;
         this.userRepository = userRepository;
         this.bcReferenceRepository = bcReferenceRepository;
         this.caseRepository = caseRepository;
+        this.gameRepository = gameRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -278,6 +279,16 @@ public class DataLoader implements CommandLineRunner {
                 .type(LevelType.DECREASED)
                 .build();
 
+        Game game = Game
+                .builder()
+                // end time not applicable yet, should be updated when Status.COMPLETED
+                .endTime(null)
+                .estimatedEndTime(Date.from(Instant.now().plusSeconds(1800)))
+                .testDuration(30)
+                .status(Status.COMPLETED)
+                .build();
+
+        gameRepository.save(game);
 
         case1.addAbnormality(abnormality);
         caseRepository.save(case1);
