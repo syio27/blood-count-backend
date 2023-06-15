@@ -10,6 +10,6 @@ import java.util.Optional;
 @Repository
 public interface GameRepository extends JpaRepository<Game, Long> {
     @Override
-    @EntityGraph(attributePaths = {"patient"})
+    @EntityGraph(attributePaths = {"patient", "gameCase"})
     Optional<Game> findById(Long id);
 }

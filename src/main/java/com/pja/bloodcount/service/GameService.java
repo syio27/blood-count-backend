@@ -1,9 +1,14 @@
 package com.pja.bloodcount.service;
 
+import com.pja.bloodcount.dto.response.GameResponse;
+import com.pja.bloodcount.mapper.CaseMapper;
+import com.pja.bloodcount.mapper.GameMapper;
+import com.pja.bloodcount.model.Case;
 import com.pja.bloodcount.model.Game;
 import com.pja.bloodcount.model.Patient;
 import com.pja.bloodcount.model.enums.Status;
 import com.pja.bloodcount.repository.GameRepository;
+import com.pja.bloodcount.validation.CaseValidator;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,9 +24,11 @@ public class GameService {
 
     private final GameRepository repository;
     private final GenerationService generationService;
+    private final CaseValidator caseValidator;
 
-    public Game createGame(Long caseId) {
+    public GameResponse createGame(Long caseId) {
         Patient patient = generationService.generatePatient(caseId);
+        Case aCase = caseValidator.validateIfExistsAndGet(caseId);
         generationService.generateBloodCount(patient.getId(), patient.getId());
 
         int durationInMin = 30;
@@ -35,15 +42,16 @@ public class GameService {
                 .estimatedEndTime(Date.from(endTime))
                 .status(Status.IN_PROGRESS)
                 .testDuration(durationInMin)
+                .gameCase(aCase)
                 .build();
 
         game.addPatient(patient);
         repository.save(game);
         log.info("Game is created");
-        return game;
+        return GameMapper.mapToResponseDTO(game, patient);
     }
 
-    public Game completeGame(Long gameId){
+    public GameResponse completeGame(Long gameId){
         Optional<Game> optionalGame = repository.findById(gameId);
         if(optionalGame.isEmpty()){
             // TODO: change to Game related Exception class
@@ -56,6 +64,6 @@ public class GameService {
             game.setEndTime(Date.from(completedTime));
         }
         repository.save(game);
-        return game;
+        return GameMapper.mapToResponseDTO(game, game.getPatient());
     }
 }

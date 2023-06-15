@@ -33,6 +33,9 @@ public class Game {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id")
     private Patient patient;
+    @OneToOne
+    @JoinColumn(name = "case_id", referencedColumnName = "id")
+    private Case gameCase;
 
     public void addPatient(Patient patient){
         if(patient == null){

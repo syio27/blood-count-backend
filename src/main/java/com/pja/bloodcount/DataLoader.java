@@ -279,17 +279,6 @@ public class DataLoader implements CommandLineRunner {
                 .type(LevelType.DECREASED)
                 .build();
 
-        Game game = Game
-                .builder()
-                // end time not applicable yet, should be updated when Status.COMPLETED
-                .endTime(null)
-                .estimatedEndTime(Date.from(Instant.now().plusSeconds(1800)))
-                .testDuration(30)
-                .status(Status.COMPLETED)
-                .build();
-
-        gameRepository.save(game);
-
         case1.addAbnormality(abnormality);
         caseRepository.save(case1);
 
