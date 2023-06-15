@@ -12,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/groups")
@@ -58,6 +59,20 @@ public class GroupController {
     @PostMapping(value = "/clear", params = "groupNumber")
     public ResponseEntity<Void> clearGroupFromUsers(@RequestParam String groupNumber){
         service.clearGroupFromUsers(groupNumber);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ROOT')")
+    @DeleteMapping(value = "/{groupNumber}")
+    public ResponseEntity<Void> deleteGroup(@PathVariable String groupNumber){
+        service.deleteGroup(groupNumber);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ROOT')")
+    @PostMapping(value = "/{groupNumber}/users/{userId}")
+    public ResponseEntity<Void> deleteUserFromGroup(@PathVariable String groupNumber, @PathVariable UUID userId){
+        service.deleteUserFromGroup(groupNumber, userId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

@@ -3,10 +3,7 @@ package com.pja.bloodcount.model;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.pja.bloodcount.model.enums.Gender;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -31,6 +28,10 @@ public class Patient {
     private int age;
     @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BloodCount> bloodCounts = new ArrayList<>();
+    @OneToOne(mappedBy = "patient",
+            fetch = FetchType.LAZY)
+    @EqualsAndHashCode.Exclude
+    private Game game;
 
     public void addBloodCount(BloodCount bloodCount) {
         if (this.bloodCounts == null) {

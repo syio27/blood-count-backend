@@ -4,6 +4,8 @@ import com.pja.bloodcount.model.Patient;
 import com.pja.bloodcount.repository.BloodCountRepository;
 import org.springframework.stereotype.Service;
 
+import java.text.DecimalFormat;
+
 /**
  * Calculator util to calculate the BloodCount value
  * @author baglan
@@ -38,9 +40,15 @@ public class CalculateBCUtil {
     public Double calculateMCHC(String parameter1, String unit1,
                                  String parameter2, String unit2,
                                  Patient patient) {
-        return bloodCountRepository.findByParameterAndUnitAndPatient(parameter1, unit1, patient).getValue()
+        Double valueParam1 = bloodCountRepository.findByParameterAndUnitAndPatient(parameter1, unit1, patient).getValue();
+        System.out.println("MCHC calculation log param1: " + bloodCountRepository.findByParameterAndUnitAndPatient(parameter1, unit1, patient).getParameter());
+        System.out.println("MCHC calculation log param1: " + valueParam1);
+        Double valueParam2 = bloodCountRepository.findByParameterAndUnitAndPatient(parameter2, unit2, patient).getValue();
+        System.out.println("MCHC calculation log param2: " + valueParam2);
+        System.out.println("MCHC calculation log patient id: " + patient.getId());
+        return valueParam1
                 * 100
-                / bloodCountRepository.findByParameterAndUnitAndPatient(parameter2, unit2, patient).getValue();
+                / valueParam2;
     }
 
     public Double calculateCommon(String parameter1, String unit1,

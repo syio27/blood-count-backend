@@ -1,13 +1,16 @@
 package com.pja.bloodcount.mapper;
 
 import com.pja.bloodcount.dto.response.AbnormalityResponse;
+import com.pja.bloodcount.dto.response.CaseOfGameResponse;
 import com.pja.bloodcount.dto.response.CaseResponse;
 import com.pja.bloodcount.model.BloodCountAbnormality;
 import com.pja.bloodcount.model.Case;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class CaseMapper {
 
     public static CaseResponse mapToResponseDTO(Case aCase){
@@ -40,6 +43,15 @@ public class CaseMapper {
                         .abnormalities(mapToAbnormalityDTOList(aCase.getAbnormalities()))
                         .build())
                 .toList();
+    }
+
+    public static CaseOfGameResponse mapToCaseOfGameResponseDTO(Case aCase){
+        return CaseOfGameResponse
+                .builder()
+                .id(aCase.getId())
+                .anemiaType(aCase.getAnemiaType())
+                .diagnosis(aCase.getDiagnosis())
+                .build();
     }
 
     private static List<AbnormalityResponse> mapToAbnormalityDTOList(List<BloodCountAbnormality> abnormalities){

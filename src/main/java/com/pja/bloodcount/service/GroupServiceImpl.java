@@ -3,6 +3,7 @@ package com.pja.bloodcount.service;
 import com.pja.bloodcount.dto.request.GroupRequest;
 import com.pja.bloodcount.dto.response.GroupResponse;
 import com.pja.bloodcount.exceptions.GroupConflictException;
+import com.pja.bloodcount.exceptions.UserNotFoundException;
 import com.pja.bloodcount.mapper.GroupMapper;
 import com.pja.bloodcount.model.Group;
 import com.pja.bloodcount.model.User;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -70,5 +72,36 @@ public class GroupServiceImpl implements GroupService {
         usersInGroup.forEach(user -> user.setGroup(defaultNoGroup));
         log.info("Group: {} has been successfully cleared", groupNumber);
         userRepository.saveAll(usersInGroup);
+    }
+
+    @Override
+    public void deleteGroup(String groupNumber) {
+        Group group = validator.validateIfExistsAndGet(groupNumber);
+        List<User> usersInGroup = userRepository.findByGroup_GroupNumber(groupNumber);
+        Group defaultNoGroup = validator.validateIfExistsAndGet("NO_GR");
+        usersInGroup.forEach(user -> user.setGroup(defaultNoGroup));
+        userRepository.saveAll(usersInGroup);
+        repository.delete(group);
+    }
+
+    @Override
+    public void deleteUserFromGroup(String groupNumber, UUID userId) {
+        validator.validateIfExistsAndGet(groupNumber);
+        Group defaultNoGroup = validator.validateIfExistsAndGet("NO_GR");
+        List<User> usersInGroup = userRepository.findByGroup_GroupNumber(groupNumber);
+        Optional<User> optionalUser = usersInGroup.stream().filter(user -> user.getId().equals(userId)).findFirst();
+        if(optionalUser.isEmpty()){
+            throw new UserNotFoundException(userId);
+        }
+        User user = optionalUser.get();
+        user.setGroup(defaultNoGroup);
+        userRepository.save(user);
+    }
+
+    @Override
+    public List<GroupResponse> getPublicGroups(){
+        List<Group> studentGroups = repository.findByGroupType(GroupType.STUDENT_GROUP);
+        studentGroups.removeIf(group -> group.getGroupNumber().equals("NO_GR"));
+        return GroupMapper.mapToResponseListDTO(studentGroups);
     }
 }
