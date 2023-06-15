@@ -161,6 +161,7 @@ public class GenerationService {
 
         // Adjust the value of blood count if bloodCount in generatedNormalValueBloodCount is present in caseAbnormalities
         List<BloodCount> generatedNormalValueBloodCount = patient.getBloodCounts();
+        log.info("abnormality size: {}", caseAbnormalities.size());
         for(BloodCount bloodCount : generatedNormalValueBloodCount){
 
             Optional<AbnormalityResponse> matchingAbnormality = caseAbnormalities.stream()

@@ -34,7 +34,7 @@ public class GameService {
     public GameResponse createGame(Long caseId, UUID userId) {
         Patient patient = generationService.generatePatient(caseId);
         Case aCase = caseValidator.validateIfExistsAndGet(caseId);
-        generationService.generateBloodCount(patient.getId(), patient.getId());
+        generationService.generateBloodCount(caseId, patient.getId());
         User user = userValidator.validateIfExistsAndGet(userId);
         int durationInMin = 30;
         int durationInSec = durationInMin * 60;

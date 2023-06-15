@@ -261,26 +261,26 @@ public class DataLoader implements CommandLineRunner {
                 .maxMale(2d)
                 .build();
 
-        Case case1 = Case
-                .builder()
-                .firstMinAge(18)
-                .firstMaxAge(75)
-                .affectedGender(AffectedGender.FEMALE)
-                .anemiaType("N. mikrocytowa")
-                .diagnosis("Niedokrwistość z niedoboru żelaza z powodu nadmiernych miesiączek")
-                .build();
-
-        BloodCountAbnormality abnormality = BloodCountAbnormality
-                .builder()
-                .parameter("HGB")
-                .unit("g/dl")
-                .minValue(9.5)
-                .maxValue(10.9)
-                .type(LevelType.DECREASED)
-                .build();
-
-        case1.addAbnormality(abnormality);
-        caseRepository.save(case1);
+//        Case case1 = Case
+//                .builder()
+//                .firstMinAge(18)
+//                .firstMaxAge(75)
+//                .affectedGender(AffectedGender.FEMALE)
+//                .anemiaType("N. mikrocytowa")
+//                .diagnosis("Niedokrwistość z niedoboru żelaza z powodu nadmiernych miesiączek")
+//                .build();
+//
+//        BloodCountAbnormality abnormality = BloodCountAbnormality
+//                .builder()
+//                .parameter("HGB")
+//                .unit("g/dl")
+//                .minValue(9.5)
+//                .maxValue(10.9)
+//                .type(LevelType.DECREASED)
+//                .build();
+//
+//        case1.addAbnormality(abnormality);
+//        caseRepository.save(case1);
 
         defaultAdminGroup.addUser(defaultAdmin);
         bcReferenceRepository.saveAll(
