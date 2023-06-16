@@ -36,13 +36,12 @@ public class GameService {
 
     public GameResponse createGame(Long caseId, UUID userId) {
         User user = userValidator.validateIfExistsAndGet(userId);
-        Optional<Game> optionalUserGame = repository.findByUser_Id(userId);
-        if(optionalUserGame.isPresent()){
-            Game userGame = optionalUserGame.get();
-            if(userGame.getStatus().equals(Status.IN_PROGRESS)){
+        List<Game> gamesOfUser = repository.findByUser_Id(userId);
+        gamesOfUser.forEach(game -> {
+            if(game.getStatus().equals(Status.IN_PROGRESS)){
                 throw new RuntimeException("You already have running game session");
             }
-        }
+        });
 
         Patient patient = generationService.generatePatient(caseId);
         Case aCase = caseValidator.validateIfExistsAndGet(caseId);
@@ -90,7 +89,7 @@ public class GameService {
         if(game.getStatus().equals(Status.COMPLETED)){
             throw new RuntimeException("Game is already submitted");
         }
-        int score = qnAService.score(answerRequestList);
+        int score = qnAService.score(answerRequestList, gameId);
         game.setStatus(Status.COMPLETED);
         game.setScore(score);
         if(game.getStatus() == Status.COMPLETED){

@@ -73,7 +73,7 @@ public class QnAService {
         return questionList;
     }
 
-    public int score(List<AnswerRequest> answerRequestList){
+    public int score(List<AnswerRequest> answerRequestList, Long gameId){
         AtomicInteger score = new AtomicInteger(0);
         answerRequestList.forEach(answerRequest -> {
             Optional<BCAssessmentQuestion> optionalQuestion = bcaQuestionRepository.findById(answerRequest.getQuestionId());
@@ -81,7 +81,9 @@ public class QnAService {
                 throw new RuntimeException("Question is not found");
             }
             BCAssessmentQuestion question = optionalQuestion.get();
-
+            if(!Objects.equals(question.getGame().getId(), gameId)){
+                throw new RuntimeException("Question is not part game: " + gameId);
+            }
             Optional<Answer> optionalAnswer = answerRepository.findById(answerRequest.getAnswerId());
             if(optionalAnswer.isEmpty()){
                 throw new RuntimeException("Answer is not found");
