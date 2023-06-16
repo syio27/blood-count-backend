@@ -6,10 +6,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface GameRepository extends JpaRepository<Game, Long> {
     @Override
-    @EntityGraph(attributePaths = {"patient", "gameCase"})
+    @EntityGraph(attributePaths = {"patient", "caseDetails"})
     Optional<Game> findById(Long id);
+
+    Optional<Game> findByUser_Id(UUID uuid);
 }

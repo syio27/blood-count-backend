@@ -73,14 +73,8 @@ public class QnAService {
         return questionList;
     }
 
-    public void score(List<AnswerRequest> answerRequestList, Long gameId){
-        Optional<Game> optionalGame = gameRepository.findById(gameId);
-        if(optionalGame.isEmpty()){
-            // TODO: change to Game related Exception class
-            throw new RuntimeException("game is not found");
-        }
-        Game game = optionalGame.get();
-        AtomicInteger score = new AtomicInteger();
+    public int score(List<AnswerRequest> answerRequestList){
+        AtomicInteger score = new AtomicInteger(0);
         answerRequestList.forEach(answerRequest -> {
             Optional<BCAssessmentQuestion> optionalQuestion = bcaQuestionRepository.findById(answerRequest.getQuestionId());
             if(optionalQuestion.isEmpty()){
@@ -101,9 +95,8 @@ public class QnAService {
             if(Objects.equals(question.getCorrectAnswerId(), answerRequest.getAnswerId())){
                 score.getAndIncrement();
             }
-            game.setScore(score.get());
-            gameRepository.save(game);
         });
+        return score.get();
     }
 
     private boolean isForAssessment(String parameter, String unit) {

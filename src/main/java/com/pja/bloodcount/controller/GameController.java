@@ -42,13 +42,8 @@ public class GameController {
         return ResponseEntity.ok(service.createGame(caseId, userId));
     }
 
-//    @PostMapping("/{id}")
-//    public ResponseEntity<GameResponse> completeGame(@PathVariable Long id){
-//        return ResponseEntity.ok(service.completeGame(id));
-//    }
-
-    @PostMapping(value = "/{gameId}/score", params = "userId")
-    public ResponseEntity<Void> score(@PathVariable Long gameId,
+    @PostMapping(value = "/{gameId}/complete", params = "userId")
+    public ResponseEntity<GameResponse> complete(@PathVariable Long gameId,
                                       @RequestBody List<AnswerRequest> request,
                                       @RequestParam UUID userId,
                                       Authentication authentication){
@@ -60,7 +55,6 @@ public class GameController {
                             userDetails.getEmail() +
                             " not allowed to this url");
         }
-        qnAService.score(request, gameId);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok(service.completeGame(gameId, request));
     }
 }

@@ -36,9 +36,9 @@ public class Game {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id")
     private Patient patient;
-    @OneToOne
-    @JoinColumn(name = "case_id", referencedColumnName = "id")
-    private Case gameCase;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "gameCaseDetails_id", referencedColumnName = "id")
+    private GameCaseDetails caseDetails;
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BCAssessmentQuestion> bcAssessmentQuestions = new ArrayList<>();
     @ManyToOne(fetch = FetchType.LAZY)

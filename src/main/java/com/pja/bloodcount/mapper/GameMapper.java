@@ -17,7 +17,8 @@ public class GameMapper {
                 .status(game.getStatus())
                 .testDuration(game.getTestDuration())
                 .patient(PatientMapper.mapToResponseDTO(game.getPatient()))
-                .gameCase(CaseMapper.mapToCaseOfGameResponseDTO(game.getGameCase()))
+                //.gameCase(CaseMapper.mapToCaseOfGameResponseDTO(game.getGameCase()))
+                .gameCaseDetails(game.getCaseDetails())
                 .bcAssessmentQuestions(QnAMapper.mapToBCAQResponseListDTO(game.getBcAssessmentQuestions()))
                 .build();
     }
