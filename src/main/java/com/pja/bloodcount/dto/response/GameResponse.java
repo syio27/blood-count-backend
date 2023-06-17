@@ -28,6 +28,7 @@ public class GameResponse {
     private Date estimatedEndTime;
     private int testDuration;
     private Status status;
+    private int score;
     private PatientResponse patient;
     private GameCaseDetails gameCaseDetails;
     private List<BCAQuestionResponse> bcAssessmentQuestions = new ArrayList<>();
