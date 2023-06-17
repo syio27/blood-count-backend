@@ -8,7 +8,9 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @AllArgsConstructor
@@ -30,12 +32,18 @@ public class Game {
     private int testDuration; // in minutes
     @Enumerated(EnumType.STRING)
     private Status status;
+    private int score = 0;
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id")
     private Patient patient;
-    @OneToOne
-    @JoinColumn(name = "case_id", referencedColumnName = "id")
-    private Case gameCase;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "gameCaseDetails_id", referencedColumnName = "id")
+    private GameCaseDetails caseDetails;
+    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BCAssessmentQuestion> bcAssessmentQuestions = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     public void addPatient(Patient patient){
         if(patient == null){
@@ -51,5 +59,18 @@ public class Game {
         }
         setPatient(null);
         patient.setGame(null);
+    }
+
+    public void addBCAssessmentQuestion(BCAssessmentQuestion question) {
+        if (this.bcAssessmentQuestions == null) {
+            this.bcAssessmentQuestions = new ArrayList<>();
+        }
+        bcAssessmentQuestions.add(question);
+        question.setGame(this);
+    }
+
+    public void removeBCAssessmentQuestion(BCAssessmentQuestion question) {
+        bcAssessmentQuestions.remove(question);
+        question.setGame(null);
     }
 }

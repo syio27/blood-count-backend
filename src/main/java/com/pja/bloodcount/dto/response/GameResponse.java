@@ -1,6 +1,8 @@
 package com.pja.bloodcount.dto.response;
 
+import com.pja.bloodcount.model.BCAssessmentQuestion;
 import com.pja.bloodcount.model.Case;
+import com.pja.bloodcount.model.GameCaseDetails;
 import com.pja.bloodcount.model.Patient;
 import com.pja.bloodcount.model.enums.Status;
 import lombok.AllArgsConstructor;
@@ -10,7 +12,9 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Builder
@@ -25,5 +29,6 @@ public class GameResponse {
     private int testDuration;
     private Status status;
     private PatientResponse patient;
-    private CaseOfGameResponse gameCase;
+    private GameCaseDetails gameCaseDetails;
+    private List<BCAQuestionResponse> bcAssessmentQuestions = new ArrayList<>();
 }

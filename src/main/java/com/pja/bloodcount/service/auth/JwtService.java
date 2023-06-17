@@ -1,5 +1,6 @@
 package com.pja.bloodcount.service.auth;
 
+import com.pja.bloodcount.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -9,13 +10,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.security.core.GrantedAuthority;
 
 import java.security.Key;
 import java.time.*;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -40,6 +44,18 @@ public class JwtService {
             Integer timezoneOffset
     ) {
         adjustExpirationForTimezone(timezoneOffset);
+
+        User user = (User) userDetails;
+
+        // Extract user roles
+        List<String> roles = userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
+
+        extraClaims.put("userId", user.getId());
+        extraClaims.put("email", user.getEmail());
+        extraClaims.put("roles", roles);
+
         return Jwts
                 .builder()
                 .setClaims(extraClaims)

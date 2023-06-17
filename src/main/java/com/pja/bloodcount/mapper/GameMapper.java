@@ -2,13 +2,12 @@ package com.pja.bloodcount.mapper;
 
 import com.pja.bloodcount.dto.response.GameResponse;
 import com.pja.bloodcount.model.Game;
-import com.pja.bloodcount.model.Patient;
 import org.springframework.stereotype.Component;
 
 @Component
 public class GameMapper {
 
-    public static GameResponse mapToResponseDTO(Game game, Patient patient){
+    public static GameResponse mapToResponseDTO(Game game){
         return GameResponse
                 .builder()
                 .id(game.getId())
@@ -17,8 +16,10 @@ public class GameMapper {
                 .estimatedEndTime(game.getEstimatedEndTime())
                 .status(game.getStatus())
                 .testDuration(game.getTestDuration())
-                .patient(PatientMapper.mapToResponseDTO(patient))
-                .gameCase(CaseMapper.mapToCaseOfGameResponseDTO(game.getGameCase()))
+                .patient(PatientMapper.mapToResponseDTO(game.getPatient()))
+                //.gameCase(CaseMapper.mapToCaseOfGameResponseDTO(game.getGameCase()))
+                .gameCaseDetails(game.getCaseDetails())
+                .bcAssessmentQuestions(QnAMapper.mapToBCAQResponseListDTO(game.getBcAssessmentQuestions()))
                 .build();
     }
 }

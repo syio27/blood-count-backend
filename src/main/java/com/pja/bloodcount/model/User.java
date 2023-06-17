@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -40,6 +41,21 @@ public class User implements Serializable, UserDetails {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="groupNumber")
     private Group group;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Game> games = new ArrayList<>();
+
+    public void addGame(Game game) {
+        if (this.games == null) {
+            this.games = new ArrayList<>();
+        }
+        games.add(game);
+        game.setUser(this);
+    }
+
+    public void removeGame(Game game) {
+        games.remove(game);
+        game.setUser(null);
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
