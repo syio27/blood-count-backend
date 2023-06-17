@@ -25,5 +25,5 @@ public class Answer {
     private String text;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id")
-    private BCAssessmentQuestion question;
+    private Question question;
 }
