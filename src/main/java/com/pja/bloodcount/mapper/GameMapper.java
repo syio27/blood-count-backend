@@ -1,8 +1,12 @@
 package com.pja.bloodcount.mapper;
 
 import com.pja.bloodcount.dto.response.GameResponse;
+import com.pja.bloodcount.dto.response.GroupResponse;
+import com.pja.bloodcount.dto.response.SimpleGameResponse;
 import com.pja.bloodcount.model.Game;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class GameMapper {
@@ -18,10 +22,37 @@ public class GameMapper {
                 .score(game.getScore())
                 .testDuration(game.getTestDuration())
                 .patient(PatientMapper.mapToResponseDTO(game.getPatient()))
-                //.gameCase(CaseMapper.mapToCaseOfGameResponseDTO(game.getGameCase()))
                 .gameCaseDetails(game.getCaseDetails())
                 .bcAssessmentQuestions(QnAMapper.mapToBCAQResponseListDTO(game.getBcAssessmentQuestions()))
                 .msQuestions(QnAMapper.mapToMSQResponseListDTO(game.getMsQuestions()))
                 .build();
+    }
+
+    public static SimpleGameResponse mapToSimpleResponseDTO(Game game){
+        return SimpleGameResponse
+                .builder()
+                .id(game.getId())
+                .startTime(game.getStartTime())
+                .endTime(game.getEndTime())
+                .estimatedEndTime(game.getEstimatedEndTime())
+                .testDuration(game.getTestDuration())
+                .status(game.getStatus())
+                .score(game.getScore())
+                .build();
+    }
+
+    public static List<SimpleGameResponse> mapToSimpleResponseListDTO(List<Game> games){
+        return games.stream()
+                .map(game -> SimpleGameResponse
+                        .builder()
+                        .id(game.getId())
+                        .startTime(game.getStartTime())
+                        .endTime(game.getEndTime())
+                        .estimatedEndTime(game.getEstimatedEndTime())
+                        .testDuration(game.getTestDuration())
+                        .status(game.getStatus())
+                        .score(game.getScore())
+                        .build())
+                .toList();
     }
 }

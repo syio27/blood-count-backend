@@ -2,6 +2,7 @@ package com.pja.bloodcount.service;
 
 import com.pja.bloodcount.dto.request.AnswerRequest;
 import com.pja.bloodcount.dto.response.GameResponse;
+import com.pja.bloodcount.dto.response.SimpleGameResponse;
 import com.pja.bloodcount.exceptions.GameCompleteException;
 import com.pja.bloodcount.exceptions.GameNotFoundException;
 import com.pja.bloodcount.exceptions.GameStartException;
@@ -49,7 +50,7 @@ public class GameService {
         Patient patient = generationService.generatePatient(caseId);
         Case aCase = caseValidator.validateIfExistsAndGet(caseId);
         generationService.generateBloodCount(caseId, patient.getId());
-        int durationInMin = 1;
+        int durationInMin = 30;
         int durationInSec = durationInMin * 60;
         Instant endTime = Instant.now().plusSeconds(durationInSec);
 
@@ -104,5 +105,14 @@ public class GameService {
         }
         repository.save(game);
         return GameMapper.mapToResponseDTO(game);
+    }
+
+    public List<SimpleGameResponse> getAllCompletedGamesOfUser(UUID userId){
+        userValidator.validateIfExistsAndGet(userId);
+        List<Game> games = repository.findByUser_Id(userId);
+        return GameMapper.mapToSimpleResponseListDTO(
+                games.stream()
+                .filter(game -> game.getStatus().equals(Status.COMPLETED))
+                .toList());
     }
 }

@@ -2,11 +2,13 @@ package com.pja.bloodcount.controller;
 
 import com.pja.bloodcount.dto.request.*;
 import com.pja.bloodcount.dto.response.AuthenticationResponse;
+import com.pja.bloodcount.dto.response.SimpleGameResponse;
 import com.pja.bloodcount.dto.response.UserResponse;
 import com.pja.bloodcount.exceptions.UserNotAllowedException;
 import com.pja.bloodcount.model.User;
 import com.pja.bloodcount.model.enums.Role;
 import com.pja.bloodcount.service.AdminService;
+import com.pja.bloodcount.service.GameService;
 import com.pja.bloodcount.service.contract.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +33,7 @@ public class UserController {
 
     private final UserService service;
     private final AdminService adminService;
+    private final GameService gameService;
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(params = "role")
@@ -156,5 +159,26 @@ public class UserController {
     @GetMapping(value = "/group", params = "groupNumber")
     public ResponseEntity<List<UserResponse>> getGroupParticipants(@RequestParam String groupNumber){
         return ResponseEntity.ok(service.getGroupParticipants(groupNumber));
+    }
+
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ROOT') or hasRole('SUPERVISOR')")
+    @GetMapping(value = "/{userId}/games")
+    public ResponseEntity<List<SimpleGameResponse>> getAllCompletedGamesOfStudent(@PathVariable UUID userId){
+        return ResponseEntity.ok(gameService.getAllCompletedGamesOfUser(userId));
+    }
+
+    @PreAuthorize("hasRole('STUDENT')")
+    @GetMapping(value = "/{userId}/games/completed")
+    public ResponseEntity<List<SimpleGameResponse>> getCompletedGames(@PathVariable UUID userId,
+                                                                      Authentication authentication){
+        User userDetails = (User) authentication.getPrincipal();
+        log.info("request coming from user with email-> {}", userDetails.getEmail());
+        if(!userDetails.getId().equals(userId)){
+            throw new UserNotAllowedException(
+                    "Access restricted, user with email: " +
+                            userDetails.getEmail() +
+                            " not allowed to this url");
+        }
+        return ResponseEntity.ok(gameService.getAllCompletedGamesOfUser(userId));
     }
 }
