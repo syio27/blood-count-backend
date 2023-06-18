@@ -9,7 +9,4 @@ public class BloodCountApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(BloodCountApplication.class, args);
 	}
-
-	//TODO: add swagger
-	//TODO: add tests
 }

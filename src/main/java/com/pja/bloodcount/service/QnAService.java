@@ -1,7 +1,7 @@
 package com.pja.bloodcount.service;
 
 import com.pja.bloodcount.dto.request.AnswerRequest;
-import com.pja.bloodcount.exceptions.GameNotFoundException;
+import com.pja.bloodcount.exceptions.*;
 import com.pja.bloodcount.model.*;
 import com.pja.bloodcount.repository.*;
 import com.pja.bloodcount.validation.PatientValidator;
@@ -54,8 +54,6 @@ public class QnAService {
                         .builder()
                         .text("DECREASED")
                         .build();
-
-               //answerRepository.saveAll(List.of(answer1, answer2, answer3));
 
                BCAssessmentQuestion question = BCAssessmentQuestion
                        .builder()
@@ -271,25 +269,21 @@ public class QnAService {
         answerRequestList.forEach(answerRequest -> {
             Optional<Question> optionalQuestion = questionRepository.findById(answerRequest.getQuestionId());
             if(optionalQuestion.isEmpty()){
-                // TODO: change to related exception
-                throw new RuntimeException("Question is not found");
+                throw new QuestionNotFoundException(answerRequest.getAnswerId());
             }
             Question question = optionalQuestion.get();
             if(!Objects.equals(question.getGame().getId(), gameId)){
-                // TODO: change to related exception
-                throw new RuntimeException("Question is not part game: " + gameId);
+                throw new QuestionNotPartException("Question is not part game: " + gameId);
             }
             Optional<Answer> optionalAnswer = answerRepository.findById(answerRequest.getAnswerId());
             if(optionalAnswer.isEmpty()){
-                // TODO: change to related exception
-                throw new RuntimeException("Answer is not found");
+                throw new AnswerNotFoundException(answerRequest.getAnswerId());
             }
             Answer answer = optionalAnswer.get();
             log.info("Answer's question id: {}", answer.getQuestion().getId());
             log.info("question id from request: {}",answerRequest.getQuestionId());
             if(!Objects.equals(answer.getQuestion().getId(), answerRequest.getQuestionId())){
-                // TODO: change to related exception
-                throw new RuntimeException("Answer is not part of answers set of question: " + answerRequest.getQuestionId());
+                throw new AnswerNotPartException("Answer is not part of answers set of question: " + answerRequest.getQuestionId());
             }
             if(Objects.equals(question.getCorrectAnswerId(), answerRequest.getAnswerId())){
                 score.getAndIncrement();
