@@ -3,27 +3,26 @@ package com.pja.bloodcount.service;
 import com.pja.bloodcount.dto.request.AnswerRequest;
 import com.pja.bloodcount.dto.response.GameResponse;
 import com.pja.bloodcount.dto.response.SimpleGameResponse;
+import com.pja.bloodcount.dto.response.UserSelectedAnswerResponse;
 import com.pja.bloodcount.exceptions.GameCompleteException;
 import com.pja.bloodcount.exceptions.GameNotFoundException;
 import com.pja.bloodcount.exceptions.GameStartException;
+import com.pja.bloodcount.exceptions.QuestionNotFoundException;
 import com.pja.bloodcount.mapper.CaseMapper;
 import com.pja.bloodcount.mapper.GameMapper;
 import com.pja.bloodcount.model.*;
 import com.pja.bloodcount.model.enums.Status;
-import com.pja.bloodcount.repository.GameCaseDetailsRepository;
-import com.pja.bloodcount.repository.GameRepository;
-import com.pja.bloodcount.repository.UserRepository;
+import com.pja.bloodcount.repository.*;
 import com.pja.bloodcount.validation.CaseValidator;
 import com.pja.bloodcount.validation.UserValidator;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Hibernate;
+import org.hibernate.proxy.HibernateProxy;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -37,6 +36,8 @@ public class GameService {
     private final CaseValidator caseValidator;
     private final QnAService qnAService;
     private final UserValidator userValidator;
+    private final UserAnswerRepository userAnswerRepository;
+    private final QuestionRepository questionRepository;
 
     public GameResponse createGame(Long caseId, UUID userId) {
         User user = userValidator.validateIfExistsAndGet(userId);
@@ -115,4 +116,54 @@ public class GameService {
                 .filter(game -> game.getStatus().equals(Status.COMPLETED))
                 .toList());
     }
+
+    public List<UserSelectedAnswerResponse> getSelectedAnswersOfGame(UUID userId, Long gameId){
+        List<UserSelectedAnswerResponse> selectedAnswerResponses = new ArrayList<>();
+        userValidator.validateIfExistsAndGet(userId);
+        Optional<Game> optionalGame = repository.findById(gameId);
+        if(optionalGame.isEmpty()){
+            throw new GameNotFoundException(gameId);
+        }
+        Game game = optionalGame.get();
+        List<UserAnswer> selectedAnswers = userAnswerRepository.findByUser_IdAndGame_Id(userId, gameId);
+        List<Question> questions = game.getQuestions();
+        selectedAnswers.forEach(selectedAnswer -> {
+
+            Optional<Question> optionalQuestion = questions.stream().filter(q -> Objects.equals(q.getId(), selectedAnswer.getQuestion().getId())).findFirst();
+            if(optionalQuestion.isEmpty()){
+                throw new RuntimeException("bad error");
+            }
+            Question question = optionalQuestion.get();
+            Question unproxiedQuestion = initializeAndUnproxy(question);
+            UserSelectedAnswerResponse selectedAnswerResponse = UserSelectedAnswerResponse
+                    .builder()
+                    .id(selectedAnswer.getId())
+                    .build();
+            if(unproxiedQuestion instanceof MSQuestion msQuestion){
+                selectedAnswerResponse.setQuestionText(msQuestion.getText());
+            } else if(unproxiedQuestion instanceof BCAssessmentQuestion bcAssessmentQuestion){
+                selectedAnswerResponse.setQuestionText(
+                        bcAssessmentQuestion.getParameter() + "(" +
+                                bcAssessmentQuestion.getUnit() + ") - value: " +
+                                bcAssessmentQuestion.getValue());
+            }
+            selectedAnswerResponse.setAnswer(selectedAnswer.getAnswer().getText());
+            selectedAnswerResponses.add(selectedAnswerResponse);
+        });
+        return selectedAnswerResponses;
+    }
+
+    public static <T> T initializeAndUnproxy(T entity) {
+        if (entity == null) {
+            return null;
+        }
+
+        Hibernate.initialize(entity);
+        if (entity instanceof HibernateProxy) {
+            entity = (T) ((HibernateProxy) entity).getHibernateLazyInitializer()
+                    .getImplementation();
+        }
+        return entity;
+    }
+
 }

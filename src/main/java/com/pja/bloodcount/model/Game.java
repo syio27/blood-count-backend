@@ -90,30 +90,4 @@ public class Game {
                 .map(q -> (MSQuestion) q)
                 .collect(Collectors.toList());
     }
-
-//    public void addBCAssessmentQuestion(BCAssessmentQuestion question) {
-//        if (this.bcAssessmentQuestions == null) {
-//            this.bcAssessmentQuestions = new ArrayList<>();
-//        }
-//        bcAssessmentQuestions.add(question);
-//        question.setGame(this);
-//    }
-//
-//    public void removeBCAssessmentQuestion(BCAssessmentQuestion question) {
-//        bcAssessmentQuestions.remove(question);
-//        question.setGame(null);
-//    }
-
-//    public void addMSQuestion(MSQuestion question) {
-//        if (this.msQuestions == null) {
-//            this.msQuestions = new ArrayList<>();
-//        }
-//        msQuestions.add(question);
-//        question.setGame(this);
-//    }
-//
-//    public void removeMSQuestion(MSQuestion question) {
-//        msQuestions.remove(question);
-//        question.setGame(null);
-//    }
 }

@@ -4,6 +4,7 @@ import com.pja.bloodcount.dto.request.*;
 import com.pja.bloodcount.dto.response.AuthenticationResponse;
 import com.pja.bloodcount.dto.response.SimpleGameResponse;
 import com.pja.bloodcount.dto.response.UserResponse;
+import com.pja.bloodcount.dto.response.UserSelectedAnswerResponse;
 import com.pja.bloodcount.exceptions.UserNotAllowedException;
 import com.pja.bloodcount.model.User;
 import com.pja.bloodcount.model.enums.Role;
@@ -180,5 +181,12 @@ public class UserController {
                             " not allowed to this url");
         }
         return ResponseEntity.ok(gameService.getAllCompletedGamesOfUser(userId));
+    }
+
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ROOT') or hasRole('SUPERVISOR') or hasRole('STUDENT')")
+    @GetMapping(value = "/{userId}/games/{gameId}")
+    public ResponseEntity<List<UserSelectedAnswerResponse>> getAllCompletedGamesOfStudent(@PathVariable UUID userId,
+                                                                                          @PathVariable Long gameId){
+        return ResponseEntity.ok(gameService.getSelectedAnswersOfGame(userId, gameId));
     }
 }
