@@ -11,6 +11,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @AllArgsConstructor
@@ -39,8 +40,10 @@ public class Game {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "gameCaseDetails_id", referencedColumnName = "id")
     private GameCaseDetails caseDetails;
+//    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<BCAssessmentQuestion> bcAssessmentQuestions = new ArrayList<>();
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BCAssessmentQuestion> bcAssessmentQuestions = new ArrayList<>();
+    private List<Question> questions = new ArrayList<>();
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
@@ -61,16 +64,56 @@ public class Game {
         patient.setGame(null);
     }
 
-    public void addBCAssessmentQuestion(BCAssessmentQuestion question) {
-        if (this.bcAssessmentQuestions == null) {
-            this.bcAssessmentQuestions = new ArrayList<>();
+    public void addQuestion(Question question) {
+        if (this.questions == null) {
+            this.questions = new ArrayList<>();
         }
-        bcAssessmentQuestions.add(question);
+        questions.add(question);
         question.setGame(this);
     }
 
-    public void removeBCAssessmentQuestion(BCAssessmentQuestion question) {
-        bcAssessmentQuestions.remove(question);
+    public void removeQuestion(Question question) {
+        questions.remove(question);
         question.setGame(null);
     }
+
+    public List<BCAssessmentQuestion> getBcAssessmentQuestions() {
+        return questions.stream()
+                .filter(q -> q instanceof BCAssessmentQuestion)
+                .map(q -> (BCAssessmentQuestion) q)
+                .collect(Collectors.toList());
+    }
+
+    public List<MSQuestion> getMsQuestions() {
+        return questions.stream()
+                .filter(q -> q instanceof MSQuestion)
+                .map(q -> (MSQuestion) q)
+                .collect(Collectors.toList());
+    }
+
+//    public void addBCAssessmentQuestion(BCAssessmentQuestion question) {
+//        if (this.bcAssessmentQuestions == null) {
+//            this.bcAssessmentQuestions = new ArrayList<>();
+//        }
+//        bcAssessmentQuestions.add(question);
+//        question.setGame(this);
+//    }
+//
+//    public void removeBCAssessmentQuestion(BCAssessmentQuestion question) {
+//        bcAssessmentQuestions.remove(question);
+//        question.setGame(null);
+//    }
+
+//    public void addMSQuestion(MSQuestion question) {
+//        if (this.msQuestions == null) {
+//            this.msQuestions = new ArrayList<>();
+//        }
+//        msQuestions.add(question);
+//        question.setGame(this);
+//    }
+//
+//    public void removeMSQuestion(MSQuestion question) {
+//        msQuestions.remove(question);
+//        question.setGame(null);
+//    }
 }
