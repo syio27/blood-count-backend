@@ -2,6 +2,9 @@ package com.pja.bloodcount.service;
 
 import com.pja.bloodcount.dto.request.AnswerRequest;
 import com.pja.bloodcount.dto.response.GameResponse;
+import com.pja.bloodcount.exceptions.GameCompleteException;
+import com.pja.bloodcount.exceptions.GameNotFoundException;
+import com.pja.bloodcount.exceptions.GameStartException;
 import com.pja.bloodcount.mapper.CaseMapper;
 import com.pja.bloodcount.mapper.GameMapper;
 import com.pja.bloodcount.model.*;
@@ -39,7 +42,7 @@ public class GameService {
         List<Game> gamesOfUser = repository.findByUser_Id(userId);
         gamesOfUser.forEach(game -> {
             if(game.getStatus().equals(Status.IN_PROGRESS)){
-                throw new RuntimeException("You already have running game session");
+                throw new GameStartException("You already have running game session, please complete it before starting new");
             }
         });
 
@@ -82,12 +85,11 @@ public class GameService {
     public GameResponse completeGame(Long gameId, List<AnswerRequest> answerRequestList){
         Optional<Game> optionalGame = repository.findById(gameId);
         if(optionalGame.isEmpty()){
-            // TODO: change to Game related Exception class
-            throw new RuntimeException("game is not found");
+            throw new GameNotFoundException(gameId);
         }
         Game game = optionalGame.get();
         if(game.getStatus().equals(Status.COMPLETED)){
-            throw new RuntimeException("Game is already submitted");
+            throw new GameCompleteException("Game is already submitted");
         }
         int score = qnAService.score(answerRequestList, gameId);
         game.setStatus(Status.COMPLETED);
