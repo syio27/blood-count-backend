@@ -11,6 +11,9 @@ import com.pja.bloodcount.mapper.UserMapper;
 import com.pja.bloodcount.model.Group;
 import com.pja.bloodcount.model.User;
 import com.pja.bloodcount.model.enums.Role;
+import com.pja.bloodcount.repository.GameRepository;
+import com.pja.bloodcount.repository.PatientRepository;
+import com.pja.bloodcount.repository.UserAnswerRepository;
 import com.pja.bloodcount.repository.UserRepository;
 import com.pja.bloodcount.service.auth.JwtService;
 import com.pja.bloodcount.service.contract.UserService;
@@ -38,6 +41,8 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository repository;
+    private final UserAnswerRepository userAnswerRepository;
+    private final PatientRepository patientRepository;
     private final UserValidator userValidator;
     private final GroupValidator groupValidator;
     private final PasswordEncoder passwordEncoder;
@@ -66,7 +71,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void delete(UUID id) {
-        userValidator.validateIfExistsAndGet(id);
+        User user = userValidator.validateIfExistsAndGet(id);
+        Group group = user.getGroup();
+        userAnswerRepository.deleteUserAnswerByUser(user);
+        user.getGames().forEach(game -> {
+            patientRepository.delete(game.getPatient());
+        });
+        group.removeUser(user);
         repository.deleteById(id);
     }
 

@@ -38,7 +38,6 @@ public class QnAMapper {
                 .parameter(question.getParameter())
                 .unit(question.getUnit())
                 .value(question.getValue())
-                .correctAnswerId(question.getCorrectAnswerId())
                 .answers(mapToAnswerResponseListDTO(question.getAnswers()))
                 .build();
     }
@@ -51,7 +50,6 @@ public class QnAMapper {
                         .parameter(question.getParameter())
                         .unit(question.getUnit())
                         .value(question.getValue())
-                        .correctAnswerId(question.getCorrectAnswerId())
                         .answers(mapToAnswerResponseListDTO(question.getAnswers()))
                         .build())
                 .toList();
@@ -62,7 +60,6 @@ public class QnAMapper {
                 .builder()
                 .id(question.getId())
                 .text(question.getText())
-                .correctAnswerId(question.getCorrectAnswerId())
                 .answers(mapToAnswerResponseListDTO(question.getAnswers()))
                 .build();
     }
@@ -73,7 +70,6 @@ public class QnAMapper {
                         .builder()
                         .id(question.getId())
                         .text(question.getText())
-                        .correctAnswerId(question.getCorrectAnswerId())
                         .answers(mapToAnswerResponseListDTO(question.getAnswers()))
                         .build())
                 .toList();

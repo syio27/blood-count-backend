@@ -16,7 +16,6 @@ import java.util.List;
 @NoArgsConstructor
 public class BCAQuestionResponse {
     private Long id;
-    private Long correctAnswerId;
     private String parameter;
     private String unit;
     private Double value;

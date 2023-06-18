@@ -40,8 +40,6 @@ public class Game {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "gameCaseDetails_id", referencedColumnName = "id")
     private GameCaseDetails caseDetails;
-//    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<BCAssessmentQuestion> bcAssessmentQuestions = new ArrayList<>();
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Question> questions = new ArrayList<>();
     @ManyToOne(fetch = FetchType.LAZY)

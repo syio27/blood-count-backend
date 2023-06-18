@@ -36,7 +36,7 @@ public class UserController {
     private final AdminService adminService;
     private final GameService gameService;
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ROOT') or hasRole('SUPERVISOR')")
     @GetMapping(params = "role")
     @ResponseStatus(HttpStatus.OK)
     public List<UserResponse> getAllUsers(@RequestParam("role") Role role){
@@ -53,41 +53,9 @@ public class UserController {
         return ResponseEntity.ok(service.getUserByEmail(email));
     }
 
-    @PutMapping("/{id}/email")
-    public ResponseEntity<UserResponse> updateEmail(@PathVariable UUID id,
-                                            @RequestBody EmailChangeRequest emailChangeRequest,
-                                            Authentication authentication){
-        log.info("Email from request -> {}", emailChangeRequest.getEmail());
-        User userDetails = (User) authentication.getPrincipal();
-        log.info("request coming from user with email-> {}", userDetails.getEmail());
-        if(!userDetails.getId().equals(id)){
-            throw new UserNotAllowedException(
-                    "Access restricted, user with email: " +
-                    userDetails.getEmail() +
-                    " not allowed to this url");
-        }
-        return ResponseEntity.ok(service.update(id, emailChangeRequest));
-    }
-
-    @GetMapping("page-query")
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<List<UserResponse>> pageQuery(Pageable pageable){
-        Page<UserResponse> userPage = service.getUsers(pageable);
-        List<UserResponse> userResponseList = userPage.stream().toList();
-        return ResponseEntity.ok(new PageImpl<>(userResponseList, pageable, userPage.getTotalElements()).toList());
-    }
-
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUserById(@PathVariable UUID id,
-                                               Authentication authentication){
-        User userDetails = (User) authentication.getPrincipal();
-        log.info("request coming from user with email-> {}", userDetails.getEmail());
-        if(!userDetails.getId().equals(id)){
-            throw new UserNotAllowedException(
-                    "Access restricted, user with email: " +
-                            userDetails.getEmail() +
-                            " not allowed to this url");
-        }
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ROOT')")
+    public ResponseEntity<Void> deleteUserById(@PathVariable UUID id){
         service.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -107,12 +75,6 @@ public class UserController {
         return ResponseEntity.ok(service.changePassword(id, passwordChangeDTO));
     }
 
-    @GetMapping("/current")
-    public ResponseEntity<UserDetails> getCurrentUser(Authentication authentication) {
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        return new ResponseEntity<>(userDetails, HttpStatus.OK);
-    }
-
     @PreAuthorize("hasRole('ADMIN') or hasRole('ROOT')")
     @PostMapping("/invite")
     public ResponseEntity<Void> invite(@RequestBody InviteUserRequest inviteRequest, Authentication authentication) {
@@ -120,7 +82,7 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('STUDENT')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ROOT') or hasRole('SUPERVISOR')")
     @PostMapping("{id}/group")
     public ResponseEntity<Void> assignUserToGroup(@PathVariable UUID id,
                                                   @RequestBody UserGroupAssignmentRequest request,
@@ -144,7 +106,7 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PreAuthorize("hasRole('ADMIN') or hasRole('ROOT')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ROOT') or hasRole('SUPERVISOR')")
     @PutMapping("/user/group")
     public ResponseEntity<Void> assignUserToAnotherGroup(@RequestBody UserToNewGroupAssignRequest request){
         service.assignUserToGroup(
@@ -156,7 +118,7 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PreAuthorize("hasRole('ADMIN') or hasRole('ROOT')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ROOT') or hasRole('SUPERVISOR')")
     @GetMapping(value = "/group", params = "groupNumber")
     public ResponseEntity<List<UserResponse>> getGroupParticipants(@RequestParam String groupNumber){
         return ResponseEntity.ok(service.getGroupParticipants(groupNumber));
@@ -185,7 +147,7 @@ public class UserController {
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('ROOT') or hasRole('SUPERVISOR') or hasRole('STUDENT')")
     @GetMapping(value = "/{userId}/games/{gameId}")
-    public ResponseEntity<List<UserSelectedAnswerResponse>> getAllCompletedGamesOfStudent(@PathVariable UUID userId,
+    public ResponseEntity<List<UserSelectedAnswerResponse>> getSelectedAnswersOfStudent(@PathVariable UUID userId,
                                                                                           @PathVariable Long gameId){
         return ResponseEntity.ok(gameService.getSelectedAnswersOfGame(userId, gameId));
     }

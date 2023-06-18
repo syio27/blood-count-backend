@@ -14,7 +14,6 @@ import java.util.List;
 @NoArgsConstructor
 public class MSQuestionResponse {
     private Long id;
-    private Long correctAnswerId;
     private String text;
     private List<AnswerResponse> answers = new ArrayList<>();
 }
