@@ -3,16 +3,17 @@ package com.pja.bloodcount.service;
 import com.pja.bloodcount.dto.request.AnswerRequest;
 import com.pja.bloodcount.exceptions.GameNotFoundException;
 import com.pja.bloodcount.model.*;
-import com.pja.bloodcount.repository.AnswerRepository;
-import com.pja.bloodcount.repository.BCAssessmentQuestionRepository;
-import com.pja.bloodcount.repository.GameRepository;
+import com.pja.bloodcount.repository.*;
 import com.pja.bloodcount.validation.PatientValidator;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @Slf4j
@@ -21,7 +22,13 @@ public class QnAService {
 
     private final BCAssessmentQuestionRepository bcaQuestionRepository;
     private final AnswerRepository answerRepository;
+    private final MSQuestionRepository msQuestionRepository;
+    private final UserAnswerRepository userAnswerRepository;
     private final GameRepository gameRepository;
+    private final QuestionRepository questionRepository;
+    private final ErythrocyteQBRepository erythrocyteQBRepository;
+    private final LeukocyteQBRepository leukocyteQBRepository;
+    private final VariousQBRepository variousQBRepository;
     private final PatientValidator patientValidator;
 
     public List<BCAssessmentQuestion>  createQnAForBCAssessment(Long gameId){
@@ -259,13 +266,15 @@ public class QnAService {
 
     public int score(List<AnswerRequest> answerRequestList, Long gameId){
         AtomicInteger score = new AtomicInteger(0);
+        List<UserAnswer> userAnswers = new ArrayList<>();
+
         answerRequestList.forEach(answerRequest -> {
-            Optional<BCAssessmentQuestion> optionalQuestion = bcaQuestionRepository.findById(answerRequest.getQuestionId());
+            Optional<Question> optionalQuestion = questionRepository.findById(answerRequest.getQuestionId());
             if(optionalQuestion.isEmpty()){
                 // TODO: change to related exception
                 throw new RuntimeException("Question is not found");
             }
-            BCAssessmentQuestion question = optionalQuestion.get();
+            Question question = optionalQuestion.get();
             if(!Objects.equals(question.getGame().getId(), gameId)){
                 // TODO: change to related exception
                 throw new RuntimeException("Question is not part game: " + gameId);
@@ -285,7 +294,18 @@ public class QnAService {
             if(Objects.equals(question.getCorrectAnswerId(), answerRequest.getAnswerId())){
                 score.getAndIncrement();
             }
+
+            UserAnswer userAnswer = UserAnswer
+                    .builder()
+                    .game(question.getGame())
+                    .user(question.getGame().getUser())
+                    .answer(answer)
+                    .question(question)
+                    .build();
+
+            userAnswers.add(userAnswer);
         });
+        userAnswerRepository.saveAll(userAnswers);
         return score.get();
     }
 
@@ -301,5 +321,51 @@ public class QnAService {
         bloodCountMap.put("PLT", "10^9/L");
 
         return bloodCountMap.containsKey(parameter) && bloodCountMap.containsValue(unit);
+    }
+
+    private String getRangeInString(String text){
+        Pattern pattern = Pattern.compile("(?<=Hb\\s).+?(?=\\sg/dl)");
+        Matcher matcher = pattern.matcher(text);
+        if(matcher.find()){
+            return matcher.group();
+        }
+        return null;
+    }
+
+    private static String formatString(String input) {
+        input = input.substring(3);
+        input = input.substring(0, 1).toUpperCase() + input.substring(1);
+        return input;
+    }
+
+    private boolean isInRange(String range, double value){
+        double max, min;
+        List<String> ranges = new ArrayList<>(List.of(range.split(" ")));
+        if(ranges.contains(">=")){
+            min = Double.parseDouble(ranges.get(1).replace(',', '.'));
+            log.info("min: {}", min);
+            return value >= min;
+        }
+        if(ranges.contains("<")){
+            max = Double.parseDouble(ranges.get(1).replace(',', '.'));
+            log.info("min: {}", max);
+            return value < max;
+        }
+        if(ranges.contains("–")){
+            min = Double.parseDouble(ranges.get(0).replace(',', '.'));
+            max = Double.parseDouble(ranges.get(2).replace(',', '.'));
+            log.info("min: {}, and max: {}", min, max);
+            return value > min && value < max;
+        }
+        return false;
+    }
+
+    private <T> List<T> randomlyPickQuestions(List<T> allQuestions, int number){
+        List<T> questions = new ArrayList<>();
+        for (int i = 0; i < number; i++) {
+            T randomEntity = allQuestions.remove(ThreadLocalRandom.current().nextInt(allQuestions.size()));
+            questions.add(randomEntity);
+        }
+        return questions;
     }
 }

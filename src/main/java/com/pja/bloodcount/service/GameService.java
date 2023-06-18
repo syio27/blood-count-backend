@@ -49,7 +49,7 @@ public class GameService {
         Patient patient = generationService.generatePatient(caseId);
         Case aCase = caseValidator.validateIfExistsAndGet(caseId);
         generationService.generateBloodCount(caseId, patient.getId());
-        int durationInMin = 30;
+        int durationInMin = 1;
         int durationInSec = durationInMin * 60;
         Instant endTime = Instant.now().plusSeconds(durationInSec);
 
@@ -74,7 +74,11 @@ public class GameService {
         game.addPatient(patient);
         repository.save(game);
         List<BCAssessmentQuestion> qnAForBCAssessment = qnAService.createQnAForBCAssessment(game.getId());
-        qnAForBCAssessment.forEach(game::addBCAssessmentQuestion);
+        List<MSQuestion> qnAForMSQ = qnAService.createMSQuestions(game.getId());
+        List<MSQuestion> anAForTrueFalseMSQ = qnAService.createTrueFalseMSQuestions(game.getId());
+        qnAForBCAssessment.forEach(game::addQuestion);
+        qnAForMSQ.forEach(game::addQuestion);
+        anAForTrueFalseMSQ.forEach(game::addQuestion);
         repository.save(game);
         user.addGame(game);
         userRepository.save(user);

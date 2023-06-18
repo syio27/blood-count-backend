@@ -32,4 +32,5 @@ public class GameResponse {
     private PatientResponse patient;
     private GameCaseDetails gameCaseDetails;
     private List<BCAQuestionResponse> bcAssessmentQuestions = new ArrayList<>();
+    private List<MSQuestionResponse> msQuestions = new ArrayList<>();
 }

@@ -21,6 +21,7 @@ public class GameMapper {
                 //.gameCase(CaseMapper.mapToCaseOfGameResponseDTO(game.getGameCase()))
                 .gameCaseDetails(game.getCaseDetails())
                 .bcAssessmentQuestions(QnAMapper.mapToBCAQResponseListDTO(game.getBcAssessmentQuestions()))
+                .msQuestions(QnAMapper.mapToMSQResponseListDTO(game.getMsQuestions()))
                 .build();
     }
 }

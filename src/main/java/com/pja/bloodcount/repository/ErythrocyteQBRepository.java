@@ -1,11 +1,9 @@
 package com.pja.bloodcount.repository;
 
-import com.pja.bloodcount.model.BCAssessmentQuestion;
+import com.pja.bloodcount.model.ErythrocyteQuestion;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
-
 @Repository
-public interface BCAssessmentQuestionRepository extends QuestionRepository {
+public interface ErythrocyteQBRepository extends JpaRepository<ErythrocyteQuestion, Long> {
 }
