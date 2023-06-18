@@ -8,8 +8,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 
 @Component
@@ -17,9 +15,10 @@ public class DataLoader implements CommandLineRunner {
     private final GroupRepository groupRepository;
     private final UserRepository userRepository;
     private final BCReferenceRepository bcReferenceRepository;
-    private final CaseRepository caseRepository;
-    private final GameRepository gameRepository;
     private final PasswordEncoder passwordEncoder;
+    private final LeukocyteQBRepository leukocyteQBRepository;
+    private final ErythrocyteQBRepository erythrocyteQBRepository;
+    private final VariousQBRepository variousQBRepository;
 
 
     private static final String ADMINISTRATION_GROUP = "ADMIN_GR";
@@ -29,14 +28,17 @@ public class DataLoader implements CommandLineRunner {
     public DataLoader(GroupRepository groupRepository,
                       UserRepository userRepository,
                       BCReferenceRepository bcReferenceRepository,
-                      CaseRepository caseRepository,
-                      GameRepository gameRepository, PasswordEncoder passwordEncoder) {
+                      PasswordEncoder passwordEncoder,
+                      LeukocyteQBRepository leukocyteQBRepository,
+                      ErythrocyteQBRepository erythrocyteQBRepository,
+                      VariousQBRepository variousQBRepository) {
         this.groupRepository = groupRepository;
         this.userRepository = userRepository;
         this.bcReferenceRepository = bcReferenceRepository;
-        this.caseRepository = caseRepository;
-        this.gameRepository = gameRepository;
         this.passwordEncoder = passwordEncoder;
+        this.leukocyteQBRepository = leukocyteQBRepository;
+        this.erythrocyteQBRepository = erythrocyteQBRepository;
+        this.variousQBRepository = variousQBRepository;
     }
 
     @Override
@@ -58,7 +60,7 @@ public class DataLoader implements CommandLineRunner {
                 .builder()
                 .email("defAdmin@gmail.com")
                 .password(passwordEncoder.encode("aaa1212AAA#"))
-                .role(Role.ADMIN)
+                .role(Role.ROOT)
                 .build();
 
         final BloodCountReference WBC = BloodCountReference
@@ -261,26 +263,74 @@ public class DataLoader implements CommandLineRunner {
                 .maxMale(2d)
                 .build();
 
-//        Case case1 = Case
+//        ErythrocyteQuestion erythrocyteQuestion1 = ErythrocyteQuestion
 //                .builder()
-//                .firstMinAge(18)
-//                .firstMaxAge(75)
-//                .affectedGender(AffectedGender.FEMALE)
-//                .anemiaType("N. mikrocytowa")
-//                .diagnosis("Niedokrwistość z niedoboru żelaza z powodu nadmiernych miesiączek")
+//                .text("U zdrowego człowieka 65% objętości krwi stanowi osocze")
+//                .answer("Fałsz")
 //                .build();
 //
-//        BloodCountAbnormality abnormality = BloodCountAbnormality
+//        ErythrocyteQuestion erythrocyteQuestion2 = ErythrocyteQuestion
 //                .builder()
-//                .parameter("HGB")
-//                .unit("g/dl")
-//                .minValue(9.5)
-//                .maxValue(10.9)
-//                .type(LevelType.DECREASED)
+//                .text("Objętość krwi u zdrowego, dorosłego człowieka o przeciętnej masie ciała (70 kg) waha się w granicach 4-6,5 l")
+//                .answer("Fałsz")
 //                .build();
 //
-//        case1.addAbnormality(abnormality);
-//        caseRepository.save(case1);
+//        ErythrocyteQuestion erythrocyteQuestion3 = ErythrocyteQuestion
+//                .builder()
+//                .text("Hematokryt to wskaźnik opisujący procentowy udział erytrocytów w danej objętości krwi")
+//                .answer("Fałsz")
+//                .build();
+//
+//        ErythrocyteQuestion erythrocyteQuestion4 = ErythrocyteQuestion
+//                .builder()
+//                .text("Hematokryt to wskaźnik opisujący procentowy udział elementów morfotycznych w danej objętości krwi")
+//                .answer("Prawda")
+//                .build();
+//
+//        ErythrocyteQuestion erythrocyteQuestion5 = ErythrocyteQuestion
+//                .builder()
+//                .text("Wartość hematokrytu (Hct) u zdrowego, dorosłego człowieka wynosi ok. 45%, z czego większość stanowi masa erytrocytów, a łączna masa leukocytów i trombocytów stanowi tylko ok. 1%")
+//                .answer("Prawda")
+//                .build();
+//
+//        ErythrocyteQuestion erythrocyteQuestion6 = ErythrocyteQuestion
+//                .builder()
+//                .text("U kobiet wartość hematokrytu jest taka sama, jak u mężczyzn")
+//                .answer("Fałsz")
+//                .build();
+//
+//        ErythrocyteQuestion erythrocyteQuestion7 = ErythrocyteQuestion
+//                .builder()
+//                .text("Względny wzrost hematokrytu może być skutkiem obfitych biegunek i wymiotów")
+//                .answer("Prawda")
+//                .build();
+//
+//        ErythrocyteQuestion erythrocyteQuestion17 = ErythrocyteQuestion
+//                .builder()
+//                .text("Pomiędzy łańcuchami β hemoglobiny znajduje się miejsce wiązania dla 2,3-difosfoglicerynianu (2,3-DPG), który odgrywa ważną rolę w regulacji powinowactwa hemoglobiny do tlenu")
+//                .answer("Prawda")
+//                .build();
+//
+//        ErythrocyteQuestion erythrocyteQuestion18 = ErythrocyteQuestion
+//                .builder()
+//                .text("Związanie 2,3-difosfoglicerynianu (2,3-DPG) z hemoglobiną powoduje zmianę jej konformacji na ścisłą, przez co powinowactwa do tlenu ulega zmniejszeniu")
+//                .answer("Prawda")
+//                .build();
+//
+//        ErythrocyteQuestion erythrocyteQuestion24 = ErythrocyteQuestion
+//                .builder()
+//                .text("Poikilocytoza to występowanie erytrocytów o zróżnicowanych kształtach")
+//                .answer("Prawda")
+//                .build();
+//
+//        ErythrocyteQuestion erythrocyteQuestion25 = ErythrocyteQuestion
+//                .builder()
+//                .text("Wzrost wskaźnika MCV wskazuje na makrocytozę, czyli zwiększenie liczby erytrocytów")
+//                .answer("Fałsz")
+//                .build();
+//
+//        erythrocyteQBRepository.saveAll(List.of(erythrocyteQuestion1, erythrocyteQuestion2, erythrocyteQuestion3, erythrocyteQuestion4, erythrocyteQuestion5,
+//                erythrocyteQuestion6, erythrocyteQuestion7, erythrocyteQuestion17, erythrocyteQuestion18, erythrocyteQuestion24, erythrocyteQuestion25));
 
         defaultAdminGroup.addUser(defaultAdmin);
         bcReferenceRepository.saveAll(

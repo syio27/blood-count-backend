@@ -2,8 +2,10 @@ package com.pja.bloodcount.mapper;
 
 import com.pja.bloodcount.dto.response.AnswerResponse;
 import com.pja.bloodcount.dto.response.BCAQuestionResponse;
+import com.pja.bloodcount.dto.response.MSQuestionResponse;
 import com.pja.bloodcount.model.Answer;
 import com.pja.bloodcount.model.BCAssessmentQuestion;
+import com.pja.bloodcount.model.MSQuestion;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -49,6 +51,28 @@ public class QnAMapper {
                         .parameter(question.getParameter())
                         .unit(question.getUnit())
                         .value(question.getValue())
+                        .correctAnswerId(question.getCorrectAnswerId())
+                        .answers(mapToAnswerResponseListDTO(question.getAnswers()))
+                        .build())
+                .toList();
+    }
+
+    public static MSQuestionResponse mapToMSQuestionResponseDTO(MSQuestion question){
+        return MSQuestionResponse
+                .builder()
+                .id(question.getId())
+                .text(question.getText())
+                .correctAnswerId(question.getCorrectAnswerId())
+                .answers(mapToAnswerResponseListDTO(question.getAnswers()))
+                .build();
+    }
+
+    public static List<MSQuestionResponse> mapToMSQResponseListDTO(List<MSQuestion> questions) {
+        return questions.stream()
+                .map(question -> MSQuestionResponse
+                        .builder()
+                        .id(question.getId())
+                        .text(question.getText())
                         .correctAnswerId(question.getCorrectAnswerId())
                         .answers(mapToAnswerResponseListDTO(question.getAnswers()))
                         .build())
