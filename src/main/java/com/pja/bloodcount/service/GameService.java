@@ -21,7 +21,10 @@ import org.hibernate.Hibernate;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 
 @Service
@@ -75,6 +78,13 @@ public class GameService {
 
         game.addPatient(patient);
         repository.save(game);
+
+        LocalDateTime startTime = game.getStartTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        LocalDateTime estimatedEndTime = game.getEstimatedEndTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        Duration remainingTime = Duration.between(startTime, estimatedEndTime);
+        long remainingTimeInSec = remainingTime.toSeconds();
+        log.info("Remaining time of game is: {}", remainingTimeInSec);
+
         List<BCAssessmentQuestion> qnAForBCAssessment = qnAService.createQnAForBCAssessment(game.getId());
         List<MSQuestion> qnAForMSQ = qnAService.createMSQuestions(game.getId());
         List<MSQuestion> anAForTrueFalseMSQ = qnAService.createTrueFalseMSQuestions(game.getId());
@@ -85,10 +95,10 @@ public class GameService {
         user.addGame(game);
         userRepository.save(user);
         log.info("Game is created");
-        return GameMapper.mapToResponseDTO(game);
+        return GameMapper.mapToResponseDTO(game, remainingTimeInSec);
     }
 
-    public GameResponse completeGame(Long gameId, List<AnswerRequest> answerRequestList){
+    public SimpleGameResponse completeGame(Long gameId, List<AnswerRequest> answerRequestList){
         Optional<Game> optionalGame = repository.findById(gameId);
         if(optionalGame.isEmpty()){
             throw new GameNotFoundException(gameId);
@@ -105,7 +115,7 @@ public class GameService {
             game.setEndTime(Date.from(completedTime));
         }
         repository.save(game);
-        return GameMapper.mapToResponseDTO(game);
+        return GameMapper.mapToSimpleResponseDTO(game);
     }
 
     public List<SimpleGameResponse> getAllCompletedGamesOfUser(UUID userId){
@@ -151,6 +161,25 @@ public class GameService {
             selectedAnswerResponses.add(selectedAnswerResponse);
         });
         return selectedAnswerResponses;
+    }
+
+    public GameResponse getInProgressGame(Long gameId, UUID userId){
+        userValidator.validateIfExistsAndGet(userId);
+        Optional<Game> optionalGame = repository.findById(gameId);
+        if(optionalGame.isEmpty()){
+            throw new GameNotFoundException(gameId);
+        }
+        Game game = optionalGame.get();
+        if(game.getStatus().equals(Status.COMPLETED)){
+            throw new GameCompleteException("Game with id - " + game.getId() + " already completed");
+        }
+
+        LocalDateTime estimatedEndTime = game.getEstimatedEndTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        Duration remainingTime = Duration.between(LocalDateTime.now(), estimatedEndTime);
+        long remainingTimeInSec = remainingTime.toSeconds();
+        log.info("Remaining time of game is: {}", remainingTime);
+        log.info("Remaining time in seconds of game is: {}", remainingTimeInSec);
+        return GameMapper.mapToResponseDTO(game, remainingTimeInSec);
     }
 
     public static <T> T initializeAndUnproxy(T entity) {

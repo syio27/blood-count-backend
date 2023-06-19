@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -26,6 +27,7 @@ public class GameResponse {
     private Date startTime;
     private Date endTime;
     private Date estimatedEndTime;
+    private long remainingTime;
     private int testDuration;
     private Status status;
     private int score;
