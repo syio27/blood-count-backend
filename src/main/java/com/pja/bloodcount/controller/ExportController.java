@@ -27,7 +27,7 @@ public class ExportController {
     private final ExportService service;
 
     @GetMapping("/export")
-    //w@PreAuthorize("hasRole('ADMIN') or hasRole('ROOT') or hasRole('SUPERVISOR')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ROOT') or hasRole('SUPERVISOR')")
     public ResponseEntity<byte[]> exportGameStats() throws IOException {
         StringBuilder fileName = new StringBuilder("game statistics");
         LocalDate currentDate = LocalDate.now();
