@@ -53,7 +53,7 @@ public class GameService {
         Patient patient = generationService.generatePatient(caseId);
         Case aCase = caseValidator.validateIfExistsAndGet(caseId);
         generationService.generateBloodCount(caseId, patient.getId());
-        int durationInMin = 30;
+        int durationInMin = 1;
         int durationInSec = durationInMin * 60;
         Instant endTime = Instant.now().plusSeconds(durationInSec);
 
