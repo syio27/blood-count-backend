@@ -151,4 +151,11 @@ public class UserController {
                                                                                           @PathVariable Long gameId){
         return ResponseEntity.ok(gameService.getSelectedAnswersOfGame(userId, gameId));
     }
+
+    @PreAuthorize("hasRole('ROOT')")
+    @PostMapping("/{userId}/ban")
+    public ResponseEntity<Void> ban(@PathVariable UUID userId){
+        adminService.banUser(userId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }

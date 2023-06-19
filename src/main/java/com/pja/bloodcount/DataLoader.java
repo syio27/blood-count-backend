@@ -52,6 +52,7 @@ public class DataLoader implements CommandLineRunner {
                 .email("defAdmin@gmail.com")
                 .password(passwordEncoder.encode("aaa1212AAA#"))
                 .role(Role.ROOT)
+                .isActive(true)
                 .build();
 
         final BloodCountReference WBC = BloodCountReference

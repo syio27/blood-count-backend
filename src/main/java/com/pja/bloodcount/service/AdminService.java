@@ -10,10 +10,13 @@ import com.pja.bloodcount.repository.UserRepository;
 import com.pja.bloodcount.utils.PasswordGeneratorUtil;
 import com.pja.bloodcount.utils.ValidationUtil;
 import com.pja.bloodcount.validation.GroupValidator;
+import com.pja.bloodcount.validation.UserValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -21,10 +24,10 @@ import org.springframework.stereotype.Service;
 public class AdminService {
 
     private final UserRepository userRepository;
-    private final GroupRepository groupRepository;
     private final GroupValidator groupValidator;
     private final PasswordEncoder passwordEncoder;
     private final MailService mailService;
+    private final UserValidator userValidator;
 
     public void invite(InviteUserRequest inviteRequest) {
         if (!ValidationUtil.validateEmail(inviteRequest.getEmail())) {
@@ -45,6 +48,7 @@ public class AdminService {
                 .email(inviteRequest.getEmail())
                 .password(passwordEncoder.encode(generatedPassword))
                 .role(inviteRequest.getRole())
+                .isActive(true)
                 .build();
 
         group.addUser(user);
@@ -68,5 +72,18 @@ public class AdminService {
 
         userRepository.save(user);
         log.info("User {} {} is registered", user.getId(), user.getEmail());
+    }
+
+    public void banUser(UUID id) {
+        User user = userValidator.validateIfExistsAndGet(id);
+        if(user.isActive()) {
+            user.setActive(false);
+            log.info("User with id: {}; email: {} banned", user.getId(), user.getEmail());
+        }
+        else{
+            user.setActive(true);
+            log.info("User with id: {} unbanned", user.getId());
+        }
+        userRepository.save(user);
     }
 }

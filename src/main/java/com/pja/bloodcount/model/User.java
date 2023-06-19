@@ -38,6 +38,7 @@ public class User implements Serializable, UserDetails {
     private String email;
     @Enumerated(EnumType.STRING)
     private Role role;
+    private boolean isActive;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="groupNumber")
     private Group group;
@@ -84,7 +85,7 @@ public class User implements Serializable, UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return isActive;
     }
 
     @Override

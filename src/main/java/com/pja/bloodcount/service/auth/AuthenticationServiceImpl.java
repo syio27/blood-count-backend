@@ -8,6 +8,7 @@ import com.pja.bloodcount.model.Group;
 import com.pja.bloodcount.service.contract.AuthenticationService;
 import com.pja.bloodcount.utils.ValidationUtil;
 import com.pja.bloodcount.validation.GroupValidator;
+import com.pja.bloodcount.validation.UserValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,6 +30,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final GroupValidator groupValidator;
+    private final UserValidator userValidator;
 
     @Override
     public AuthenticationResponse register(RegisterRequest registerRequest) {
@@ -50,6 +52,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .email(registerRequest.getEmail())
                 .password(passwordEncoder.encode(registerRequest.getPassword()))
                 .role(Role.STUDENT)
+                .isActive(true)
                 .build();
 
         group.addUser(user);
@@ -66,6 +69,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public AuthenticationResponse authenticate(AuthenticationRequest authenticationRequest) {
+        User user = userValidator.validateEmailAndGet(authenticationRequest.getEmail());
+        if(!user.isActive()){
+            throw new UserBannedException("User is banned");
+        }
         try{
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                         authenticationRequest.getEmail(),
@@ -75,10 +82,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         catch (BadCredentialsException ex){
             throw new InvalidCredentialsException("Email or password is not correct, please try again");
         }
-
-        User user = userRepository
-                .findUserByEmail(authenticationRequest.getEmail())
-                .orElseThrow(() -> new UserWithEmailNotFoundException(authenticationRequest.getEmail()));
 
         log.info("User {} {} is authenticated", user.getId(), user.getEmail());
         var jwtToken = jwtService.generateToken(user, authenticationRequest.getTimezoneOffset());
