@@ -72,4 +72,9 @@ public class GameController {
         }
         return ResponseEntity.ok(service.getInProgressGame(gameId, userId));
     }
+    
+    @GetMapping(params = "userId")
+    public ResponseEntity<Boolean> checkGameInProgress(@RequestParam UUID userId){
+        return ResponseEntity.ok(service.hasGameInProgress(userId));
+    }
 }

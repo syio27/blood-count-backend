@@ -1,6 +1,7 @@
 package com.pja.bloodcount.repository;
 
 import com.pja.bloodcount.model.Game;
+import com.pja.bloodcount.model.User;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -16,4 +17,5 @@ public interface GameRepository extends JpaRepository<Game, Long> {
     Optional<Game> findById(Long id);
 
     List<Game> findByUser_Id(UUID uuid);
+    List<Game> findByUser(User user);
 }

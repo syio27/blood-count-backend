@@ -7,8 +7,6 @@ import com.pja.bloodcount.dto.response.UserSelectedAnswerResponse;
 import com.pja.bloodcount.exceptions.GameCompleteException;
 import com.pja.bloodcount.exceptions.GameNotFoundException;
 import com.pja.bloodcount.exceptions.GameStartException;
-import com.pja.bloodcount.exceptions.QuestionNotFoundException;
-import com.pja.bloodcount.mapper.CaseMapper;
 import com.pja.bloodcount.mapper.GameMapper;
 import com.pja.bloodcount.model.*;
 import com.pja.bloodcount.model.enums.Status;
@@ -26,6 +24,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
 @Slf4j
@@ -180,6 +179,18 @@ public class GameService {
         log.info("Remaining time of game is: {}", remainingTime);
         log.info("Remaining time in seconds of game is: {}", remainingTimeInSec);
         return GameMapper.mapToResponseDTO(game, remainingTimeInSec);
+    }
+
+    public boolean hasGameInProgress(UUID userId){
+        User user = userValidator.validateIfExistsAndGet(userId);
+        List<Game> games = user.getGames();
+        AtomicBoolean hasGameInProgress = new AtomicBoolean(false);
+        games.forEach(game -> {
+            if (game.getStatus().equals(Status.IN_PROGRESS)){
+                hasGameInProgress.set(true);
+            }
+        });
+        return hasGameInProgress.get();
     }
 
     public static <T> T initializeAndUnproxy(T entity) {
