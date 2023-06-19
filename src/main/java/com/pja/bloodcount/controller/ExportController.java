@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/v1/files")
@@ -25,11 +27,16 @@ public class ExportController {
     private final ExportService service;
 
     @GetMapping("/export")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('ROOT') or hasRole('SUPERVISOR')")
+    //w@PreAuthorize("hasRole('ADMIN') or hasRole('ROOT') or hasRole('SUPERVISOR')")
     public ResponseEntity<byte[]> exportGameStats() throws IOException {
+        StringBuilder fileName = new StringBuilder("game statistics");
+        LocalDate currentDate = LocalDate.now();
+        fileName.append(" - ");
+        fileName.append(currentDate);
+        fileName.append(".xlsx");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
-        headers.setContentDisposition(ContentDisposition.builder("attachment").filename("ExcelFile.xlsx").build());
+        headers.setContentDisposition(ContentDisposition.builder("attachment").filename(String.valueOf(fileName)).build());
         return new ResponseEntity<>(service.exportData(), headers, HttpStatus.CREATED);
     }
 }
