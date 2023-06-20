@@ -15,4 +15,5 @@ public class CaseOfGameResponse {
     private Long id;
     private String anemiaType;
     private String diagnosis;
+    private String details;
 }

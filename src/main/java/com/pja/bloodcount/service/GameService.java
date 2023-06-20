@@ -61,6 +61,7 @@ public class GameService {
                 .builder()
                 .anemiaType(aCase.getAnemiaType())
                 .diagnosis(aCase.getDiagnosis())
+                .details(aCase.getDetails())
                 .build();
 
         caseDetailsRepository.save(caseDetails);

@@ -25,6 +25,7 @@ public class CaseMapper {
                 .affectedGender(aCase.getAffectedGender())
                 .diagnosis(aCase.getDiagnosis())
                 .abnormalities(mapToAbnormalityDTOList(aCase.getAbnormalities()))
+                .details(aCase.getDetails())
                 .build();
     }
 
@@ -40,6 +41,7 @@ public class CaseMapper {
                         .anemiaType(aCase.getAnemiaType())
                         .affectedGender(aCase.getAffectedGender())
                         .diagnosis(aCase.getDiagnosis())
+                        .details(aCase.getDetails())
                         .abnormalities(mapToAbnormalityDTOList(aCase.getAbnormalities()))
                         .build())
                 .toList();
@@ -51,6 +53,7 @@ public class CaseMapper {
                 .id(aCase.getId())
                 .anemiaType(aCase.getAnemiaType())
                 .diagnosis(aCase.getDiagnosis())
+                .details(aCase.getDetails())
                 .build();
     }
 

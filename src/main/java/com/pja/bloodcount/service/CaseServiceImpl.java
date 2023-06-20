@@ -42,6 +42,10 @@ public class CaseServiceImpl implements CaseService {
                 request.getFirstMinAge(),
                 request.getFirstMaxAge());
 
+        if(request.getDetails().isBlank() || request.getDiagnosis().isBlank() || request.getAnemiaType().isBlank()){
+            throw new IllegalArgumentException("Cannot be blank string");
+        }
+
        Case newCase = Case
                .builder()
                .firstMinAge(request.getFirstMinAge())
@@ -51,6 +55,7 @@ public class CaseServiceImpl implements CaseService {
                .anemiaType(request.getAnemiaType())
                .affectedGender(request.getAffectedGender())
                .diagnosis(request.getDiagnosis())
+               .details(request.getDetails())
                .build();
        return CaseMapper.mapToResponseDTO(repository.save(newCase));
     }
