@@ -18,5 +18,5 @@ spring:
             non_contextual_creation: true
 
 app:
-  url:
+  url: ${APP_URL}
   secretKey: 792F423F4428472B4B6250655368566D597133743677397A244326462948404D\
