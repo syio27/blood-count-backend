@@ -1,60 +1,6 @@
 spring:
   main:
     banner-mode: off
-
----
-spring:
-  profiles:
-    active: prod
-
----
-spring:
-  config:
-    activate:
-      on-profile: localdb
-  h2:
-    console:
-      enabled: true
-  datasource:
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:blood-count
-    username: qa
-    password: qa
-  jpa:
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        check_nullability: true
-
-app:
-  url:
-  secretKey: 792F423F4428472B4B6250655368566D597133743677397A244326462948404D\
-
----
-spring:
-  config:
-    activate:
-      on-profile: prod
-  datasource:
-    driver-class-name: org.postgresql.Driver
-    url:
-    username:
-    password:
-  jpa:
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQL95Dialect
-        jdbc:
-          lob:
-            non_contextual_creation: true
-
-app:
-  url:
-  secretKey: 792F423F4428472B4B6250655368566D597133743677397A244326462948404D\
-
----
-spring:
   mail:
     host: smtp.gmail.com
     port: 587

@@ -22,7 +22,6 @@ import java.util.List;
 @EnableWebSecurity
 @RequiredArgsConstructor
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-@Profile("prod")
 public class SecurityConfiguration {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final AuthenticationProvider authenticationProvider;
