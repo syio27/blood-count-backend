@@ -27,6 +27,23 @@ spring:
       hibernate:
         check_nullability: true
 
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url:
+    username:
+    password:
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  app:
+    url:
+
 app:
   secretKey: 792F423F4428472B4B6250655368566D597133743677397A244326462948404D\
 

@@ -1,5 +1,6 @@
 package com.pja.bloodcount.service;
 
+import com.pja.bloodcount.config.PropertiesConfig;
 import com.pja.bloodcount.dto.request.InviteUserRequest;
 import com.pja.bloodcount.exceptions.EmailValidationException;
 import com.pja.bloodcount.exceptions.UserConflictException;
@@ -28,6 +29,7 @@ public class AdminService {
     private final PasswordEncoder passwordEncoder;
     private final MailService mailService;
     private final UserValidator userValidator;
+    private final PropertiesConfig propertiesConfig;
 
     public void invite(InviteUserRequest inviteRequest) {
         if (!ValidationUtil.validateEmail(inviteRequest.getEmail())) {
@@ -53,7 +55,7 @@ public class AdminService {
 
         group.addUser(user);
 
-        final String profileUrl = "http://localhost:4200/profile";
+        final String profileUrl = propertiesConfig.getUrl() + "/profile";
         final String subject = "Invitation letter";
         final String message = "Dear new User\n\n"
                 + "You have been invited to join our application as a " + inviteRequest.getRole().toString().toLowerCase() + ".\n\n"

@@ -263,6 +263,7 @@ public class QnAService {
     }
 
     public int score(List<AnswerRequest> answerRequestList, Long gameId){
+
         AtomicInteger score = new AtomicInteger(0);
         List<UserAnswer> userAnswers = new ArrayList<>();
 
