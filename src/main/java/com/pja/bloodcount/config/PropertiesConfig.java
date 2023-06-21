@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 import javax.validation.constraints.NotNull;
 
 @Component
-@EnableConfigurationProperties
 @ConfigurationProperties(prefix = "app")
 @Data
 public class PropertiesConfig {
