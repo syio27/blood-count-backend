@@ -27,6 +27,10 @@ spring:
       hibernate:
         check_nullability: true
 
+app:
+  url:
+  secretKey: 792F423F4428472B4B6250655368566D597133743677397A244326462948404D\
+
 ---
 spring:
   config:
@@ -41,10 +45,9 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-  app:
-    url:
 
 app:
+  url:
   secretKey: 792F423F4428472B4B6250655368566D597133743677397A244326462948404D\
 
 ---
