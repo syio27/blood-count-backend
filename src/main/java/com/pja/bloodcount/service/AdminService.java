@@ -31,7 +31,7 @@ public class AdminService {
     private final MailService mailService;
     private final UserValidator userValidator;
     @Value("${app.url}")
-    private final String url;
+    private String url;
 
     public void invite(InviteUserRequest inviteRequest) {
         if (!ValidationUtil.validateEmail(inviteRequest.getEmail())) {
