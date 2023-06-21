@@ -5,11 +5,13 @@ import com.pja.bloodcount.model.enums.*;
 import com.pja.bloodcount.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Profile("localdb")
 @Component
 public class DataLoader implements CommandLineRunner {
     private final GroupRepository groupRepository;
