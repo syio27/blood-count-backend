@@ -5,7 +5,7 @@ spring:
 ---
 spring:
   profiles:
-    active: localdb
+    active: prod
 
 ---
 spring:
