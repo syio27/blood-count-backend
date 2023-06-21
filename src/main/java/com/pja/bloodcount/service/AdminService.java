@@ -14,6 +14,7 @@ import com.pja.bloodcount.validation.GroupValidator;
 import com.pja.bloodcount.validation.UserValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +30,8 @@ public class AdminService {
     private final PasswordEncoder passwordEncoder;
     private final MailService mailService;
     private final UserValidator userValidator;
-    private final PropertiesConfig propertiesConfig;
+    @Value("${app.url}")
+    private final String url;
 
     public void invite(InviteUserRequest inviteRequest) {
         if (!ValidationUtil.validateEmail(inviteRequest.getEmail())) {
@@ -55,7 +57,7 @@ public class AdminService {
 
         group.addUser(user);
 
-        final String profileUrl = propertiesConfig.getUrl() + "/profile";
+        final String profileUrl = url + "/profile";
         final String subject = "Invitation letter";
         final String message = "Dear new User\n\n"
                 + "You have been invited to join our application as a " + inviteRequest.getRole().toString().toLowerCase() + ".\n\n"
