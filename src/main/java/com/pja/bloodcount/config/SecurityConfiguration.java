@@ -58,7 +58,7 @@ public class SecurityConfiguration {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:4200",
-                "https://morphology-app-ceefa3648a59.herokuapp.com/login"));
+                "https://morphology-app-ceefa3648a59.herokuapp.com"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "HEAD"));
         configuration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
