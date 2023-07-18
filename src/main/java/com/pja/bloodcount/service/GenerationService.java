@@ -46,7 +46,7 @@ public class GenerationService {
                 randomizeAge(aCase.getFirstMinAge(), aCase.getFirstMaxAge(),
                              aCase.getSecondMinAge(), aCase.getSecondMaxAge());
 
-        Gender gender = ramdomizeGender(aCase.getAffectedGender());
+        Gender gender = randomizeGender(aCase.getAffectedGender());
         return patientRepository.save(
                 Patient
                 .builder()
@@ -239,7 +239,7 @@ public class GenerationService {
         return ThreadLocalRandom.current().nextBoolean() ? ageFromFirstRange : ageFromSecondRange;
     }
 
-    private Gender ramdomizeGender(AffectedGender affectedGender){
+    private Gender randomizeGender(AffectedGender affectedGender){
         if(affectedGender == null){
             throw new GenderGenerationException("ERROR: affected gender is passed as null");
         }
