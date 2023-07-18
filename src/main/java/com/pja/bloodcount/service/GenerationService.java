@@ -113,18 +113,7 @@ public class GenerationService {
 
                 // if value of BC has to be calculated, then use calculate### methods to calculate the value of BC
             } else {
-                value = switch (reference.getParameter()) {
-                    case "MCV" -> calculateBCUtil.calculateMCV("HCT", "%", "RBC", "10^12/L", patient);
-                    case "MCH" -> calculateBCUtil.calculateMCH("HGB", "g/dl", "RBC", "10^12/L", patient);
-                    case "MCHC" -> calculateBCUtil.calculateMCHC("HGB", "g/dl", "HCT", "%", patient);
-                    case "NEU" -> calculateBCUtil.calculateCommon("NEU", "10^9/L", "WBC", "10^9/L", patient);
-                    case "LYM" -> calculateBCUtil.calculateCommon("LYM", "10^9/L", "WBC", "10^9/L", patient);
-                    case "MONO" -> calculateBCUtil.calculateCommon("MONO", "10^9/L", "WBC", "10^9/L", patient);
-                    case "EOS" -> calculateBCUtil.calculateCommon("EOS", "10^9/L", "WBC", "10^9/L", patient);
-                    case "BASO" -> calculateBCUtil.calculateCommon("BASO", "10^9/L", "WBC", "10^9/L", patient);
-                    default -> 0d;
-                };
-                roundedValue = roundFormat(value);
+                roundedValue = callCalculationUtil(reference.getParameter(), patient);
                 if(patient.getGender().equals(Gender.FEMALE)){
                     referenceValueRange = reference.getMinFemale() + " - " + reference.getMaxFemale();
                     if(roundedValue < reference.getMinFemale()){
@@ -190,22 +179,10 @@ public class GenerationService {
         // Recalculate by abnormalities change
         List<BloodCount> adjustedByAbnoBCList = patient.getBloodCounts();
         for(BloodCount bloodCount : adjustedByAbnoBCList){
-            double value;
             double roundedValue;
 
             if(needsToBeCalculated(bloodCount.getParameter(), bloodCount.getUnit())){
-                value = switch (bloodCount.getParameter()) {
-                    case "MCV" -> calculateBCUtil.calculateMCV("HCT", "%", "RBC", "10^12/L", patient);
-                    case "MCH" -> calculateBCUtil.calculateMCH("HGB", "g/dl", "RBC", "10^12/L", patient);
-                    case "MCHC" -> calculateBCUtil.calculateMCHC("HGB", "g/dl", "HCT", "%", patient);
-                    case "NEU" -> calculateBCUtil.calculateCommon("NEU", "10^9/L", "WBC", "10^9/L", patient);
-                    case "LYM" -> calculateBCUtil.calculateCommon("LYM", "10^9/L", "WBC", "10^9/L", patient);
-                    case "MONO" -> calculateBCUtil.calculateCommon("MONO", "10^9/L", "WBC", "10^9/L", patient);
-                    case "EOS" -> calculateBCUtil.calculateCommon("EOS", "10^9/L", "WBC", "10^9/L", patient);
-                    case "BASO" -> calculateBCUtil.calculateCommon("BASO", "10^9/L", "WBC", "10^9/L", patient);
-                    default -> 0d;
-                };
-                roundedValue = roundFormat(value);
+                roundedValue = callCalculationUtil(bloodCount.getParameter(), patient);
                 bloodCount.setValue(roundedValue);
                 String[] referenceRange = bloodCount.getReferenceValueRange().split(" - ");
                 double minValue = Double.parseDouble(referenceRange[0]);
@@ -278,10 +255,25 @@ public class GenerationService {
         return null;
     }
 
-    public Double roundFormat(double value){
+    private Double roundFormat(double value){
         System.out.println("Formatting value: " + value);
         DecimalFormat df = new DecimalFormat("#.##");
         String formattedNumber = df.format(value).replace(",", ".");
         return Double.parseDouble(formattedNumber);
+    }
+
+    private double callCalculationUtil(String parameter, Patient patient) {
+        double value = switch (parameter) {
+            case "MCV" -> calculateBCUtil.calculateMCV("HCT", "%", "RBC", "10^12/L", patient);
+            case "MCH" -> calculateBCUtil.calculateMCH("HGB", "g/dl", "RBC", "10^12/L", patient);
+            case "MCHC" -> calculateBCUtil.calculateMCHC("HGB", "g/dl", "HCT", "%", patient);
+            case "NEU" -> calculateBCUtil.calculateCommon("NEU", "10^9/L", "WBC", "10^9/L", patient);
+            case "LYM" -> calculateBCUtil.calculateCommon("LYM", "10^9/L", "WBC", "10^9/L", patient);
+            case "MONO" -> calculateBCUtil.calculateCommon("MONO", "10^9/L", "WBC", "10^9/L", patient);
+            case "EOS" -> calculateBCUtil.calculateCommon("EOS", "10^9/L", "WBC", "10^9/L", patient);
+            case "BASO" -> calculateBCUtil.calculateCommon("BASO", "10^9/L", "WBC", "10^9/L", patient);
+            default -> 0d;
+        };
+        return roundFormat(value);
     }
 }
