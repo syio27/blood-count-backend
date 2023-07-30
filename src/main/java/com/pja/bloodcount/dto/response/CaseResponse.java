@@ -23,6 +23,9 @@ public class CaseResponse {
     private AffectedGender affectedGender;
     private String anemiaType;
     private String diagnosis;
-    private String details;
+    private String hr;
+    private String rr;
+    private String physExam;
+    private String infoCom;
     private List<AbnormalityResponse> abnormalities = new ArrayList<>();
 }

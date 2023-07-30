@@ -3,11 +3,7 @@ package com.pja.bloodcount.service;
 import com.pja.bloodcount.dto.response.GameToExport;
 import com.pja.bloodcount.model.Game;
 import com.pja.bloodcount.model.enums.Status;
-import com.pja.bloodcount.repository.GameCaseDetailsRepository;
 import com.pja.bloodcount.repository.GameRepository;
-import com.pja.bloodcount.repository.PatientRepository;
-import com.pja.bloodcount.repository.UserRepository;
-import com.pja.bloodcount.validation.UserValidator;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
@@ -23,12 +19,7 @@ import java.util.List;
 @Slf4j
 @AllArgsConstructor
 public class ExportService {
-
-    private final UserRepository userRepository;
     private final GameRepository gameRepository;
-    private final PatientRepository patientRepository;
-    private final GameCaseDetailsRepository caseDetailsRepository;
-    private final UserValidator userValidator;
 
     public byte[] exportData() throws IOException {
 

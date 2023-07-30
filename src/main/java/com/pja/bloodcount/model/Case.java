@@ -35,7 +35,11 @@ public class Case implements Serializable {
     private AffectedGender affectedGender;
     private String anemiaType;
     private String diagnosis;
-    private String details;
+    private String hr;
+    private String rr;
+    private String physExam;
+    private String infoCom;
+
     @OneToMany(
             mappedBy = "aCase",
             cascade = CascadeType.ALL,

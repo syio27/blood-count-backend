@@ -39,7 +39,6 @@ public class GameService {
     private final QnAService qnAService;
     private final UserValidator userValidator;
     private final UserAnswerRepository userAnswerRepository;
-    private final QuestionRepository questionRepository;
 
     public GameResponse createGame(Long caseId, UUID userId) {
         User user = userValidator.validateIfExistsAndGet(userId);
@@ -61,7 +60,10 @@ public class GameService {
                 .builder()
                 .anemiaType(aCase.getAnemiaType())
                 .diagnosis(aCase.getDiagnosis())
-                .details(aCase.getDetails())
+                .hr(aCase.getHr())
+                .rr(aCase.getRr())
+                .infoCom(aCase.getInfoCom())
+                .physExam(aCase.getPhysExam())
                 .build();
 
         caseDetailsRepository.save(caseDetails);

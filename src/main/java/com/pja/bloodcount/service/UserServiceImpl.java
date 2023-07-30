@@ -47,7 +47,6 @@ public class UserServiceImpl implements UserService {
     private final GroupValidator groupValidator;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
-    private final AuthenticationManager authenticationManager;
 
     @Override
     public UserResponse getUserById(UUID id) {
