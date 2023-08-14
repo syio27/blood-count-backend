@@ -8,7 +8,7 @@
 
 **Introduction**
   
-  BloodCount is a game in test format to establish the patience disease and provide right treatment. The primary goal of this project is to provide an efficient and user-friendly platform for students, supervisors, and admins to conduct and manage exams seamlessly.
+  BloodCount is a game in test format to establish the patience disease. The primary goal of this project is to provide an efficient and user-friendly platform for students, supervisors, and admins/root to conduct and manage exams seamlessly.
   
 **Features**
 - User roles: Student, Supervisor, Administrator and Root
