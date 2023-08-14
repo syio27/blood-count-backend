@@ -5,23 +5,20 @@
 1. Introduction
 2. Features
 3. Requirements
-4. Installation
-5. Usage
-6. Contribution
-7. License
 
 **Introduction**
   
   BloodCount is a game in test format to establish the patience disease and provide right treatment. The primary goal of this project is to provide an efficient and user-friendly platform for students, supervisors, and admins to conduct and manage exams seamlessly.
   
 **Features**
-- User roles: Student, Supervisor, and Administrator
+- User roles: Student, Supervisor, Administrator and Root
 - Secure login and authentication system
-- Randomized question selection to prevent cheating
-- Dymanic generation of case for each conducted exam
+- Adding of cases (disease information with collection of blood count abnormalities) via form
+- Dymanic generation of patient with attached blood count resulted by selected case for each conducted exam session
+- Server side exam session for each user
+- Auto save of selected answers during exam session when user logs off (Logged off user - when websocket disconnects)
 - Automated grading and results generation
-- Export results to CSV, PDF, or other formats
-- Comment for student's conducted exam by supervisor
+- Export users info into CSV
 
 **Requirements**
 - Server with Java 19, Spring Boot 2.7.10, Maven 3.8.6
