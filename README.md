@@ -26,4 +26,4 @@
 - PostgreSQL
 - Modern web browser (Chrome, Firefox, Safari, Edge)
 
-**Deployed in Heroku** 
+*Deployed in Heroku*
