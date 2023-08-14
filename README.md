@@ -25,3 +25,5 @@
 - Client with Angular 15 or higher
 - PostgreSQL
 - Modern web browser (Chrome, Firefox, Safari, Edge)
+
+*Deployed in Heroku* 
