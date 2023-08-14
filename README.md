@@ -27,4 +27,4 @@
 - Modern web browser (Chrome, Firefox, Safari, Edge)
 
 *Deployed in Heroku* -> https://morphology-app-ceefa3648a59.herokuapp.com/login
-Client side application's repository -> https://github.com/syio27/blood-count-frontend
+*Client side application's repository* -> https://github.com/syio27/blood-count-frontend
