@@ -196,7 +196,7 @@ public class GameService {
         return hasGameInProgress.get();
     }
 
-    public static <T> T initializeAndUnproxy(T entity) {
+    private static <T> T initializeAndUnproxy(T entity) {
         if (entity == null) {
             return null;
         }
