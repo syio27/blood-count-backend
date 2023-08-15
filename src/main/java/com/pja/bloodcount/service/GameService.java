@@ -97,7 +97,7 @@ public class GameService {
         user.addGame(game);
         userRepository.save(user);
         log.info("Game is created");
-        return GameMapper.mapToResponseDTO(game, remainingTimeInSec);
+        return GameMapper.mapToResponseDTO(game, remainingTimeInSec, getSavedAnswersOfGame(userId, game.getId()));
     }
 
     public SimpleGameResponse completeGame(Long gameId, List<AnswerRequest> answerRequestList){
@@ -296,7 +296,9 @@ public class GameService {
         long remainingTimeInSec = remainingTime.toSeconds();
         log.info("Remaining time of game is: {}", remainingTime);
         log.info("Remaining time in seconds of game is: {}", remainingTimeInSec);
-        return GameMapper.mapToResponseDTO(game, remainingTimeInSec);
+        log.info("BC question set size: {}", game.getBcAssessmentQuestions().size());
+        log.info("MS question set size: {}", game.getMsQuestions().size());
+        return GameMapper.mapToResponseDTO(game, remainingTimeInSec, getSavedAnswersOfGame(userId, gameId));
     }
 
     public boolean hasGameInProgress(UUID userId){

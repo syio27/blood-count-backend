@@ -19,7 +19,6 @@ public class GameCurrentSessionState {
 
     private Long gameId;
     private Date estimatedEndTime;
-    //private long remainingTime;
     private Status status;
     private Pages currentPage;
     private List<SavedUserAnswerResponse> savedUserAnswers = new ArrayList<>();;

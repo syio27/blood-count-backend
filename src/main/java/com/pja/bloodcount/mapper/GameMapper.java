@@ -1,18 +1,16 @@
 package com.pja.bloodcount.mapper;
 
 import com.pja.bloodcount.dto.response.GameResponse;
-import com.pja.bloodcount.dto.response.GroupResponse;
+import com.pja.bloodcount.dto.response.SavedUserAnswerResponse;
 import com.pja.bloodcount.dto.response.SimpleGameResponse;
 import com.pja.bloodcount.model.Game;
 import org.springframework.stereotype.Component;
-
-import java.time.Duration;
 import java.util.List;
 
 @Component
 public class GameMapper {
 
-    public static GameResponse mapToResponseDTO(Game game, long remainingTime){
+    public static GameResponse mapToResponseDTO(Game game, long remainingTime, List<SavedUserAnswerResponse> savedUserAnswers){
         return GameResponse
                 .builder()
                 .id(game.getId())
@@ -28,6 +26,7 @@ public class GameMapper {
                 .gameCaseDetails(game.getCaseDetails())
                 .bcAssessmentQuestions(QnAMapper.mapToBCAQResponseListDTO(game.getBcAssessmentQuestions()))
                 .msQuestions(QnAMapper.mapToMSQResponseListDTO(game.getMsQuestions()))
+                .savedUserAnswers(savedUserAnswers)
                 .build();
     }
 

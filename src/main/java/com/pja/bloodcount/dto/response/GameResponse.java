@@ -30,4 +30,5 @@ public class GameResponse {
     private GameCaseDetails gameCaseDetails;
     private List<BCAQuestionResponse> bcAssessmentQuestions = new ArrayList<>();
     private List<MSQuestionResponse> msQuestions = new ArrayList<>();
+    private List<SavedUserAnswerResponse> savedUserAnswers = new ArrayList<>();;
 }
