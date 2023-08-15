@@ -4,9 +4,7 @@ import com.pja.bloodcount.dto.request.AnswerRequest;
 import com.pja.bloodcount.dto.response.GameResponse;
 import com.pja.bloodcount.dto.response.SimpleGameResponse;
 import com.pja.bloodcount.dto.response.UserSelectedAnswerResponse;
-import com.pja.bloodcount.exceptions.GameCompleteException;
-import com.pja.bloodcount.exceptions.GameNotFoundException;
-import com.pja.bloodcount.exceptions.GameStartException;
+import com.pja.bloodcount.exceptions.*;
 import com.pja.bloodcount.mapper.GameMapper;
 import com.pja.bloodcount.model.*;
 import com.pja.bloodcount.model.enums.Status;
@@ -39,6 +37,8 @@ public class GameService {
     private final QnAService qnAService;
     private final UserValidator userValidator;
     private final UserAnswerRepository userAnswerRepository;
+    private final QuestionRepository questionRepository;
+    private final AnswerRepository answerRepository;
 
     public GameResponse createGame(Long caseId, UUID userId) {
         User user = userValidator.validateIfExistsAndGet(userId);
@@ -52,7 +52,7 @@ public class GameService {
         Patient patient = generationService.generatePatient(caseId);
         Case aCase = caseValidator.validateIfExistsAndGet(caseId);
         generationService.generateBloodCount(caseId, patient.getId());
-        int durationInMin = 1;
+        int durationInMin = 30;
         int durationInSec = durationInMin * 60;
         Instant endTime = Instant.now().plusSeconds(durationInSec);
 
@@ -118,6 +118,62 @@ public class GameService {
         }
         repository.save(game);
         return GameMapper.mapToSimpleResponseDTO(game);
+    }
+
+    public void saveSelectedAnswers(Long gameId, List<AnswerRequest> answerRequestList) {
+        Optional<Game> optionalGame = repository.findById(gameId);
+        if(optionalGame.isEmpty()){
+            throw new GameNotFoundException(gameId);
+        }
+        Game game = optionalGame.get();
+        if(game.getStatus().equals(Status.COMPLETED)){
+            throw new GameCompleteException("Game is already submitted");
+        }
+        List<UserAnswer> userAnswers = new ArrayList<>();
+        answerRequestList.forEach(
+                answerRequest -> {
+                    Optional<Question> optionalQuestion = questionRepository.findById(answerRequest.getQuestionId());
+                    if(optionalQuestion.isEmpty()){
+                        throw new QuestionNotFoundException(answerRequest.getAnswerId());
+                    }
+                    Question question = optionalQuestion.get();
+                    if(!Objects.equals(question.getGame().getId(), gameId)){
+                        throw new QuestionNotPartException("Question is not part game: " + gameId);
+                    }
+                    Optional<Answer> optionalAnswer = answerRepository.findById(answerRequest.getAnswerId());
+                    if(optionalAnswer.isEmpty()){
+                        throw new AnswerNotFoundException(answerRequest.getAnswerId());
+                    }
+                    Answer answer = optionalAnswer.get();
+                    log.info("Answer's question id: {}", answer.getQuestion().getId());
+                    log.info("question id from request: {}", answerRequest.getQuestionId());
+                    if(!Objects.equals(answer.getQuestion().getId(), answerRequest.getQuestionId())){
+                        throw new AnswerNotPartException("Answer is not part of answers set of question: " + answerRequest.getQuestionId());
+                    }
+
+                    // Look for existing UserAnswer for the question
+                    Optional<UserAnswer> existingUserAnswer = userAnswerRepository.findByQuestionAndGame(question, game);
+
+                    if (existingUserAnswer.isPresent()) {
+                        // Update the existing answer with the new one
+                        UserAnswer userAnswerToUpdate = existingUserAnswer.get();
+                        userAnswerToUpdate.setAnswer(answer);
+                        userAnswers.add(userAnswerToUpdate);
+                    } else {
+                        // Create a new UserAnswer
+                        UserAnswer userAnswer = UserAnswer
+                                .builder()
+                                .game(question.getGame())
+                                .user(question.getGame().getUser())
+                                .answer(answer)
+                                .question(question)
+                                .build();
+
+                        userAnswers.add(userAnswer);
+                    }
+                }
+        );
+        userAnswerRepository.saveAll(userAnswers);
     }
 
     public List<SimpleGameResponse> getAllCompletedGamesOfUser(UUID userId){

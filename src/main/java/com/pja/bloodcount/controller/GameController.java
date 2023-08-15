@@ -27,13 +27,14 @@ import java.util.UUID;
 public class GameController {
 
     private final GameService service;
+
     @GetMapping(value = "/case/{caseId}", params = "userId")
     public ResponseEntity<GameResponse> start(@PathVariable Long caseId,
-                                                   @RequestParam UUID userId,
-                                                   Authentication authentication){
+                                              @RequestParam UUID userId,
+                                              Authentication authentication) {
         User userDetails = (User) authentication.getPrincipal();
         log.info("request coming from user with email-> {}", userDetails.getEmail());
-        if(!userDetails.getId().equals(userId)){
+        if (!userDetails.getId().equals(userId)) {
             throw new UserNotAllowedException(
                     "Access restricted, user with email: " +
                             userDetails.getEmail() +
@@ -46,10 +47,10 @@ public class GameController {
     public ResponseEntity<SimpleGameResponse> complete(@PathVariable Long gameId,
                                                        @RequestBody List<AnswerRequest> request,
                                                        @RequestParam UUID userId,
-                                                       Authentication authentication){
+                                                       Authentication authentication) {
         User userDetails = (User) authentication.getPrincipal();
         log.info("request coming from user with email-> {}", userDetails.getEmail());
-        if(!userDetails.getId().equals(userId)){
+        if (!userDetails.getId().equals(userId)) {
             throw new UserNotAllowedException(
                     "Access restricted, user with email: " +
                             userDetails.getEmail() +
@@ -60,11 +61,11 @@ public class GameController {
 
     @GetMapping(value = "/{gameId}", params = "userId")
     public ResponseEntity<GameResponse> getStartedGame(@PathVariable Long gameId,
-                                              @RequestParam UUID userId,
-                                              Authentication authentication){
+                                                       @RequestParam UUID userId,
+                                                       Authentication authentication) {
         User userDetails = (User) authentication.getPrincipal();
         log.info("request coming from user with email-> {}", userDetails.getEmail());
-        if(!userDetails.getId().equals(userId)){
+        if (!userDetails.getId().equals(userId)) {
             throw new UserNotAllowedException(
                     "Access restricted, user with email: " +
                             userDetails.getEmail() +
@@ -74,7 +75,24 @@ public class GameController {
     }
 
     @GetMapping(value = "/", params = "userId")
-    public ResponseEntity<Boolean> checkGameInProgress(@RequestParam UUID userId){
+    public ResponseEntity<Boolean> checkGameInProgress(@RequestParam UUID userId) {
         return ResponseEntity.ok(service.hasGameInProgress(userId));
+    }
+
+    @PostMapping(value = "/{gameId}/save", params = "userId")
+    public ResponseEntity<Void> onSave(@PathVariable Long gameId,
+                                       @RequestBody List<AnswerRequest> request,
+                                       @RequestParam UUID userId,
+                                       Authentication authentication) {
+        User userDetails = (User) authentication.getPrincipal();
+        log.info("request coming from user with email-> {}", userDetails.getEmail());
+        if (!userDetails.getId().equals(userId)) {
+            throw new UserNotAllowedException(
+                    "Access restricted, user with email: " +
+                            userDetails.getEmail() +
+                            " not allowed to this url");
+        }
+        service.saveSelectedAnswers(gameId, request);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
