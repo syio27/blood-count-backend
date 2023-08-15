@@ -21,6 +21,7 @@ public class GameMapper {
                 .estimatedEndTime(game.getEstimatedEndTime())
                 .status(game.getStatus())
                 .score(game.getScore())
+                .currentPage(game.getCurrentPage())
                 .testDuration(game.getTestDuration())
                 .remainingTime(remainingTime)
                 .patient(PatientMapper.mapToResponseDTO(game.getPatient()))

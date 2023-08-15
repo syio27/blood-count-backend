@@ -1,12 +1,11 @@
 package com.pja.bloodcount.service;
 
 import com.pja.bloodcount.dto.request.AnswerRequest;
-import com.pja.bloodcount.dto.response.GameResponse;
-import com.pja.bloodcount.dto.response.SimpleGameResponse;
-import com.pja.bloodcount.dto.response.UserSelectedAnswerResponse;
+import com.pja.bloodcount.dto.response.*;
 import com.pja.bloodcount.exceptions.*;
 import com.pja.bloodcount.mapper.GameMapper;
 import com.pja.bloodcount.model.*;
+import com.pja.bloodcount.model.enums.Pages;
 import com.pja.bloodcount.model.enums.Status;
 import com.pja.bloodcount.repository.*;
 import com.pja.bloodcount.validation.CaseValidator;
@@ -74,6 +73,7 @@ public class GameService {
                 .endTime(null)
                 .estimatedEndTime(Date.from(endTime))
                 .status(Status.IN_PROGRESS)
+                .currentPage(Pages.ONE)
                 .testDuration(durationInMin)
                 .caseDetails(caseDetails)
                 .build();
@@ -176,6 +176,42 @@ public class GameService {
         userAnswerRepository.saveAll(userAnswers);
     }
 
+    public GameCurrentSessionState next(UUID userId, Long gameId, List<AnswerRequest> answerRequestList) {
+        Optional<Game> optionalGame = repository.findById(gameId);
+        if(optionalGame.isEmpty()){
+            throw new GameNotFoundException(gameId);
+        }
+        Game game = optionalGame.get();
+        if(game.getStatus().equals(Status.COMPLETED)){
+            throw new GameCompleteException("Game is already submitted");
+        }
+        this.saveSelectedAnswers(gameId, answerRequestList);
+        Pages currentPage = game.getCurrentPage();
+        currentPage = this.next(currentPage);
+        game.setCurrentPage(currentPage);
+        repository.save(game);
+
+        return GameCurrentSessionState
+                .builder()
+                .gameId(gameId)
+                .estimatedEndTime(game.getEstimatedEndTime())
+                .status(game.getStatus())
+                .currentPage(game.getCurrentPage())
+                .savedUserAnswers(getSavedAnswersOfGame(userId, gameId))
+                .build();
+    }
+
+    private Pages next(Pages currentPage) {
+        if (currentPage != Pages.FOUR) {
+            currentPage = currentPage.getNextPage();
+        } else {
+            // Handle the case when you are at the last page and there is no next page.
+            // Maybe loop back to the beginning or do nothing, depending on your needs.
+            log.warn("User is on last page of Game");
+        }
+        return currentPage;
+    }
+
     public List<SimpleGameResponse> getAllCompletedGamesOfUser(UUID userId){
         userValidator.validateIfExistsAndGet(userId);
         List<Game> games = repository.findByUser_Id(userId);
@@ -185,6 +221,29 @@ public class GameService {
                 .toList());
     }
 
+    private List<SavedUserAnswerResponse> getSavedAnswersOfGame(UUID userId, Long gameId) {
+        List<SavedUserAnswerResponse> savedUserAnswers = new ArrayList<>();
+        userValidator.validateIfExistsAndGet(userId);
+        Optional<Game> optionalGame = repository.findById(gameId);
+        if(optionalGame.isEmpty()){
+            throw new GameNotFoundException(gameId);
+        }
+        Game game = optionalGame.get();
+        List<UserAnswer> selectedAnswers = userAnswerRepository.findByUser_IdAndGame_Id(userId, gameId);
+        selectedAnswers.forEach(savedUserAnswer -> {
+            SavedUserAnswerResponse savedUserAnswerResponse = SavedUserAnswerResponse
+                    .builder()
+                    .answerId(savedUserAnswer.getAnswer().getId())
+                    .questionId(savedUserAnswer.getQuestion().getId())
+                    .build();
+
+            savedUserAnswers.add(savedUserAnswerResponse);
+        });
+
+        return savedUserAnswers;
+    }
+
+    @Deprecated
     public List<UserSelectedAnswerResponse> getSelectedAnswersOfGame(UUID userId, Long gameId){
         List<UserSelectedAnswerResponse> selectedAnswerResponses = new ArrayList<>();
         userValidator.validateIfExistsAndGet(userId);

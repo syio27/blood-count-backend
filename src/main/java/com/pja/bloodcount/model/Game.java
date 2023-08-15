@@ -1,5 +1,6 @@
 package com.pja.bloodcount.model;
 
+import com.pja.bloodcount.model.enums.Pages;
 import com.pja.bloodcount.model.enums.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,6 +35,8 @@ public class Game {
     @Enumerated(EnumType.STRING)
     private Status status;
     private int score = 0;
+    @Enumerated(EnumType.STRING)
+    private Pages currentPage;
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id")
     private Patient patient;
