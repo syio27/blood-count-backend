@@ -1,10 +1,7 @@
 package com.pja.bloodcount.controller;
 
 import com.pja.bloodcount.dto.request.AnswerRequest;
-import com.pja.bloodcount.dto.response.CaseResponse;
-import com.pja.bloodcount.dto.response.GameCurrentSessionState;
-import com.pja.bloodcount.dto.response.GameResponse;
-import com.pja.bloodcount.dto.response.SimpleGameResponse;
+import com.pja.bloodcount.dto.response.*;
 import com.pja.bloodcount.exceptions.UserNotAllowedException;
 import com.pja.bloodcount.model.BCAssessmentQuestion;
 import com.pja.bloodcount.model.Game;
@@ -76,7 +73,7 @@ public class GameController {
     }
 
     @GetMapping(value = "/", params = "userId")
-    public ResponseEntity<Boolean> checkGameInProgress(@RequestParam UUID userId) {
+    public ResponseEntity<GameInProgress> checkGameInProgress(@RequestParam UUID userId) {
         return ResponseEntity.ok(service.hasGameInProgress(userId));
     }
 

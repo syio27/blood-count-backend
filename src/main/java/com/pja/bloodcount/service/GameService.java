@@ -301,16 +301,19 @@ public class GameService {
         return GameMapper.mapToResponseDTO(game, remainingTimeInSec, getSavedAnswersOfGame(userId, gameId));
     }
 
-    public boolean hasGameInProgress(UUID userId){
+    public GameInProgress hasGameInProgress(UUID userId){
+        GameInProgress gameInProgress = GameInProgress.builder().build();
         User user = userValidator.validateIfExistsAndGet(userId);
         List<Game> games = user.getGames();
         AtomicBoolean hasGameInProgress = new AtomicBoolean(false);
         games.forEach(game -> {
             if (game.getStatus().equals(Status.IN_PROGRESS)){
                 hasGameInProgress.set(true);
+                gameInProgress.setInProgress(hasGameInProgress.get());
+                gameInProgress.setGameId(game.getId());
             }
         });
-        return hasGameInProgress.get();
+        return gameInProgress;
     }
 
     private static <T> T initializeAndUnproxy(T entity) {
