@@ -258,12 +258,12 @@ public class DataLoader implements CommandLineRunner {
                 .build();
 
         defaultAdminGroup.addUser(defaultAdmin);
-        bcReferenceRepository.saveAll(
-                List.of(
-                WBC, RBC, HGB, HCT, MCV, MCH, MCHC, PLT,
-                RDW_CV, RDW_SD,
-                NEU, LYM, MONO, EOS, BASO,
-                NEU_p, LYM_p, MONO_p, EOS_p, BASO_p));
+//        bcReferenceRepository.saveAll(
+//                List.of(
+//                WBC, RBC, HGB, HCT, MCV, MCH, MCHC, PLT,
+//                RDW_CV, RDW_SD,
+//                NEU, LYM, MONO, EOS, BASO,
+//                NEU_p, LYM_p, MONO_p, EOS_p, BASO_p));
         userRepository.save(defaultAdmin);
     }
 }

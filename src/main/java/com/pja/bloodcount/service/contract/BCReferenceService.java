@@ -6,5 +6,6 @@ import java.util.List;
 
 public interface BCReferenceService {
 
+    List<BloodCountReference> populateTable();
     List<BloodCountReference> fullTableOfBCReference();
 }
