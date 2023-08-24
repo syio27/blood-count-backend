@@ -39,6 +39,7 @@ public class Case implements Serializable {
     private String rr;
     private String physExam;
     private String infoCom;
+    private String vitalSigns;
 
     @OneToMany(
             mappedBy = "aCase",

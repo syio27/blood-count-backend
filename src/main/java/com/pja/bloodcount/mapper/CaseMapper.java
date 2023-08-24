@@ -29,6 +29,7 @@ public class CaseMapper {
                 .rr(aCase.getHr())
                 .physExam(aCase.getPhysExam())
                 .infoCom(aCase.getInfoCom())
+                .vitalSigns(aCase.getVitalSigns())
                 .build();
     }
 
@@ -48,6 +49,7 @@ public class CaseMapper {
                         .rr(aCase.getHr())
                         .physExam(aCase.getPhysExam())
                         .infoCom(aCase.getInfoCom())
+                        .vitalSigns(aCase.getVitalSigns())
                         .abnormalities(mapToAbnormalityDTOList(aCase.getAbnormalities()))
                         .build())
                 .toList();
@@ -63,6 +65,7 @@ public class CaseMapper {
                 .rr(aCase.getRr())
                 .infoCom(aCase.getInfoCom())
                 .physExam(aCase.getPhysExam())
+                .vitalSigns(aCase.getVitalSigns())
                 .build();
     }
 
