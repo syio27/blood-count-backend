@@ -19,5 +19,4 @@ public class CaseOfGameResponse {
     private String rr;
     private String physExam;
     private String infoCom;
-    private String vitalSigns;
 }

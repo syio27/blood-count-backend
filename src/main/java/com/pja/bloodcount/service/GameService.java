@@ -63,7 +63,6 @@ public class GameService {
                 .rr(aCase.getRr())
                 .infoCom(aCase.getInfoCom())
                 .physExam(aCase.getPhysExam())
-                .vitalSigns(aCase.getVitalSigns())
                 .build();
 
         caseDetailsRepository.save(caseDetails);

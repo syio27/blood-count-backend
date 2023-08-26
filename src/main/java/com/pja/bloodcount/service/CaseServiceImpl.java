@@ -61,7 +61,6 @@ public class CaseServiceImpl implements CaseService {
                .rr(request.getHr())
                .physExam(request.getPhysExam())
                .infoCom(request.getInfoCom())
-               .vitalSigns(request.getVitalSigns())
                .build();
        return CaseMapper.mapToResponseDTO(repository.save(newCase));
     }
