@@ -1,9 +1,8 @@
 package com.pja.bloodcount.service;
 
 import com.pja.bloodcount.dto.request.CreateMSQQuestionRequest;
-import com.pja.bloodcount.model.ErythrocyteQuestion;
-import com.pja.bloodcount.model.LeukocyteQuestion;
-import com.pja.bloodcount.model.VariousQuestion;
+import com.pja.bloodcount.model.*;
+import com.pja.bloodcount.model.enums.Language;
 import com.pja.bloodcount.repository.ErythrocyteQBRepository;
 import com.pja.bloodcount.repository.LeukocyteQBRepository;
 import com.pja.bloodcount.repository.VariousQBRepository;
@@ -23,45 +22,60 @@ public class QuestionBaseService {
     private final ErythrocyteQBRepository erythrocyteQBRepository;
     private final LeukocyteQBRepository leukocyteQBRepository;
 
-    public List<ErythrocyteQuestion> createErythrocytes(List<CreateMSQQuestionRequest> requests){
-        List<ErythrocyteQuestion> questions = new ArrayList<>();
+    public List<ErythrocyteQuestionTranslation> createErythrocytes(List<CreateMSQQuestionRequest> requests, Language language){
+        ErythrocyteQuestion erythrocyteQuestion = ErythrocyteQuestion
+                .builder()
+                .language(language)
+                .translations(new ArrayList<>())
+                .build();
+
         requests.forEach(request -> {
-            ErythrocyteQuestion question = ErythrocyteQuestion
+            ErythrocyteQuestionTranslation question = ErythrocyteQuestionTranslation
                     .builder()
                     .text(request.getText())
                     .answer(request.getAnswer())
                     .build();
-            questions.add(question);
+            erythrocyteQuestion.addQnA(question);
         });
-        erythrocyteQBRepository.saveAll(questions);
-        return questions;
+        erythrocyteQBRepository.save(erythrocyteQuestion);
+        return erythrocyteQuestion.getTranslations();
     }
 
-    public List<LeukocyteQuestion> createLeukocyte(List<CreateMSQQuestionRequest> requests){
-        List<LeukocyteQuestion> questions = new ArrayList<>();
+    public List<LeukocyteQuestionTranslation> createLeukocyte(List<CreateMSQQuestionRequest> requests, Language language){
+        LeukocyteQuestion leukocyteQuestion = LeukocyteQuestion
+                .builder()
+                .language(language)
+                .translations(new ArrayList<>())
+                .build();
+
         requests.forEach(request -> {
-            LeukocyteQuestion question = LeukocyteQuestion
+            LeukocyteQuestionTranslation question = LeukocyteQuestionTranslation
                     .builder()
                     .text(request.getText())
                     .answer(request.getAnswer())
                     .build();
-            questions.add(question);
+            leukocyteQuestion.addQnA(question);
         });
-        leukocyteQBRepository.saveAll(questions);
-        return questions;
+        leukocyteQBRepository.save(leukocyteQuestion);
+        return leukocyteQuestion.getTranslations();
     }
 
-    public List<VariousQuestion> createVariousQ(List<CreateMSQQuestionRequest> requests){
-        List<VariousQuestion> questions = new ArrayList<>();
+    public List<VariousQuestionTranslation> createVariousQ(List<CreateMSQQuestionRequest> requests, Language language){
+        VariousQuestion variousQuestion = VariousQuestion
+                .builder()
+                .language(language)
+                .translations(new ArrayList<>())
+                .build();
+
         requests.forEach(request -> {
-            VariousQuestion question = VariousQuestion
+            VariousQuestionTranslation question = VariousQuestionTranslation
                     .builder()
                     .text(request.getText())
                     .answer(request.getAnswer())
                     .build();
-            questions.add(question);
+            variousQuestion.addQnA(question);
         });
-        variousQBRepository.saveAll(questions);
-        return questions;
+        variousQBRepository.save(variousQuestion);
+        return variousQuestion.getTranslations();
     }
 }

@@ -3,6 +3,7 @@ package com.pja.bloodcount.service;
 import com.pja.bloodcount.dto.request.AnswerRequest;
 import com.pja.bloodcount.exceptions.*;
 import com.pja.bloodcount.model.*;
+import com.pja.bloodcount.model.enums.Language;
 import com.pja.bloodcount.repository.*;
 import com.pja.bloodcount.validation.PatientValidator;
 import lombok.AllArgsConstructor;
@@ -31,9 +32,9 @@ public class QnAService {
     private final VariousQBRepository variousQBRepository;
     private final PatientValidator patientValidator;
 
-    public List<BCAssessmentQuestion>  createQnAForBCAssessment(Long gameId){
+    public List<BCAssessmentQuestion> createQnAForBCAssessment(Long gameId) {
         Optional<Game> optionalGame = gameRepository.findById(gameId);
-        if(optionalGame.isEmpty()){
+        if (optionalGame.isEmpty()) {
             throw new GameNotFoundException(gameId);
         }
         Game game = optionalGame.get();
@@ -41,123 +42,78 @@ public class QnAService {
         List<BloodCount> bloodCountList = patient.getBloodCounts();
         List<BCAssessmentQuestion> questionList = new ArrayList<>();
         bloodCountList.forEach(bloodCount -> {
-            if(isForAssessment(bloodCount.getParameter(), bloodCount.getUnit())){
-               Answer answer1 = Answer
-                       .builder()
-                       .text("INCREASED")
-                       .build();
-               Answer answer2 = Answer
+            if (isForAssessment(bloodCount.getParameter(), bloodCount.getUnit())) {
+                Answer answer1 = Answer
+                        .builder()
+                        .text("INCREASED")
+                        .build();
+                Answer answer2 = Answer
                         .builder()
                         .text("NORMAL")
                         .build();
-               Answer answer3 = Answer
+                Answer answer3 = Answer
                         .builder()
                         .text("DECREASED")
                         .build();
 
-               BCAssessmentQuestion question = BCAssessmentQuestion
-                       .builder()
-                       .parameter(bloodCount.getParameter())
-                       .unit(bloodCount.getUnit())
-                       .value(bloodCount.getValue())
-                       .build();
-               question.addAnswer(answer1);
-               question.addAnswer(answer2);
-               question.addAnswer(answer3);
-               bcaQuestionRepository.save(question);
-               List<Answer> answers = question.getAnswers();
-               answers.forEach(answer -> {
-                   if(bloodCount.getLevelType().name().equals(answer.getText())){
-                       question.setCorrectAnswerId(answer.getId());
-                   }
-               });
-               questionList.add(question);
+                BCAssessmentQuestion question = BCAssessmentQuestion
+                        .builder()
+                        .parameter(bloodCount.getParameter())
+                        .unit(bloodCount.getUnit())
+                        .value(bloodCount.getValue())
+                        .build();
+                question.addAnswer(answer1);
+                question.addAnswer(answer2);
+                question.addAnswer(answer3);
+                bcaQuestionRepository.save(question);
+                List<Answer> answers = question.getAnswers();
+                answers.forEach(answer -> {
+                    if (bloodCount.getLevelType().name().equals(answer.getText())) {
+                        question.setCorrectAnswerId(answer.getId());
+                    }
+                });
+                questionList.add(question);
             }
         });
         bcaQuestionRepository.saveAll(questionList);
         return questionList;
     }
 
-    public List<MSQuestion> createMSQuestions(Long gameId){
+    public List<MSQuestion> createMSQuestions(Long gameId, Language language) {
         Optional<Game> optionalGame = gameRepository.findById(gameId);
-        if(optionalGame.isEmpty()){
+        if (optionalGame.isEmpty()) {
             throw new GameNotFoundException(gameId);
         }
         Game game = optionalGame.get();
-        Answer answer1Q1 = Answer
-                .builder()
-                .text("Mikrocytowa")
-                .build();
-        Answer answer2Q1 = Answer
-                .builder()
-                .text("Normocytowa")
-                .build();
-        Answer answer3Q1 = Answer
-                .builder()
-                .text("Makrocytowa")
-                .build();
-        Answer answer4Q1 = Answer
-                .builder()
-                .text("Pacjent nie ma niedokrwistości")
-                .build();
-
         MSQuestion msQuestion1 = MSQuestion
                 .builder()
-                .text("Jak określisz niedokrwistość:")
-                .build();
-        msQuestion1.addAnswer(answer1Q1);
-        msQuestion1.addAnswer(answer2Q1);
-        msQuestion1.addAnswer(answer3Q1);
-        msQuestion1.addAnswer(answer4Q1);
-
-        Answer answer1Q2 = Answer
-                .builder()
-                .text("Stopień 0 (norma) – stężenie Hb >= 11,0 g/dl")
-                .build();
-        Answer answer2Q2 = Answer
-                .builder()
-                .text("Stopień I (łagodna) – stężenie Hb 9,5 – 10,9 g/dl")
-                .build();
-        Answer answer3Q2 = Answer
-                .builder()
-                .text("Stopień II (umiarkowana) – stężenie Hb 8,0 – 9,4 g/dl")
-                .build();
-        Answer answer4Q2 = Answer
-                .builder()
-                .text("Stopień III (ciężka) - stężenie Hb 6,5 – 7,9 g/dl")
-                .build();
-
-        Answer answer5Q2 = Answer
-                .builder()
-                .text("Stopień IV (bardzo ciężka) – stężenie Hb < 6,5 g/dl")
                 .build();
 
         MSQuestion msQuestion2 = MSQuestion
                 .builder()
-                .text("Stosując klasyfikację WHO, rozpoznasz:")
                 .build();
-        msQuestion2.addAnswer(answer1Q2);
-        msQuestion2.addAnswer(answer2Q2);
-        msQuestion2.addAnswer(answer3Q2);
-        msQuestion2.addAnswer(answer4Q2);
-        msQuestion2.addAnswer(answer5Q2);
+
+        buildMSAnswersAndQuestion(msQuestion1, msQuestion2, language);
 
         msQuestionRepository.saveAll(List.of(msQuestion1, msQuestion2));
         List<Answer> answersMSQ1 = msQuestion1.getAnswers();
         String anemiaType = game.getCaseDetails().getAnemiaType();
-        String formattedAnemia = formatString(anemiaType);
         answersMSQ1.forEach(answer -> {
-            if(answer.getText().equals(formattedAnemia)){
+            log.info("Answer of msq 1 {}: ", answer);
+            if (answer.getText().equals(anemiaType)) {
                 msQuestion1.setCorrectAnswerId(answer.getId());
+            } else {
+                log.warn("Q. Answer doesnt match with anemia type, correct answer is being set as null");
             }
         });
         List<Answer> answersMSQ2 = msQuestion2.getAnswers();
         double hgbValue = game.getPatient().getBloodCounts().stream().filter(bloodCount -> "HGB".equals(bloodCount.getParameter())).findFirst().get().getValue();
-        log.info("HGB value is: {}", hgbValue);
+
         answersMSQ2.forEach(answer -> {
+            log.info("Answer of msq 2 {}: ", answer);
             String range = getRangeInString(answer.getText());
             log.info("Range of answer's text: {}", range);
-            if(isInRange(range, hgbValue)){
+            if (isInRange(range, hgbValue)) {
                 msQuestion2.setCorrectAnswerId(answer.getId());
             }
         });
@@ -166,34 +122,30 @@ public class QnAService {
         return new ArrayList<>(List.of(msQuestion1, msQuestion2));
     }
 
-    public List<MSQuestion> createTrueFalseMSQuestions(Long gameId){
+    public List<MSQuestion> createTrueFalseMSQuestions(Long gameId, Language language) {
         Optional<Game> optionalGame = gameRepository.findById(gameId);
-        if(optionalGame.isEmpty()){
+        if (optionalGame.isEmpty()) {
             throw new GameNotFoundException(gameId);
         }
         Game game = optionalGame.get();
         List<MSQuestion> msQuestions = new ArrayList<>();
-        List<ErythrocyteQuestion> allErythrocyteQuestions = erythrocyteQBRepository.findAll();
-        List<ErythrocyteQuestion> randomErythrocyteQuestions = randomlyPickQuestions(allErythrocyteQuestions, 3);
+
+        ErythrocyteQuestion erythrocyteQuestionStorage = erythrocyteQBRepository.findAll()
+                .stream()
+                .filter(q -> q.getLanguage().equals(language))
+                .findFirst()
+                .orElseThrow(() -> new NoSuchElementException("Erythrocyte question storage for language " + language + " doesnt exist"));
+        List<ErythrocyteQuestionTranslation> randomErythrocyteQuestions = randomlyPickQuestions(erythrocyteQuestionStorage.getTranslations(), 3);
         randomErythrocyteQuestions.forEach(erythrocyteQuestion -> {
-            Answer answerTrue = Answer
-                    .builder()
-                    .text("Prawda")
-                    .build();
-            Answer answerFalse = Answer
-                    .builder()
-                    .text("Fałsz")
-                    .build();
             MSQuestion msQuestion = MSQuestion
                     .builder()
                     .text(erythrocyteQuestion.getText())
                     .build();
-            msQuestion.addAnswer(answerTrue);
-            msQuestion.addAnswer(answerFalse);
+            buildTrueFalseAnswers(msQuestion, language);
             msQuestionRepository.save(msQuestion);
             List<Answer> answers = msQuestion.getAnswers();
             answers.forEach(answer -> {
-                if(answer.getText().equals(erythrocyteQuestion.getAnswer())){
+                if (answer.getText().equals(erythrocyteQuestion.getAnswer())) {
                     msQuestion.setCorrectAnswerId(answer.getId());
                 }
             });
@@ -201,28 +153,23 @@ public class QnAService {
             msQuestionRepository.save(msQuestion);
         });
 
-        List<LeukocyteQuestion> allLeukocyteQuestions = leukocyteQBRepository.findAll();
-        List<LeukocyteQuestion> randomLeukocyteQuestions = randomlyPickQuestions(allLeukocyteQuestions, 3);
+        LeukocyteQuestion leukocyteQuestionStorage = leukocyteQBRepository.findAll()
+                .stream()
+                .filter(q -> q.getLanguage().equals(language))
+                .findFirst()
+                .orElseThrow(() -> new NoSuchElementException("Leukocyte question storage for language " + language + " doesnt exist"));
+        List<LeukocyteQuestionTranslation> randomLeukocyteQuestions = randomlyPickQuestions(leukocyteQuestionStorage.getTranslations(), 3);
 
         randomLeukocyteQuestions.forEach(leukocyteQuestion -> {
-            Answer answerTrue = Answer
-                    .builder()
-                    .text("Prawda")
-                    .build();
-            Answer answerFalse = Answer
-                    .builder()
-                    .text("Fałsz")
-                    .build();
             MSQuestion msQuestion = MSQuestion
                     .builder()
                     .text(leukocyteQuestion.getText())
                     .build();
-            msQuestion.addAnswer(answerTrue);
-            msQuestion.addAnswer(answerFalse);
+            buildTrueFalseAnswers(msQuestion, language);
             msQuestionRepository.save(msQuestion);
             List<Answer> answers = msQuestion.getAnswers();
             answers.forEach(answer -> {
-                if(answer.getText().equals(leukocyteQuestion.getAnswer())){
+                if (answer.getText().equals(leukocyteQuestion.getAnswer())) {
                     msQuestion.setCorrectAnswerId(answer.getId());
                 }
             });
@@ -230,28 +177,23 @@ public class QnAService {
             msQuestionRepository.save(msQuestion);
         });
 
-        List<VariousQuestion> allVariousQuestions = variousQBRepository.findAll();
-        List<VariousQuestion> randomVariousQuestions = randomlyPickQuestions(allVariousQuestions, 4);
+        VariousQuestion variousQuestionStorage = variousQBRepository.findAll()
+                .stream()
+                .filter(q -> q.getLanguage().equals(language))
+                .findFirst()
+                .orElseThrow(() -> new NoSuchElementException("Various question storage for language " + language + " doesnt exist"));
+        List<VariousQuestionTranslation> randomVariousQuestions = randomlyPickQuestions(variousQuestionStorage.getTranslations(), 4);
 
         randomVariousQuestions.forEach(variousQuestion -> {
-            Answer answerTrue = Answer
-                    .builder()
-                    .text("Prawda")
-                    .build();
-            Answer answerFalse = Answer
-                    .builder()
-                    .text("Fałsz")
-                    .build();
             MSQuestion msQuestion = MSQuestion
                     .builder()
                     .text(variousQuestion.getText())
                     .build();
-            msQuestion.addAnswer(answerTrue);
-            msQuestion.addAnswer(answerFalse);
+            buildTrueFalseAnswers(msQuestion, language);
             msQuestionRepository.save(msQuestion);
             List<Answer> answers = msQuestion.getAnswers();
             answers.forEach(answer -> {
-                if(answer.getText().equals(variousQuestion.getAnswer())){
+                if (answer.getText().equals(variousQuestion.getAnswer())) {
                     msQuestion.setCorrectAnswerId(answer.getId());
                 }
             });
@@ -262,31 +204,46 @@ public class QnAService {
         return msQuestions;
     }
 
-    public int score(List<AnswerRequest> answerRequestList, Long gameId){
+    private void buildTrueFalseAnswers(MSQuestion msQuestion, Language language){
+        Answer answerTrue = Answer.builder().build();
+        Answer answerFalse = Answer.builder().build();
+        if(language.equals(Language.EN)){
+            answerTrue.setText("True");
+            answerFalse.setText("False");
+        }
+        if(language.equals(Language.PL)){
+            answerTrue.setText("Prawda");
+            answerFalse.setText("Fałsz");
+        }
+        msQuestion.addAnswer(answerTrue);
+        msQuestion.addAnswer(answerFalse);
+    }
+
+    public int score(List<AnswerRequest> answerRequestList, Long gameId) {
 
         AtomicInteger score = new AtomicInteger(0);
         List<UserAnswer> userAnswers = new ArrayList<>();
 
         answerRequestList.forEach(answerRequest -> {
             Optional<Question> optionalQuestion = questionRepository.findById(answerRequest.getQuestionId());
-            if(optionalQuestion.isEmpty()){
+            if (optionalQuestion.isEmpty()) {
                 throw new QuestionNotFoundException(answerRequest.getAnswerId());
             }
             Question question = optionalQuestion.get();
-            if(!Objects.equals(question.getGame().getId(), gameId)){
+            if (!Objects.equals(question.getGame().getId(), gameId)) {
                 throw new QuestionNotPartException("Question is not part game: " + gameId);
             }
             Optional<Answer> optionalAnswer = answerRepository.findById(answerRequest.getAnswerId());
-            if(optionalAnswer.isEmpty()){
+            if (optionalAnswer.isEmpty()) {
                 throw new AnswerNotFoundException(answerRequest.getAnswerId());
             }
             Answer answer = optionalAnswer.get();
             log.info("Answer's question id: {}", answer.getQuestion().getId());
-            log.info("question id from request: {}",answerRequest.getQuestionId());
-            if(!Objects.equals(answer.getQuestion().getId(), answerRequest.getQuestionId())){
+            log.info("question id from request: {}", answerRequest.getQuestionId());
+            if (!Objects.equals(answer.getQuestion().getId(), answerRequest.getQuestionId())) {
                 throw new AnswerNotPartException("Answer is not part of answers set of question: " + answerRequest.getQuestionId());
             }
-            if(Objects.equals(question.getCorrectAnswerId(), answerRequest.getAnswerId())){
+            if (Objects.equals(question.getCorrectAnswerId(), answerRequest.getAnswerId())) {
                 score.getAndIncrement();
             }
 
@@ -318,35 +275,29 @@ public class QnAService {
         return bloodCountMap.containsKey(parameter) && bloodCountMap.containsValue(unit);
     }
 
-    private String getRangeInString(String text){
-        Pattern pattern = Pattern.compile("(?<=Hb\\s).+?(?=\\sg/dl)");
+    private String getRangeInString(String text) {
+        Pattern pattern = Pattern.compile("(?<=HGB\\s).+?(?=\\sg/dl)");
         Matcher matcher = pattern.matcher(text);
-        if(matcher.find()){
+        if (matcher.find()) {
             return matcher.group();
         }
         return null;
     }
 
-    private static String formatString(String input) {
-        input = input.substring(3);
-        input = input.substring(0, 1).toUpperCase() + input.substring(1);
-        return input;
-    }
-
-    private boolean isInRange(String range, double value){
+    private boolean isInRange(String range, double value) {
         double max, min;
         List<String> ranges = new ArrayList<>(List.of(range.split(" ")));
-        if(ranges.contains(">=")){
+        if (ranges.contains(">=")) {
             min = Double.parseDouble(ranges.get(1).replace(',', '.'));
             log.info("min: {}", min);
             return value >= min;
         }
-        if(ranges.contains("<")){
+        if (ranges.contains("<")) {
             max = Double.parseDouble(ranges.get(1).replace(',', '.'));
             log.info("min: {}", max);
             return value < max;
         }
-        if(ranges.contains("–")){
+        if (ranges.contains("–")) {
             min = Double.parseDouble(ranges.get(0).replace(',', '.'));
             max = Double.parseDouble(ranges.get(2).replace(',', '.'));
             log.info("min: {}, and max: {}", min, max);
@@ -355,12 +306,106 @@ public class QnAService {
         return false;
     }
 
-    private <T> List<T> randomlyPickQuestions(List<T> allQuestions, int number){
+    private <T> List<T> randomlyPickQuestions(List<T> allQuestions, int number) {
         List<T> questions = new ArrayList<>();
         for (int i = 0; i < number; i++) {
             T randomEntity = allQuestions.remove(ThreadLocalRandom.current().nextInt(allQuestions.size()));
             questions.add(randomEntity);
         }
         return questions;
+    }
+
+    private void buildMSAnswersAndQuestion(MSQuestion msQuestion1, MSQuestion msQuestion2, Language language){
+        Answer answer1Q1 = Answer
+                .builder()
+                .build();
+        Answer answer2Q1 = Answer
+                .builder()
+                .build();
+        Answer answer3Q1 = Answer
+                .builder()
+                .build();
+        Answer answer4Q1 = Answer
+                .builder()
+                .build();
+        Answer answer5Q1 = Answer
+                .builder()
+                .build();
+        Answer answer6Q1 = Answer
+                .builder()
+                .build();
+        Answer answer7Q1 = Answer
+                .builder()
+                .build();
+        Answer answer8Q1 = Answer
+                .builder()
+                .build();
+
+        Answer answer1Q2 = Answer
+                .builder()
+                .build();
+        Answer answer2Q2 = Answer
+                .builder()
+                .build();
+        Answer answer3Q2 = Answer
+                .builder()
+                .build();
+        Answer answer4Q2 = Answer
+                .builder()
+                .build();
+        Answer answer5Q2 = Answer
+                .builder()
+                .build();
+
+        if(language.equals(Language.PL)){
+            msQuestion1.setText("Jak określisz niedokrwistość:");
+            answer1Q1.setText("Pacjent nie ma niedokrwistości");
+            answer2Q1.setText("Normochromiczna, normocytarna");
+            answer3Q1.setText("Normochromiczna, makrocytarna");
+            answer4Q1.setText("Normochromiczna,mikrocytarna");
+            answer5Q1.setText("Hipochromiczna, mikrocytarna");
+            answer6Q1.setText("Hipochromiczna, normocytarna");
+            answer7Q1.setText("Hipochromiczna, makrocytarna");
+            answer8Q1.setText("Hiperchroniczna, makrocytarna");
+
+            msQuestion2.setText("Stosując klasyfikację WHO, rozpoznasz:");
+            answer1Q2.setText("Stopień 0 (norma) – HGB >= 11,0 g/dl");
+            answer2Q2.setText("Stopień I (łagodna) – HGB 9,5 – 10,9 g/dl");
+            answer3Q2.setText("Stopień II (umiarkowana) – HGB 8,0 – 9,4 g/dl");
+            answer4Q2.setText("Stopień III (ciężka) - HGB 6,5 – 7,9 g/dl");
+            answer5Q2.setText("Stopień IV (bardzo ciężka) – HGB < 6,5 g/dl");
+        }
+        if(language.equals(Language.EN)){
+            msQuestion1.setText("How you define anaemia:");
+            answer1Q1.setText("The patient does not have anaemia");
+            answer2Q1.setText("Normochromic, normocytic");
+            answer3Q1.setText("Normochromic, macrocytic");
+            answer4Q1.setText("Normochromic, microcytic");
+            answer5Q1.setText("Hypochromic, microcytic");
+            answer6Q1.setText("Hypochromic, normocytic");
+            answer7Q1.setText("Hypochromic, macrocytic");
+            answer8Q1.setText("Hyperchromic, macrocytic");
+
+            msQuestion2.setText("Using the WHO classification, you recognise:");
+            answer1Q2.setText("Grade 0 (normal) – HGB >= 11,0 g/dl");
+            answer2Q2.setText("Grade I (mild) – HGB 9,5 – 10,9 g/dl");
+            answer3Q2.setText("Grade II (moderate) – HGB 8,0 – 9,4 g/dl");
+            answer4Q2.setText("Grade III (severe) - HGB 6,5 – 7,9 g/dl");
+            answer5Q2.setText("Grade IV (life-threatening) – HGB < 6,5 g/dl");
+        }
+        msQuestion1.addAnswer(answer1Q1);
+        msQuestion1.addAnswer(answer2Q1);
+        msQuestion1.addAnswer(answer3Q1);
+        msQuestion1.addAnswer(answer4Q1);
+        msQuestion1.addAnswer(answer5Q1);
+        msQuestion1.addAnswer(answer6Q1);
+        msQuestion1.addAnswer(answer7Q1);
+        msQuestion1.addAnswer(answer8Q1);
+
+        msQuestion2.addAnswer(answer1Q2);
+        msQuestion2.addAnswer(answer2Q2);
+        msQuestion2.addAnswer(answer3Q2);
+        msQuestion2.addAnswer(answer4Q2);
+        msQuestion2.addAnswer(answer5Q2);
     }
 }

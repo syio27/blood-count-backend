@@ -1,5 +1,6 @@
 package com.pja.bloodcount.dto.request;
 
+import com.pja.bloodcount.model.enums.Language;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

@@ -5,6 +5,7 @@ import com.pja.bloodcount.dto.response.*;
 import com.pja.bloodcount.exceptions.*;
 import com.pja.bloodcount.mapper.GameMapper;
 import com.pja.bloodcount.model.*;
+import com.pja.bloodcount.model.enums.Language;
 import com.pja.bloodcount.model.enums.Pages;
 import com.pja.bloodcount.model.enums.Status;
 import com.pja.bloodcount.repository.*;
@@ -39,7 +40,7 @@ public class GameService {
     private final QuestionRepository questionRepository;
     private final AnswerRepository answerRepository;
 
-    public GameResponse createGame(Long caseId, UUID userId) {
+    public GameResponse createGame(Long caseId, UUID userId, Language language) {
         User user = userValidator.validateIfExistsAndGet(userId);
         List<Game> gamesOfUser = repository.findByUser_Id(userId);
         gamesOfUser.forEach(game -> {
@@ -89,8 +90,8 @@ public class GameService {
         log.info("Remaining time of game is: {}", remainingTimeInSec);
 
         List<BCAssessmentQuestion> qnAForBCAssessment = qnAService.createQnAForBCAssessment(game.getId());
-        List<MSQuestion> qnAForMSQ = qnAService.createMSQuestions(game.getId());
-        List<MSQuestion> anAForTrueFalseMSQ = qnAService.createTrueFalseMSQuestions(game.getId());
+        List<MSQuestion> qnAForMSQ = qnAService.createMSQuestions(game.getId(), language);
+        List<MSQuestion> anAForTrueFalseMSQ = qnAService.createTrueFalseMSQuestions(game.getId(), language);
         qnAForBCAssessment.forEach(game::addQuestion);
         qnAForMSQ.forEach(game::addQuestion);
         anAForTrueFalseMSQ.forEach(game::addQuestion);

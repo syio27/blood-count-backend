@@ -1,6 +1,7 @@
 package com.pja.bloodcount.controller;
 
 import com.pja.bloodcount.dto.request.AnswerRequest;
+import com.pja.bloodcount.dto.request.StartGameRequest;
 import com.pja.bloodcount.dto.response.*;
 import com.pja.bloodcount.exceptions.UserNotAllowedException;
 import com.pja.bloodcount.model.BCAssessmentQuestion;
@@ -26,19 +27,18 @@ public class GameController {
 
     private final GameService service;
 
-    @GetMapping(value = "/case/{caseId}", params = "userId")
-    public ResponseEntity<GameResponse> start(@PathVariable Long caseId,
-                                              @RequestParam UUID userId,
+    @PostMapping("/")
+    public ResponseEntity<GameResponse> start(@RequestBody StartGameRequest request,
                                               Authentication authentication) {
         User userDetails = (User) authentication.getPrincipal();
         log.info("request coming from user with email-> {}", userDetails.getEmail());
-        if (!userDetails.getId().equals(userId)) {
+        if (!userDetails.getId().equals(request.getUserId())) {
             throw new UserNotAllowedException(
                     "Access restricted, user with email: " +
                             userDetails.getEmail() +
                             " not allowed to this url");
         }
-        return ResponseEntity.ok(service.createGame(caseId, userId));
+        return ResponseEntity.ok(service.createGame(request.getCaseId(), request.getUserId(), request.getLanguage()));
     }
 
     @PostMapping(value = "/{gameId}/complete", params = "userId")

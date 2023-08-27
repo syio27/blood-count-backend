@@ -4,10 +4,8 @@ import com.pja.bloodcount.dto.request.AnswerRequest;
 import com.pja.bloodcount.dto.request.CreateMSQQuestionRequest;
 import com.pja.bloodcount.dto.response.GameResponse;
 import com.pja.bloodcount.exceptions.UserNotAllowedException;
-import com.pja.bloodcount.model.ErythrocyteQuestion;
-import com.pja.bloodcount.model.LeukocyteQuestion;
-import com.pja.bloodcount.model.User;
-import com.pja.bloodcount.model.VariousQuestion;
+import com.pja.bloodcount.model.*;
+import com.pja.bloodcount.model.enums.Language;
 import com.pja.bloodcount.service.QuestionBaseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,18 +24,18 @@ public class QuestionBaseController {
 
     private final QuestionBaseService service;
 
-    @PostMapping("/erythrocytes")
-    public ResponseEntity<List<ErythrocyteQuestion>> createErythrocytesQuestions(@RequestBody List<CreateMSQQuestionRequest> requests){
-        return ResponseEntity.ok(service.createErythrocytes(requests));
+    @PostMapping("/erythrocytes/{language}")
+    public ResponseEntity<List<ErythrocyteQuestionTranslation>> createErythrocytesQuestions(@RequestBody List<CreateMSQQuestionRequest> requests, @PathVariable Language language){
+        return ResponseEntity.ok(service.createErythrocytes(requests, language));
     }
 
-    @PostMapping("/leukocytes")
-    public ResponseEntity<List<LeukocyteQuestion>> createLeukocytesQuestion(@RequestBody List<CreateMSQQuestionRequest> requests){
-        return ResponseEntity.ok(service.createLeukocyte(requests));
+    @PostMapping("/leukocytes/{language}")
+    public ResponseEntity<List<LeukocyteQuestionTranslation>> createLeukocytesQuestion(@RequestBody List<CreateMSQQuestionRequest> requests, @PathVariable Language language){
+        return ResponseEntity.ok(service.createLeukocyte(requests, language));
     }
 
-    @PostMapping("/various")
-    public ResponseEntity<List<VariousQuestion>> createVariousTopicQuestions(@RequestBody List<CreateMSQQuestionRequest> requests){
-        return ResponseEntity.ok(service.createVariousQ(requests));
+    @PostMapping("/various/{language}")
+    public ResponseEntity<List<VariousQuestionTranslation>> createVariousTopicQuestions(@RequestBody List<CreateMSQQuestionRequest> requests, @PathVariable Language language){
+        return ResponseEntity.ok(service.createVariousQ(requests, language));
     }
 }
