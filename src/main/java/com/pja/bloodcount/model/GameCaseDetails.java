@@ -22,6 +22,7 @@ public class GameCaseDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private Long anActualCaseId;
     private String anemiaType;
     private String diagnosis;
     private String details;

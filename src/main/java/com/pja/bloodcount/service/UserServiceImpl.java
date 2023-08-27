@@ -5,12 +5,17 @@ import com.pja.bloodcount.dto.request.EmailChangeRequest;
 import com.pja.bloodcount.dto.request.UserGroupAssignmentRequest;
 import com.pja.bloodcount.dto.request.UserGroupBatchAssignmentRequest;
 import com.pja.bloodcount.dto.response.AuthenticationResponse;
+import com.pja.bloodcount.dto.response.SimpleGameResponse;
 import com.pja.bloodcount.dto.response.UserResponse;
 import com.pja.bloodcount.exceptions.*;
+import com.pja.bloodcount.mapper.GameMapper;
 import com.pja.bloodcount.mapper.UserMapper;
+import com.pja.bloodcount.model.Case;
+import com.pja.bloodcount.model.Game;
 import com.pja.bloodcount.model.Group;
 import com.pja.bloodcount.model.User;
 import com.pja.bloodcount.model.enums.Role;
+import com.pja.bloodcount.model.enums.Status;
 import com.pja.bloodcount.repository.GameRepository;
 import com.pja.bloodcount.repository.PatientRepository;
 import com.pja.bloodcount.repository.UserAnswerRepository;
@@ -31,6 +36,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -46,6 +53,7 @@ public class UserServiceImpl implements UserService {
     private final UserValidator userValidator;
     private final GroupValidator groupValidator;
     private final PasswordEncoder passwordEncoder;
+    private final GameService gameService;
     private final JwtService jwtService;
 
     @Override
@@ -164,6 +172,20 @@ public class UserServiceImpl implements UserService {
     public List<UserResponse> getGroupParticipants(String groupNumber){
         groupValidator.validateIfExistsAndGet(groupNumber);
         return UserMapper.mapToResponseListDTO(repository.findByGroup_GroupNumber(groupNumber));
+    }
+
+    @Override
+    public SimpleGameResponse getUserGameById(UUID userId, Long gameId){
+        User user = userValidator.validateIfExistsAndGet(userId);
+        Optional<Game> optionalGame = user.getGames().stream().filter(g -> Objects.equals(g.getId(), gameId)).findFirst();
+        if(optionalGame.isEmpty()){
+            throw new GameNotFoundException(gameId);
+        }
+        Game usersGame = optionalGame.get();
+        if(usersGame.getStatus().equals(Status.IN_PROGRESS)){
+            throw new GameCompleteException("Game " + usersGame.getId() + " is still in progress");
+        }
+        return GameMapper.mapToSimpleResponseDTO(usersGame);
     }
 
     /**

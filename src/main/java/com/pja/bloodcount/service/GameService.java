@@ -57,6 +57,7 @@ public class GameService {
 
         GameCaseDetails caseDetails = GameCaseDetails
                 .builder()
+                .anActualCaseId(caseId)
                 .anemiaType(aCase.getAnemiaType())
                 .diagnosis(aCase.getDiagnosis())
                 .hr(aCase.getHr())

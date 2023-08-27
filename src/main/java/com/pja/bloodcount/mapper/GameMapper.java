@@ -40,6 +40,7 @@ public class GameMapper {
                 .testDuration(game.getTestDuration())
                 .status(game.getStatus())
                 .score(game.getScore())
+                .caseId(game.getCaseDetails().getAnActualCaseId())
                 .build();
     }
 
@@ -54,6 +55,7 @@ public class GameMapper {
                         .testDuration(game.getTestDuration())
                         .status(game.getStatus())
                         .score(game.getScore())
+                        .caseId(game.getCaseDetails().getAnActualCaseId())
                         .build())
                 .toList();
     }

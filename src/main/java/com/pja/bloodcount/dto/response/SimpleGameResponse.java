@@ -20,4 +20,5 @@ public class SimpleGameResponse {
     private int testDuration;
     private Status status;
     private int score;
+    private Long caseId;
 }

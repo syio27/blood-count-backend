@@ -157,4 +157,10 @@ public class UserController {
     public ResponseEntity<UserResponse> ban(@PathVariable UUID userId){
         return ResponseEntity.ok(adminService.banUser(userId));
     }
+
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ROOT') or hasRole('SUPERVISOR') or hasRole('STUDENT')")
+    @GetMapping(value = "/{userId}", params = "gameId")
+    public ResponseEntity<SimpleGameResponse> getUsersCompletedGameById(@PathVariable UUID userId, @RequestParam Long gameId){
+        return ResponseEntity.ok(service.getUserGameById(userId, gameId));
+    }
 }
