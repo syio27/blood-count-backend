@@ -2,8 +2,10 @@ package com.pja.bloodcount.service;
 
 import com.pja.bloodcount.config.PropertiesConfig;
 import com.pja.bloodcount.dto.request.InviteUserRequest;
+import com.pja.bloodcount.dto.response.UserResponse;
 import com.pja.bloodcount.exceptions.EmailValidationException;
 import com.pja.bloodcount.exceptions.UserConflictException;
+import com.pja.bloodcount.mapper.UserMapper;
 import com.pja.bloodcount.model.Group;
 import com.pja.bloodcount.model.User;
 import com.pja.bloodcount.repository.GroupRepository;
@@ -78,7 +80,7 @@ public class AdminService {
         log.info("User {} {} is registered", user.getId(), user.getEmail());
     }
 
-    public void banUser(UUID id) {
+    public UserResponse banUser(UUID id) {
         User user = userValidator.validateIfExistsAndGet(id);
         if(user.isActive()) {
             user.setActive(false);
@@ -88,6 +90,7 @@ public class AdminService {
             user.setActive(true);
             log.info("User with id: {} unbanned", user.getId());
         }
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        return UserMapper.mapToResponseDTO(savedUser);
     }
 }

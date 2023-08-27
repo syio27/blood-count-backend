@@ -154,8 +154,7 @@ public class UserController {
 
     @PreAuthorize("hasRole('ROOT')")
     @PostMapping("/{userId}/ban")
-    public ResponseEntity<Void> ban(@PathVariable UUID userId){
-        adminService.banUser(userId);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    public ResponseEntity<UserResponse> ban(@PathVariable UUID userId){
+        return ResponseEntity.ok(adminService.banUser(userId));
     }
 }

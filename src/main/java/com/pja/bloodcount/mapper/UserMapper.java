@@ -21,6 +21,7 @@ public class UserMapper {
                 .email(user.getEmail())
                 .role(user.getRole())
                 .groupNumber(user.getGroup().getGroupNumber())
+                .isActive(user.isActive())
                 .build();
     }
 
@@ -45,6 +46,7 @@ public class UserMapper {
                         .email(user.getEmail())
                         .role(user.getRole())
                         .groupNumber(user.getGroup().getGroupNumber())
+                        .isActive(user.isActive())
                 .build())
                 .toList();
     }
