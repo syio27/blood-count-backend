@@ -7,8 +7,9 @@ import org.springframework.stereotype.Service;
 public class PasswordGeneratorUtil {
 
     private static final int PASSWORD_LENGTH = 12;
+    private static final String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+";
 
     public static String generateRandomPassword() {
-        return RandomStringUtils.randomAlphanumeric(PASSWORD_LENGTH);
+        return RandomStringUtils.random(PASSWORD_LENGTH, characters);
     }
 }
