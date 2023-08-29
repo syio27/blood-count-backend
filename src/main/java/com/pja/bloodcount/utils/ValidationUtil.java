@@ -24,7 +24,7 @@ public class ValidationUtil {
      * .{8,}             # anything, at least eight places though
      * $                 # end-of-string
      */
-    private static final Pattern PASSWORD_REGEX = Pattern.compile("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!])(?=\\S+$).{8,}$", Pattern.CASE_INSENSITIVE);
+    private static final Pattern PASSWORD_REGEX = Pattern.compile("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+_*?=!.()/|])(?=\\S+$).{8,}$", Pattern.CASE_INSENSITIVE);
 
     /**
      * Email regex pattern

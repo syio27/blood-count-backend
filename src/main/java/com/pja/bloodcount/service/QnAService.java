@@ -373,7 +373,7 @@ public class QnAService {
             answer2Q2.setText("Stopień I (łagodna) – HGB 9,5 – 10,9 g/dl");
             answer3Q2.setText("Stopień II (umiarkowana) – HGB 8,0 – 9,4 g/dl");
             answer4Q2.setText("Stopień III (ciężka) - HGB 6,5 – 7,9 g/dl");
-            answer5Q2.setText("Stopień IV (bardzo ciężka) – HGB < 6,5 g/dl");
+            answer5Q2.setText("Stopień IV (bardzo ciężka) – HGB 4,8 – 6,5 g/dl");
         }
         if(language.equals(Language.EN)){
             msQuestion1.setText("How you define anaemia:");
@@ -391,7 +391,7 @@ public class QnAService {
             answer2Q2.setText("Grade I (mild) – HGB 9,5 – 10,9 g/dl");
             answer3Q2.setText("Grade II (moderate) – HGB 8,0 – 9,4 g/dl");
             answer4Q2.setText("Grade III (severe) - HGB 6,5 – 7,9 g/dl");
-            answer5Q2.setText("Grade IV (life-threatening) – HGB < 6,5 g/dl");
+            answer5Q2.setText("Grade IV (life-threatening) – HGB 4,8 – 6,5 g/dl");
         }
         msQuestion1.addAnswer(answer1Q1);
         msQuestion1.addAnswer(answer2Q1);
