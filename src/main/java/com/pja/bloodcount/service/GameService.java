@@ -83,11 +83,8 @@ public class GameService {
         game.addPatient(patient);
         repository.save(game);
 
-        LocalDateTime startTime = game.getStartTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-        LocalDateTime estimatedEndTime = game.getEstimatedEndTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-        Duration remainingTime = Duration.between(startTime, estimatedEndTime);
-        long remainingTimeInSec = remainingTime.toSeconds();
-        log.info("Remaining time of game is: {}", remainingTimeInSec);
+        Instant currentTimeInstant = Instant.now();
+        Date currentDate = Date.from(currentTimeInstant);
 
         List<BCAssessmentQuestion> qnAForBCAssessment = qnAService.createQnAForBCAssessment(game.getId());
         List<MSQuestion> qnAForMSQ = qnAService.createMSQuestions(game.getId(), language);
@@ -99,7 +96,7 @@ public class GameService {
         user.addGame(game);
         userRepository.save(user);
         log.info("Game is created");
-        return GameMapper.mapToResponseDTO(game, remainingTimeInSec, getSavedAnswersOfGame(userId, game.getId()));
+        return GameMapper.mapToResponseDTO(game, currentDate, getSavedAnswersOfGame(userId, game.getId()));
     }
 
     public SimpleGameResponse completeGame(Long gameId, List<AnswerRequest> answerRequestList){
@@ -293,14 +290,11 @@ public class GameService {
             throw new GameCompleteException("Game with id - " + game.getId() + " already completed");
         }
 
-        LocalDateTime estimatedEndTime = game.getEstimatedEndTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-        Duration remainingTime = Duration.between(LocalDateTime.now(), estimatedEndTime);
-        long remainingTimeInSec = remainingTime.toSeconds();
-        log.info("Remaining time of game is: {}", remainingTime);
-        log.info("Remaining time in seconds of game is: {}", remainingTimeInSec);
+        Instant currentTimeInstant = Instant.now();
+        Date currentDate = Date.from(currentTimeInstant);
         log.info("BC question set size: {}", game.getBcAssessmentQuestions().size());
         log.info("MS question set size: {}", game.getMsQuestions().size());
-        return GameMapper.mapToResponseDTO(game, remainingTimeInSec, getSavedAnswersOfGame(userId, gameId));
+        return GameMapper.mapToResponseDTO(game, currentDate, getSavedAnswersOfGame(userId, gameId));
     }
 
     public GameInProgress hasGameInProgress(UUID userId){

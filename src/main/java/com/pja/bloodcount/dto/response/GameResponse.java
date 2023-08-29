@@ -21,7 +21,7 @@ public class GameResponse {
     private Date startTime;
     private Date endTime;
     private Date estimatedEndTime;
-    private long remainingTime;
+    private Date currentServerTime;
     private int testDuration;
     private Status status;
     private int score;

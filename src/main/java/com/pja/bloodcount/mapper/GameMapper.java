@@ -5,23 +5,25 @@ import com.pja.bloodcount.dto.response.SavedUserAnswerResponse;
 import com.pja.bloodcount.dto.response.SimpleGameResponse;
 import com.pja.bloodcount.model.Game;
 import org.springframework.stereotype.Component;
+
+import java.util.Date;
 import java.util.List;
 
 @Component
 public class GameMapper {
 
-    public static GameResponse mapToResponseDTO(Game game, long remainingTime, List<SavedUserAnswerResponse> savedUserAnswers){
+    public static GameResponse mapToResponseDTO(Game game, Date currentTime, List<SavedUserAnswerResponse> savedUserAnswers){
         return GameResponse
                 .builder()
                 .id(game.getId())
                 .startTime(game.getStartTime())
                 .endTime(game.getEndTime())
                 .estimatedEndTime(game.getEstimatedEndTime())
+                .currentServerTime(currentTime)
                 .status(game.getStatus())
                 .score(game.getScore())
                 .currentPage(game.getCurrentPage())
                 .testDuration(game.getTestDuration())
-                .remainingTime(remainingTime)
                 .patient(PatientMapper.mapToResponseDTO(game.getPatient()))
                 .gameCaseDetails(game.getCaseDetails())
                 .bcAssessmentQuestions(QnAMapper.mapToBCAQResponseListDTO(game.getBcAssessmentQuestions()))
