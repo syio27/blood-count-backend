@@ -9,6 +9,7 @@ import com.pja.bloodcount.model.Game;
 import com.pja.bloodcount.model.User;
 import com.pja.bloodcount.service.GameService;
 import com.pja.bloodcount.service.QnAService;
+import com.pja.bloodcount.utils.AuthenticationUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -30,14 +31,7 @@ public class GameController {
     @PostMapping("/")
     public ResponseEntity<GameResponse> start(@RequestBody StartGameRequest request,
                                               Authentication authentication) {
-        User userDetails = (User) authentication.getPrincipal();
-        log.info("request coming from user with email-> {}", userDetails.getEmail());
-        if (!userDetails.getId().equals(request.getUserId())) {
-            throw new UserNotAllowedException(
-                    "Access restricted, user with email: " +
-                            userDetails.getEmail() +
-                            " not allowed to this url");
-        }
+        AuthenticationUtil.isRequestFromSameUser(authentication, request.getUserId());
         return ResponseEntity.ok(service.createGame(request.getCaseId(), request.getUserId(), request.getLanguage()));
     }
 
@@ -46,14 +40,7 @@ public class GameController {
                                                        @RequestBody List<AnswerRequest> request,
                                                        @RequestParam UUID userId,
                                                        Authentication authentication) {
-        User userDetails = (User) authentication.getPrincipal();
-        log.info("request coming from user with email-> {}", userDetails.getEmail());
-        if (!userDetails.getId().equals(userId)) {
-            throw new UserNotAllowedException(
-                    "Access restricted, user with email: " +
-                            userDetails.getEmail() +
-                            " not allowed to this url");
-        }
+        AuthenticationUtil.isRequestFromSameUser(authentication, userId);
         return ResponseEntity.ok(service.completeGame(gameId, request));
     }
 
@@ -61,14 +48,7 @@ public class GameController {
     public ResponseEntity<GameResponse> getStartedGame(@PathVariable Long gameId,
                                                        @RequestParam UUID userId,
                                                        Authentication authentication) {
-        User userDetails = (User) authentication.getPrincipal();
-        log.info("request coming from user with email-> {}", userDetails.getEmail());
-        if (!userDetails.getId().equals(userId)) {
-            throw new UserNotAllowedException(
-                    "Access restricted, user with email: " +
-                            userDetails.getEmail() +
-                            " not allowed to this url");
-        }
+        AuthenticationUtil.isRequestFromSameUser(authentication, userId);
         return ResponseEntity.ok(service.getInProgressGame(gameId, userId));
     }
 
@@ -82,14 +62,7 @@ public class GameController {
                                        @RequestBody List<AnswerRequest> request,
                                        @RequestParam UUID userId,
                                        Authentication authentication) {
-        User userDetails = (User) authentication.getPrincipal();
-        log.info("request coming from user with email-> {}", userDetails.getEmail());
-        if (!userDetails.getId().equals(userId)) {
-            throw new UserNotAllowedException(
-                    "Access restricted, user with email: " +
-                            userDetails.getEmail() +
-                            " not allowed to this url");
-        }
+        AuthenticationUtil.isRequestFromSameUser(authentication, userId);
         service.saveSelectedAnswers(gameId, request);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -99,14 +72,7 @@ public class GameController {
                                                           @RequestBody List<AnswerRequest> request,
                                                           @RequestParam UUID userId,
                                                           Authentication authentication) {
-        User userDetails = (User) authentication.getPrincipal();
-        log.info("request coming from user with email-> {}", userDetails.getEmail());
-        if (!userDetails.getId().equals(userId)) {
-            throw new UserNotAllowedException(
-                    "Access restricted, user with email: " +
-                            userDetails.getEmail() +
-                            " not allowed to this url");
-        }
+        AuthenticationUtil.isRequestFromSameUser(authentication, userId);
         return ResponseEntity.ok(service.next(userId, gameId, request));
     }
 }

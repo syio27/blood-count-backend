@@ -11,6 +11,7 @@ import com.pja.bloodcount.model.enums.Role;
 import com.pja.bloodcount.service.AdminService;
 import com.pja.bloodcount.service.GameService;
 import com.pja.bloodcount.service.contract.UserService;
+import com.pja.bloodcount.utils.AuthenticationUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -64,20 +65,14 @@ public class UserController {
     public ResponseEntity<AuthenticationResponse> updatePassword(@PathVariable UUID id,
                                                                  @RequestBody PasswordChangeDTO passwordChangeDTO,
                                                                  Authentication authentication){
-        User userDetails = (User) authentication.getPrincipal();
-        log.info("request coming from user with email-> {}", userDetails.getEmail());
-        if(!userDetails.getId().equals(id)){
-            throw new UserNotAllowedException(
-                    "Access restricted, user with email: " +
-                            userDetails.getEmail() +
-                            " not allowed to this url");
-        }
+        AuthenticationUtil.isRequestFromSameUser(authentication, id);
         return ResponseEntity.ok(service.changePassword(id, passwordChangeDTO));
     }
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('ROOT')")
     @PostMapping("/invite")
     public ResponseEntity<Void> invite(@RequestBody InviteUserRequest inviteRequest, Authentication authentication) {
+        AuthenticationUtil.isRequestFromSameUser(authentication, inviteRequest.getInviterUserId());
         adminService.invite(inviteRequest);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -87,14 +82,7 @@ public class UserController {
     public ResponseEntity<Void> assignUserToGroup(@PathVariable UUID id,
                                                   @RequestBody UserGroupAssignmentRequest request,
                                                   Authentication authentication){
-        User userDetails = (User) authentication.getPrincipal();
-        log.info("request coming from user with email-> {}", userDetails.getEmail());
-        if(!userDetails.getId().equals(id)){
-            throw new UserNotAllowedException(
-                    "Access restricted, user with email: " +
-                            userDetails.getEmail() +
-                            " not allowed to this url");
-        }
+        AuthenticationUtil.isRequestFromSameUser(authentication, id);
         service.assignUserToGroup(id, request);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -134,14 +122,7 @@ public class UserController {
     @GetMapping(value = "/{userId}/games/completed")
     public ResponseEntity<List<SimpleGameResponse>> getCompletedGames(@PathVariable UUID userId,
                                                                       Authentication authentication){
-        User userDetails = (User) authentication.getPrincipal();
-        log.info("request coming from user with email-> {}", userDetails.getEmail());
-        if(!userDetails.getId().equals(userId)){
-            throw new UserNotAllowedException(
-                    "Access restricted, user with email: " +
-                            userDetails.getEmail() +
-                            " not allowed to this url");
-        }
+        AuthenticationUtil.isRequestFromSameUser(authentication, userId);
         return ResponseEntity.ok(gameService.getAllCompletedGamesOfUser(userId));
     }
 
@@ -154,7 +135,8 @@ public class UserController {
 
     @PreAuthorize("hasRole('ROOT')")
     @PostMapping("/{userId}/ban")
-    public ResponseEntity<UserResponse> ban(@PathVariable UUID userId){
+    public ResponseEntity<UserResponse> ban(@PathVariable UUID userId, Authentication authentication){
+        AuthenticationUtil.isRequestFromSameUser(authentication, userId);
         return ResponseEntity.ok(adminService.banUser(userId));
     }
 
