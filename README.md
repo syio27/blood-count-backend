@@ -1,5 +1,6 @@
 #  Online Examination Web Application for Medical University
 ## Project Title: BloodCount
+![alt text](https://github.com/syio27/blood-count-backend/blob/main/BClogo.png)
 
 **Table of Contents**
 1. Introduction
