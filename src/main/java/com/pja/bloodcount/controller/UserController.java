@@ -118,7 +118,7 @@ public class UserController {
         return ResponseEntity.ok(gameService.getAllCompletedGamesOfUser(userId));
     }
 
-    @PreAuthorize("hasRole('STUDENT')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ROOT') or hasRole('SUPERVISOR') or hasRole('STUDENT')")
     @GetMapping(value = "/{userId}/games/completed")
     public ResponseEntity<List<SimpleGameResponse>> getCompletedGames(@PathVariable UUID userId,
                                                                       Authentication authentication){
