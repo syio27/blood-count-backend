@@ -2,6 +2,7 @@ package com.pja.bloodcount.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.pja.bloodcount.model.enums.Language;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,6 +29,11 @@ public class GameCaseDetails {
     private String details;
     private String hr;
     private String rr;
-    private String physExam;
     private String infoCom;
+    private String caseName;
+    @Enumerated(EnumType.STRING)
+    private Language language;
+    private String bodyMass;
+    private String height;
+    private String bmi;
 }

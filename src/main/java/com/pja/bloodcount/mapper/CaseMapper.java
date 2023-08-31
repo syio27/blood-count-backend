@@ -27,8 +27,12 @@ public class CaseMapper {
                 .abnormalities(mapToAbnormalityDTOList(aCase.getAbnormalities()))
                 .hr(aCase.getHr())
                 .rr(aCase.getHr())
-                .physExam(aCase.getPhysExam())
                 .infoCom(aCase.getInfoCom())
+                .language(aCase.getLanguage())
+                .caseName(aCase.getCaseName())
+                .bmi(aCase.getBmi())
+                .height(aCase.getHeight())
+                .bodyMass(aCase.getBodyMass())
                 .build();
     }
 
@@ -46,8 +50,12 @@ public class CaseMapper {
                         .diagnosis(aCase.getDiagnosis())
                         .hr(aCase.getHr())
                         .rr(aCase.getHr())
-                        .physExam(aCase.getPhysExam())
                         .infoCom(aCase.getInfoCom())
+                        .language(aCase.getLanguage())
+                        .caseName(aCase.getCaseName())
+                        .bmi(aCase.getBmi())
+                        .height(aCase.getHeight())
+                        .bodyMass(aCase.getBodyMass())
                         .abnormalities(mapToAbnormalityDTOList(aCase.getAbnormalities()))
                         .build())
                 .toList();
@@ -62,7 +70,11 @@ public class CaseMapper {
                 .hr(aCase.getHr())
                 .rr(aCase.getRr())
                 .infoCom(aCase.getInfoCom())
-                .physExam(aCase.getPhysExam())
+                .language(aCase.getLanguage())
+                .caseName(aCase.getCaseName())
+                .bmi(aCase.getBmi())
+                .height(aCase.getHeight())
+                .bodyMass(aCase.getBodyMass())
                 .build();
     }
 

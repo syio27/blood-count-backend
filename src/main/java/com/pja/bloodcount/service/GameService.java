@@ -17,10 +17,7 @@ import org.hibernate.Hibernate;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -44,7 +41,7 @@ public class GameService {
         User user = userValidator.validateIfExistsAndGet(userId);
         List<Game> gamesOfUser = repository.findByUser_Id(userId);
         gamesOfUser.forEach(game -> {
-            if(game.getStatus().equals(Status.IN_PROGRESS)){
+            if (game.getStatus().equals(Status.IN_PROGRESS)) {
                 throw new GameStartException("You already have running game session, please complete it before starting new");
             }
         });
@@ -64,7 +61,11 @@ public class GameService {
                 .hr(aCase.getHr())
                 .rr(aCase.getRr())
                 .infoCom(aCase.getInfoCom())
-                .physExam(aCase.getPhysExam())
+                .language(aCase.getLanguage())
+                .caseName(aCase.getCaseName())
+                .bmi(aCase.getBmi())
+                .height(aCase.getHeight())
+                .bodyMass(aCase.getBodyMass())
                 .build();
 
         caseDetailsRepository.save(caseDetails);
@@ -99,19 +100,19 @@ public class GameService {
         return GameMapper.mapToResponseDTO(game, currentDate, getSavedAnswersOfGame(userId, game.getId()));
     }
 
-    public SimpleGameResponse completeGame(Long gameId, List<AnswerRequest> answerRequestList){
+    public SimpleGameResponse completeGame(Long gameId, List<AnswerRequest> answerRequestList) {
         Optional<Game> optionalGame = repository.findById(gameId);
-        if(optionalGame.isEmpty()){
+        if (optionalGame.isEmpty()) {
             throw new GameNotFoundException(gameId);
         }
         Game game = optionalGame.get();
-        if(game.getStatus().equals(Status.COMPLETED)){
+        if (game.getStatus().equals(Status.COMPLETED)) {
             throw new GameCompleteException("Game is already submitted");
         }
         int score = qnAService.score(answerRequestList, gameId);
         game.setStatus(Status.COMPLETED);
         game.setScore(score);
-        if(game.getStatus() == Status.COMPLETED){
+        if (game.getStatus() == Status.COMPLETED) {
             Instant completedTime = Instant.now();
             game.setEndTime(Date.from(completedTime));
         }
@@ -121,32 +122,32 @@ public class GameService {
 
     public void saveSelectedAnswers(Long gameId, List<AnswerRequest> answerRequestList) {
         Optional<Game> optionalGame = repository.findById(gameId);
-        if(optionalGame.isEmpty()){
+        if (optionalGame.isEmpty()) {
             throw new GameNotFoundException(gameId);
         }
         Game game = optionalGame.get();
-        if(game.getStatus().equals(Status.COMPLETED)){
+        if (game.getStatus().equals(Status.COMPLETED)) {
             throw new GameCompleteException("Game is already submitted");
         }
         List<UserAnswer> userAnswers = new ArrayList<>();
         answerRequestList.forEach(
                 answerRequest -> {
                     Optional<Question> optionalQuestion = questionRepository.findById(answerRequest.getQuestionId());
-                    if(optionalQuestion.isEmpty()){
+                    if (optionalQuestion.isEmpty()) {
                         throw new QuestionNotFoundException(answerRequest.getAnswerId());
                     }
                     Question question = optionalQuestion.get();
-                    if(!Objects.equals(question.getGame().getId(), gameId)){
+                    if (!Objects.equals(question.getGame().getId(), gameId)) {
                         throw new QuestionNotPartException("Question is not part game: " + gameId);
                     }
                     Optional<Answer> optionalAnswer = answerRepository.findById(answerRequest.getAnswerId());
-                    if(optionalAnswer.isEmpty()){
+                    if (optionalAnswer.isEmpty()) {
                         throw new AnswerNotFoundException(answerRequest.getAnswerId());
                     }
                     Answer answer = optionalAnswer.get();
                     log.info("Answer's question id: {}", answer.getQuestion().getId());
                     log.info("question id from request: {}", answerRequest.getQuestionId());
-                    if(!Objects.equals(answer.getQuestion().getId(), answerRequest.getQuestionId())){
+                    if (!Objects.equals(answer.getQuestion().getId(), answerRequest.getQuestionId())) {
                         throw new AnswerNotPartException("Answer is not part of answers set of question: " + answerRequest.getQuestionId());
                     }
 
@@ -177,11 +178,11 @@ public class GameService {
 
     public GameCurrentSessionState next(UUID userId, Long gameId, List<AnswerRequest> answerRequestList) {
         Optional<Game> optionalGame = repository.findById(gameId);
-        if(optionalGame.isEmpty()){
+        if (optionalGame.isEmpty()) {
             throw new GameNotFoundException(gameId);
         }
         Game game = optionalGame.get();
-        if(game.getStatus().equals(Status.COMPLETED)){
+        if (game.getStatus().equals(Status.COMPLETED)) {
             throw new GameCompleteException("Game is already submitted");
         }
         this.saveSelectedAnswers(gameId, answerRequestList);
@@ -211,20 +212,20 @@ public class GameService {
         return currentPage;
     }
 
-    public List<SimpleGameResponse> getAllCompletedGamesOfUser(UUID userId){
+    public List<SimpleGameResponse> getAllCompletedGamesOfUser(UUID userId) {
         userValidator.validateIfExistsAndGet(userId);
         List<Game> games = repository.findByUser_Id(userId);
         return GameMapper.mapToSimpleResponseListDTO(
                 games.stream()
-                .filter(game -> game.getStatus().equals(Status.COMPLETED))
-                .toList());
+                        .filter(game -> game.getStatus().equals(Status.COMPLETED))
+                        .toList());
     }
 
     private List<SavedUserAnswerResponse> getSavedAnswersOfGame(UUID userId, Long gameId) {
         List<SavedUserAnswerResponse> savedUserAnswers = new ArrayList<>();
         userValidator.validateIfExistsAndGet(userId);
         Optional<Game> optionalGame = repository.findById(gameId);
-        if(optionalGame.isEmpty()){
+        if (optionalGame.isEmpty()) {
             throw new GameNotFoundException(gameId);
         }
         Game game = optionalGame.get();
@@ -243,11 +244,11 @@ public class GameService {
     }
 
     @Deprecated
-    public List<UserSelectedAnswerResponse> getSelectedAnswersOfGame(UUID userId, Long gameId){
+    public List<UserSelectedAnswerResponse> getSelectedAnswersOfGame(UUID userId, Long gameId) {
         List<UserSelectedAnswerResponse> selectedAnswerResponses = new ArrayList<>();
         userValidator.validateIfExistsAndGet(userId);
         Optional<Game> optionalGame = repository.findById(gameId);
-        if(optionalGame.isEmpty()){
+        if (optionalGame.isEmpty()) {
             throw new GameNotFoundException(gameId);
         }
         Game game = optionalGame.get();
@@ -256,7 +257,7 @@ public class GameService {
         selectedAnswers.forEach(selectedAnswer -> {
 
             Optional<Question> optionalQuestion = questions.stream().filter(q -> Objects.equals(q.getId(), selectedAnswer.getQuestion().getId())).findFirst();
-            if(optionalQuestion.isEmpty()){
+            if (optionalQuestion.isEmpty()) {
                 throw new RuntimeException("bad error");
             }
             Question question = optionalQuestion.get();
@@ -265,9 +266,9 @@ public class GameService {
                     .builder()
                     .id(selectedAnswer.getId())
                     .build();
-            if(unproxiedQuestion instanceof MSQuestion msQuestion){
+            if (unproxiedQuestion instanceof MSQuestion msQuestion) {
                 selectedAnswerResponse.setQuestionText(msQuestion.getText());
-            } else if(unproxiedQuestion instanceof BCAssessmentQuestion bcAssessmentQuestion){
+            } else if (unproxiedQuestion instanceof BCAssessmentQuestion bcAssessmentQuestion) {
                 selectedAnswerResponse.setQuestionText(
                         bcAssessmentQuestion.getParameter() + "(" +
                                 bcAssessmentQuestion.getUnit() + ") - value: " +
@@ -279,14 +280,14 @@ public class GameService {
         return selectedAnswerResponses;
     }
 
-    public GameResponse getInProgressGame(Long gameId, UUID userId){
+    public GameResponse getInProgressGame(Long gameId, UUID userId) {
         userValidator.validateIfExistsAndGet(userId);
         Optional<Game> optionalGame = repository.findById(gameId);
-        if(optionalGame.isEmpty()){
+        if (optionalGame.isEmpty()) {
             throw new GameNotFoundException(gameId);
         }
         Game game = optionalGame.get();
-        if(game.getStatus().equals(Status.COMPLETED)){
+        if (game.getStatus().equals(Status.COMPLETED)) {
             throw new GameCompleteException("Game with id - " + game.getId() + " already completed");
         }
 
@@ -297,13 +298,13 @@ public class GameService {
         return GameMapper.mapToResponseDTO(game, currentDate, getSavedAnswersOfGame(userId, gameId));
     }
 
-    public GameInProgress hasGameInProgress(UUID userId){
+    public GameInProgress hasGameInProgress(UUID userId) {
         GameInProgress gameInProgress = GameInProgress.builder().build();
         User user = userValidator.validateIfExistsAndGet(userId);
         List<Game> games = user.getGames();
         AtomicBoolean hasGameInProgress = new AtomicBoolean(false);
         games.forEach(game -> {
-            if (game.getStatus().equals(Status.IN_PROGRESS)){
+            if (game.getStatus().equals(Status.IN_PROGRESS)) {
                 hasGameInProgress.set(true);
                 gameInProgress.setInProgress(hasGameInProgress.get());
                 gameInProgress.setGameId(game.getId());

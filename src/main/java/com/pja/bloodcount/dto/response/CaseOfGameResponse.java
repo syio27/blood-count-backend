@@ -1,6 +1,7 @@
 package com.pja.bloodcount.dto.response;
 
 import com.pja.bloodcount.model.enums.AffectedGender;
+import com.pja.bloodcount.model.enums.Language;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,6 +18,10 @@ public class CaseOfGameResponse {
     private String diagnosis;
     private String hr;
     private String rr;
-    private String physExam;
     private String infoCom;
+    private String caseName;
+    private Language language;
+    private String bodyMass;
+    private String height;
+    private String bmi;
 }
