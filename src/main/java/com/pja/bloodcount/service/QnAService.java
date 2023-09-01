@@ -204,14 +204,14 @@ public class QnAService {
         return msQuestions;
     }
 
-    private void buildTrueFalseAnswers(MSQuestion msQuestion, Language language){
+    private void buildTrueFalseAnswers(MSQuestion msQuestion, Language language) {
         Answer answerTrue = Answer.builder().build();
         Answer answerFalse = Answer.builder().build();
-        if(language.equals(Language.EN)){
+        if (language.equals(Language.EN)) {
             answerTrue.setText("True");
             answerFalse.setText("False");
         }
-        if(language.equals(Language.PL)){
+        if (language.equals(Language.PL)) {
             answerTrue.setText("Prawda");
             answerFalse.setText("Fałsz");
         }
@@ -219,45 +219,41 @@ public class QnAService {
         msQuestion.addAnswer(answerFalse);
     }
 
-    public int score(List<AnswerRequest> answerRequestList, Long gameId) {
+    public int score(Long gameId) {
 
         AtomicInteger score = new AtomicInteger(0);
-        List<UserAnswer> userAnswers = new ArrayList<>();
+        List<UserAnswer> userAnswers = userAnswerRepository.findByGame_Id(gameId);
 
-        answerRequestList.forEach(answerRequest -> {
-            Optional<Question> optionalQuestion = questionRepository.findById(answerRequest.getQuestionId());
+        log.info("Started validation of QnA of user");
+        userAnswers.forEach(answerRequest -> {
+            Optional<Question> optionalQuestion = questionRepository.findById(answerRequest.getQuestion().getId());
             if (optionalQuestion.isEmpty()) {
-                throw new QuestionNotFoundException(answerRequest.getAnswerId());
+                throw new QuestionNotFoundException(answerRequest.getQuestion().getId());
             }
             Question question = optionalQuestion.get();
             if (!Objects.equals(question.getGame().getId(), gameId)) {
                 throw new QuestionNotPartException("Question is not part game: " + gameId);
             }
-            Optional<Answer> optionalAnswer = answerRepository.findById(answerRequest.getAnswerId());
+            Optional<Answer> optionalAnswer = answerRepository.findById(answerRequest.getAnswer().getId());
             if (optionalAnswer.isEmpty()) {
-                throw new AnswerNotFoundException(answerRequest.getAnswerId());
+                throw new AnswerNotFoundException(answerRequest.getAnswer().getId());
             }
             Answer answer = optionalAnswer.get();
-            log.info("Answer's question id: {}", answer.getQuestion().getId());
-            log.info("question id from request: {}", answerRequest.getQuestionId());
-            if (!Objects.equals(answer.getQuestion().getId(), answerRequest.getQuestionId())) {
-                throw new AnswerNotPartException("Answer is not part of answers set of question: " + answerRequest.getQuestionId());
+            if (!Objects.equals(answer.getQuestion().getId(), answerRequest.getQuestion().getId())) {
+                throw new AnswerNotPartException("Answer is not part of answers set of question: " + answerRequest.getQuestion().getId());
             }
-            if (Objects.equals(question.getCorrectAnswerId(), answerRequest.getAnswerId())) {
+
+            log.info("Started scoring");
+
+            log.info("Correct answer id of question: {}, is {}, and user selected answer with id {}", question.getId(), question.getCorrectAnswerId(), answerRequest.getAnswer().getId());
+            log.info("Score was before incrementing: {}", score);
+            if (Objects.equals(question.getCorrectAnswerId(), answerRequest.getAnswer().getId())) {
+
                 score.getAndIncrement();
+                log.info("Score after incrementing: {}", score);
             }
-
-            UserAnswer userAnswer = UserAnswer
-                    .builder()
-                    .game(question.getGame())
-                    .user(question.getGame().getUser())
-                    .answer(answer)
-                    .question(question)
-                    .build();
-
-            userAnswers.add(userAnswer);
         });
-        userAnswerRepository.saveAll(userAnswers);
+        log.info("Scoring end");
         return score.get();
     }
 
@@ -315,7 +311,7 @@ public class QnAService {
         return questions;
     }
 
-    private void buildMSAnswersAndQuestion(MSQuestion msQuestion1, MSQuestion msQuestion2, Language language){
+    private void buildMSAnswersAndQuestion(MSQuestion msQuestion1, MSQuestion msQuestion2, Language language) {
         Answer answer1Q1 = Answer
                 .builder()
                 .build();
@@ -357,7 +353,7 @@ public class QnAService {
                 .builder()
                 .build();
 
-        if(language.equals(Language.PL)){
+        if (language.equals(Language.PL)) {
             msQuestion1.setText("Jak określisz niedokrwistość:");
             answer1Q1.setText("Pacjent nie ma niedokrwistości");
             answer2Q1.setText("Normochromiczna, normocytarna");
@@ -375,7 +371,7 @@ public class QnAService {
             answer4Q2.setText("Stopień III (ciężka) - HGB 6,5 – 7,9 g/dl");
             answer5Q2.setText("Stopień IV (bardzo ciężka) – HGB 4,8 – 6,5 g/dl");
         }
-        if(language.equals(Language.EN)){
+        if (language.equals(Language.EN)) {
             msQuestion1.setText("How you define anaemia:");
             answer1Q1.setText("The patient does not have anaemia");
             answer2Q1.setText("Normochromic, normocytic");

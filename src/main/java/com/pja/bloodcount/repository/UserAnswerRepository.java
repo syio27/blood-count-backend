@@ -17,4 +17,5 @@ public interface UserAnswerRepository extends JpaRepository<UserAnswer, Long> {
     List<UserAnswer> findByUser_IdAndGame_Id(UUID userId, Long gameId);
     void deleteUserAnswerByUser(User user);
     Optional<UserAnswer> findByQuestionAndGame(Question question, Game game);
+    List<UserAnswer> findByGame_Id(Long gameId);
 }

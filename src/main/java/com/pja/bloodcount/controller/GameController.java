@@ -37,11 +37,10 @@ public class GameController {
 
     @PostMapping(value = "/{gameId}/complete", params = "userId")
     public ResponseEntity<SimpleGameResponse> complete(@PathVariable Long gameId,
-                                                       @RequestBody List<AnswerRequest> request,
                                                        @RequestParam UUID userId,
                                                        Authentication authentication) {
         AuthenticationUtil.isRequestFromSameUser(authentication, userId);
-        return ResponseEntity.ok(service.completeGame(gameId, request));
+        return ResponseEntity.ok(service.completeGame(gameId));
     }
 
     @GetMapping(value = "/{gameId}", params = "userId")

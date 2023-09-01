@@ -100,7 +100,7 @@ public class GameService {
         return GameMapper.mapToResponseDTO(game, currentDate, getSavedAnswersOfGame(userId, game.getId()));
     }
 
-    public SimpleGameResponse completeGame(Long gameId, List<AnswerRequest> answerRequestList) {
+    public SimpleGameResponse completeGame(Long gameId) {
         Optional<Game> optionalGame = repository.findById(gameId);
         if (optionalGame.isEmpty()) {
             throw new GameNotFoundException(gameId);
@@ -109,7 +109,7 @@ public class GameService {
         if (game.getStatus().equals(Status.COMPLETED)) {
             throw new GameCompleteException("Game is already submitted");
         }
-        int score = qnAService.score(answerRequestList, gameId);
+        int score = qnAService.score(gameId);
         game.setStatus(Status.COMPLETED);
         game.setScore(score);
         if (game.getStatus() == Status.COMPLETED) {
