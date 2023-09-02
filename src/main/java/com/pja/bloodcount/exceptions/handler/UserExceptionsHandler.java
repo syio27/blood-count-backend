@@ -28,7 +28,7 @@ public class UserExceptionsHandler extends ResponseEntityExceptionHandler {
 
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("timestamp", LocalDateTime.now());
-        payload.put("message", "CONFLICT! - User with " + ex.getEmail() + " already exists");
+        payload.put("message", "User with " + ex.getEmail() + " already exists");
         return new ResponseEntity<>(payload, HttpStatus.CONFLICT);
     }
 
