@@ -21,10 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Service
@@ -70,7 +67,7 @@ public class GenerationService {
 
         List<BloodCount> bloodCounts = new ArrayList<>();
 
-// First loop: Create and randomize blood counts
+        // First loop: Create and randomize blood counts
         for (BloodCountReference reference : referenceTable) {
             double value = randomizeValueBasedOnGender(reference, patient);
             double roundedValue = roundFormat(value);
@@ -90,20 +87,20 @@ public class GenerationService {
             log.info("Randomized value of blood-count - {} is: {}", reference.getParameter(), value);
         }
 
-// Save all blood counts to database here
+        // Save all blood counts to database here
         bloodCountRepository.saveAll(bloodCounts);
 
-// Second loop: Recalculate the necessary parameters
+        // Second loop: Recalculate the necessary parameters
         for (BloodCount bloodCount : bloodCounts) {
-            BloodCountReference reference = findReferenceByParameterAndUnit(bloodCount.getParameter(), bloodCount.getUnit(), referenceTable);
             if (needsToBeCalculated(bloodCount.getParameter(), bloodCount.getUnit())) {
                 double recalculatedValue = callCalculationUtil(bloodCount.getParameter(), patient);
                 bloodCount.setValue(recalculatedValue);
+                BloodCountReference reference = findReferenceByParameterAndUnit(bloodCount.getParameter(), bloodCount.getUnit(), referenceTable);
                 bloodCount.setLevelType(determineLevelType(recalculatedValue, reference, patient.getGender()));
             }
         }
 
-// Save updated blood counts and patient to database
+        // Save updated blood counts and patient to database
         bloodCountRepository.saveAll(bloodCounts);
         patientRepository.save(patient);
 
@@ -161,17 +158,18 @@ public class GenerationService {
     }
 
     private boolean needsToBeCalculated(String parameter, String unit) {
-        HashMap<String, String> bloodCountMap = new HashMap<>();
-        bloodCountMap.put("RBC", "10^12/L");
-        bloodCountMap.put("HCT", "%");
-        bloodCountMap.put("MCHC", "g/dl");
-        bloodCountMap.put("NEU", "10^9/L");
-        bloodCountMap.put("LYM", "10^9/L");
-        bloodCountMap.put("MONO", "10^9/L");
-        bloodCountMap.put("EOS", "10^9/L");
-        bloodCountMap.put("BASO", "10^9/L");
+        HashSet<String> bloodCountSet = new HashSet<>();
+        bloodCountSet.add("RBC-10^12/L");
+        bloodCountSet.add("HCT-%");
+        bloodCountSet.add("MCHC-g/dl");
 
-        return bloodCountMap.containsKey(parameter) && bloodCountMap.containsValue(unit);
+        bloodCountSet.add("NEU-10^9/L");
+        bloodCountSet.add("LYM-10^9/L");
+        bloodCountSet.add("MONO-10^9/L");
+        bloodCountSet.add("EOS-10^9/L");
+        bloodCountSet.add("BASO-10^9/L");
+
+        return bloodCountSet.contains(parameter + "-" + unit);
     }
 
     private Double randomizeValue(String parameter, String unit, Double min, Double max) {
