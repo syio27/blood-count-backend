@@ -20,20 +20,18 @@ import java.util.List;
 public class GameScheduler {
 
     private final GameRepository gameRepository;
+    private final GameService service;
 
     @Scheduled(fixedRate = 60000)
     public void endCompletedGames() {
         log.info("scheduler run");
         Instant now = Instant.now();
         List<Game> gamesToBeCompleted = gameRepository.findAllByEstimatedEndTimeBeforeAndStatus(Date.from(now), Status.IN_PROGRESS);
-        List<Game> completedGames = new ArrayList<>();
         gamesToBeCompleted.forEach(game -> {
-            game.setScore(0);
-            game.setEndTime(Date.from(now));
-            game.setStatus(Status.COMPLETED);
-            completedGames.add(game);
+            log.info("game id - {}, being auto completed by scheduler", game.getId());
+            service.completeGame(game.getId());
+            log.info("successfully auto completed");
         });
-        gameRepository.saveAll(completedGames);
         log.info("scheduler complete");
     }
 }
