@@ -8,4 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface BCReferenceRepository extends JpaRepository<BloodCountReference, Long> {
+    BloodCountReference findBloodCountReferenceByParameterAndUnit(String parameter, String unit);
 }
