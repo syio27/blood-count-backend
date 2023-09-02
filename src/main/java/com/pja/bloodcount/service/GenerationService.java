@@ -201,14 +201,14 @@ public class GenerationService {
 
     private boolean needsToBeCalculated(String parameter, String unit) {
         HashMap<String, String> bloodCountMap = new HashMap<>();
-        bloodCountMap.put("MCV", "fl");
-        bloodCountMap.put("MCH", "pg");
+        bloodCountMap.put("RBC", "10^12/L");
+        bloodCountMap.put("HCT", "%");
         bloodCountMap.put("MCHC", "g/dl");
-        bloodCountMap.put("NEU", "%");
-        bloodCountMap.put("LYM", "%");
-        bloodCountMap.put("MONO", "%");
-        bloodCountMap.put("EOS", "%");
-        bloodCountMap.put("BASO", "%");
+        bloodCountMap.put("NEU", "10^9/L");
+        bloodCountMap.put("LYM", "10^9/L");
+        bloodCountMap.put("MONO", "10^9/L");
+        bloodCountMap.put("EOS", "10^9/L");
+        bloodCountMap.put("BASO", "10^9/L");
 
         return bloodCountMap.containsKey(parameter) && bloodCountMap.containsValue(unit);
     }
@@ -264,14 +264,15 @@ public class GenerationService {
 
     private double callCalculationUtil(String parameter, Patient patient) {
         double value = switch (parameter) {
-            case "MCV" -> calculateBCUtil.calculateMCV("HCT", "%", "RBC", "10^12/L", patient);
-            case "MCH" -> calculateBCUtil.calculateMCH("HGB", "g/dl", "RBC", "10^12/L", patient);
+            case "RBC" -> calculateBCUtil.calculateRBC("HGB", "g/dl", "MCH", "pg", patient);
+            case "HCT" -> calculateBCUtil.calculateHCT("MCV", "fl", "RBC", "10^12/L", patient);
             case "MCHC" -> calculateBCUtil.calculateMCHC("HGB", "g/dl", "HCT", "%", patient);
-            case "NEU" -> calculateBCUtil.calculateCommon("NEU", "10^9/L", "WBC", "10^9/L", patient);
-            case "LYM" -> calculateBCUtil.calculateCommon("LYM", "10^9/L", "WBC", "10^9/L", patient);
-            case "MONO" -> calculateBCUtil.calculateCommon("MONO", "10^9/L", "WBC", "10^9/L", patient);
-            case "EOS" -> calculateBCUtil.calculateCommon("EOS", "10^9/L", "WBC", "10^9/L", patient);
-            case "BASO" -> calculateBCUtil.calculateCommon("BASO", "10^9/L", "WBC", "10^9/L", patient);
+
+            case "NEU" -> calculateBCUtil.calculateCommon("NEU", "%", "WBC", "10^9/L", patient);
+            case "LYM" -> calculateBCUtil.calculateCommon("LYM", "%", "WBC", "10^9/L", patient);
+            case "MONO" -> calculateBCUtil.calculateCommon("MONO", "%", "WBC", "10^9/L", patient);
+            case "EOS" -> calculateBCUtil.calculateCommon("EOS", "%", "WBC", "10^9/L", patient);
+            case "BASO" -> calculateBCUtil.calculateCommon("BASO", "%", "WBC", "10^9/L", patient);
             default -> 0d;
         };
         return roundFormat(value);

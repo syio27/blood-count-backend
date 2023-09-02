@@ -21,7 +21,7 @@ public class CalculateBCUtil {
         this.bloodCountRepository = bloodCountRepository;
     }
 
-    public Double calculateMCV(String parameter1, String unit1,
+    public Double calculateRBC(String parameter1, String unit1,
                                 String parameter2, String unit2,
                                 Patient patient) {
         return bloodCountRepository.findByParameterAndUnitAndPatient(parameter1, unit1, patient).getValue()
@@ -29,12 +29,12 @@ public class CalculateBCUtil {
                 / bloodCountRepository.findByParameterAndUnitAndPatient(parameter2, unit2, patient).getValue();
     }
 
-    public Double calculateMCH(String parameter1, String unit1,
+    public Double calculateHCT(String parameter1, String unit1,
                                 String parameter2, String unit2,
                                 Patient patient) {
         return bloodCountRepository.findByParameterAndUnitAndPatient(parameter1, unit1, patient).getValue()
-                * 10
-                / bloodCountRepository.findByParameterAndUnitAndPatient(parameter2, unit2, patient).getValue();
+                * bloodCountRepository.findByParameterAndUnitAndPatient(parameter2, unit2, patient).getValue()
+                / 10;
     }
 
     public Double calculateMCHC(String parameter1, String unit1,
@@ -55,7 +55,7 @@ public class CalculateBCUtil {
                                    String parameter2, String unit2,
                                    Patient patient) {
         return bloodCountRepository.findByParameterAndUnitAndPatient(parameter1, unit1, patient).getValue()
-                / bloodCountRepository.findByParameterAndUnitAndPatient(parameter2, unit2, patient).getValue()
-                * 100;
+                / 100
+                * bloodCountRepository.findByParameterAndUnitAndPatient(parameter2, unit2, patient).getValue();
     }
 }
