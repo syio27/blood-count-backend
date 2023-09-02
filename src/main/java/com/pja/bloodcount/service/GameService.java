@@ -60,6 +60,7 @@ public class GameService {
                 .diagnosis(aCase.getDiagnosis())
                 .hr(aCase.getHr())
                 .rr(aCase.getRr())
+                .description(aCase.getDescription())
                 .infoCom(aCase.getInfoCom())
                 .language(aCase.getLanguage())
                 .caseName(aCase.getCaseName())

@@ -26,6 +26,7 @@ public class CaseResponse {
     private String diagnosis;
     private String hr;
     private String rr;
+    private String description;
     private String infoCom;
     private String caseName;
     private Language language;

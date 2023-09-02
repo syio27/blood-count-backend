@@ -29,6 +29,7 @@ public class GameCaseDetails {
     private String details;
     private String hr;
     private String rr;
+    private String description;
     private String infoCom;
     private String caseName;
     @Enumerated(EnumType.STRING)

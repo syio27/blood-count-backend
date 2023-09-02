@@ -52,7 +52,8 @@ public class CaseServiceImpl implements CaseService {
 
         if (request.getHr().isBlank() || request.getDiagnosis().isBlank() || request.getAnemiaType().isBlank()
                 || request.getRr().isBlank() || request.getInfoCom().isBlank() || request.getHeight().isBlank()
-                || request.getCaseName().isBlank() || request.getBmi().isBlank() || request.getBodyMass().isBlank()) {
+                || request.getCaseName().isBlank() || request.getBmi().isBlank() || request.getBodyMass().isBlank()
+                || request.getDescription().isBlank()) {
             throw new IllegalArgumentException("Cannot be blank string");
         }
 
@@ -67,6 +68,7 @@ public class CaseServiceImpl implements CaseService {
                 .diagnosis(request.getDiagnosis())
                 .hr(request.getHr())
                 .rr(request.getHr())
+                .description(request.getDescription())
                 .infoCom(request.getInfoCom())
                 .language(request.getLanguage())
                 .caseName(request.getCaseName())
