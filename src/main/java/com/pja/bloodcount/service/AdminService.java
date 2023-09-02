@@ -71,6 +71,7 @@ public class AdminService {
                 + "Profile page URL: " + profileUrl + "\n\n"
                 + "Please log in using these details. We strongly recommend that you change your password immediately after your first login for security purposes.\n\n"
                 + "If you have any issues, please feel free to contact us.\n\n"
+                + "(Please use the user icon in the top right corner)"
                 + "Best regards,\n"
                 + "The Application Team";
 

@@ -9,6 +9,8 @@ public enum LevelType {
     DEGREE_II,
     DEGREE_III,
     DEGREE_IV,
-    BELOW_NORMAL,
-    ABOVE_NORMAL
+    BELOW_NORMAL_1,
+    ABOVE_NORMAL_1,
+    BELOW_NORMAL_2,
+    ABOVE_NORMAL_2
 }
