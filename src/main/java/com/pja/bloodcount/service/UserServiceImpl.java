@@ -153,7 +153,7 @@ public class UserServiceImpl implements UserService {
         }
         Token token = tokenService.createToken(request.getEmail());
 
-        final String resetUrl = String.format("%s/%s?email=%s", url, token.getToken(), request.getEmail());
+        final String resetUrl = String.format("%s/reset-password/%s?email=%s", url, token.getToken(), request.getEmail());
         final String subject = " Reset Your BloodCount App account password";
         final String message = "Dear User,\n" +
                 "\n" +
