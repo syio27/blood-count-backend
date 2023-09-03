@@ -1,9 +1,6 @@
 package com.pja.bloodcount.service.contract;
 
-import com.pja.bloodcount.dto.request.PasswordChangeDTO;
-import com.pja.bloodcount.dto.request.EmailChangeRequest;
-import com.pja.bloodcount.dto.request.UserGroupAssignmentRequest;
-import com.pja.bloodcount.dto.request.UserGroupBatchAssignmentRequest;
+import com.pja.bloodcount.dto.request.*;
 import com.pja.bloodcount.dto.response.AuthenticationResponse;
 import com.pja.bloodcount.dto.response.SimpleGameResponse;
 import com.pja.bloodcount.dto.response.UserResponse;
@@ -26,4 +23,6 @@ public interface UserService {
     void assignGroupToUsers(UserGroupBatchAssignmentRequest request);
     List<UserResponse> getGroupParticipants(String groupNumber);
     SimpleGameResponse getUserGameById(UUID userId, Long gameId);
+    public void forgotPassword(ForgotPasswordRequest request);
+    public void resetPassword(ResetPasswordRequest request);
 }

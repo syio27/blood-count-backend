@@ -1,25 +1,16 @@
 package com.pja.bloodcount.service;
 
-import com.pja.bloodcount.dto.request.PasswordChangeDTO;
-import com.pja.bloodcount.dto.request.EmailChangeRequest;
-import com.pja.bloodcount.dto.request.UserGroupAssignmentRequest;
-import com.pja.bloodcount.dto.request.UserGroupBatchAssignmentRequest;
+import com.pja.bloodcount.dto.request.*;
 import com.pja.bloodcount.dto.response.AuthenticationResponse;
 import com.pja.bloodcount.dto.response.SimpleGameResponse;
 import com.pja.bloodcount.dto.response.UserResponse;
 import com.pja.bloodcount.exceptions.*;
 import com.pja.bloodcount.mapper.GameMapper;
 import com.pja.bloodcount.mapper.UserMapper;
-import com.pja.bloodcount.model.Case;
-import com.pja.bloodcount.model.Game;
-import com.pja.bloodcount.model.Group;
-import com.pja.bloodcount.model.User;
+import com.pja.bloodcount.model.*;
 import com.pja.bloodcount.model.enums.Role;
 import com.pja.bloodcount.model.enums.Status;
-import com.pja.bloodcount.repository.GameRepository;
-import com.pja.bloodcount.repository.PatientRepository;
-import com.pja.bloodcount.repository.UserAnswerRepository;
-import com.pja.bloodcount.repository.UserRepository;
+import com.pja.bloodcount.repository.*;
 import com.pja.bloodcount.service.auth.JwtService;
 import com.pja.bloodcount.service.contract.UserService;
 import com.pja.bloodcount.utils.ValidationUtil;
@@ -27,14 +18,16 @@ import com.pja.bloodcount.validation.GroupValidator;
 import com.pja.bloodcount.validation.UserValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -50,11 +43,16 @@ public class UserServiceImpl implements UserService {
     private final UserRepository repository;
     private final UserAnswerRepository userAnswerRepository;
     private final PatientRepository patientRepository;
+    private final TokenRepository tokenRepository;
     private final UserValidator userValidator;
     private final GroupValidator groupValidator;
     private final PasswordEncoder passwordEncoder;
-    private final GameService gameService;
     private final JwtService jwtService;
+    private final ResetTokenService tokenService;
+    private final MailService mailService;
+
+    @Value("${app.url}")
+    private String url;
 
     @Override
     public UserResponse getUserById(UUID id) {
@@ -93,12 +91,12 @@ public class UserServiceImpl implements UserService {
         User user = userValidator.validateIfExistsAndGet(id);
         User updatedUserDetails = UserMapper.mapToUserModel(incomingEmailChangeRequest, id);
 
-        if(!ValidationUtil.validateEmail(incomingEmailChangeRequest.getEmail())){
+        if (!ValidationUtil.validateEmail(incomingEmailChangeRequest.getEmail())) {
             throw new EmailValidationException("Email is not valid, does not contain @ or .");
         }
 
-        if(repository.findUserByEmail(updatedUserDetails.getEmail()).isPresent()
-                && !user.getEmail().equals(updatedUserDetails.getEmail())){
+        if (repository.findUserByEmail(updatedUserDetails.getEmail()).isPresent()
+                && !user.getEmail().equals(updatedUserDetails.getEmail())) {
             throw new UserConflictException(updatedUserDetails.getEmail());
         }
 
@@ -116,26 +114,26 @@ public class UserServiceImpl implements UserService {
         return new PageImpl<>(UserMapper.mapToResponseListDTO(users), pageable, entityPage.getTotalElements());
     }
 
-    public AuthenticationResponse changePassword(UUID id, PasswordChangeDTO passwordChangeDTO){
+    public AuthenticationResponse changePassword(UUID id, PasswordChangeDTO passwordChangeDTO) {
         User user = findById(id);
 
-        if(!ValidationUtil.validatePassword(passwordChangeDTO.getNewPassword())){
+        if (!ValidationUtil.validatePassword(passwordChangeDTO.getNewPassword())) {
             throw new PasswordValidationException("Password is not valid, doesnt match regex rule");
         }
 
-        if(!passwordEncoder.matches(passwordChangeDTO.getOldPassword(), user.getPassword())){
+        if (!passwordEncoder.matches(passwordChangeDTO.getOldPassword(), user.getPassword())) {
             throw new IncorrectOldPasswordException("Old password is incorrect");
         }
 
-        if(passwordChangeDTO.getNewPassword().equals(passwordChangeDTO.getOldPassword())){
+        if (passwordChangeDTO.getNewPassword().equals(passwordChangeDTO.getOldPassword())) {
             throw new PasswordSameAsOldException("New password cannot be the same as old password");
         }
 
-        if(!passwordChangeDTO.getNewPassword().equals(passwordChangeDTO.getNewPasswordRepeat())){
+        if (!passwordChangeDTO.getNewPassword().equals(passwordChangeDTO.getNewPasswordRepeat())) {
             throw new PasswordRepeatException("New password and new password confirmation are not the same");
         }
-        repository.save(user);
         user.setPassword(passwordEncoder.encode(passwordChangeDTO.getNewPassword()));
+        repository.save(user);
         var jwtToken = jwtService.generateToken(user, 0);
         var jwtExpirationDate = jwtService.extractExpiration(jwtToken);
         return AuthenticationResponse.builder()
@@ -144,8 +142,86 @@ public class UserServiceImpl implements UserService {
                 .build();
     }
 
+    @Override
+    public void forgotPassword(ForgotPasswordRequest request) {
+        if (!ValidationUtil.validateEmail(request.getEmail())) {
+            throw new EmailValidationException("Email is not valid, doesnt match regex rule");
+        }
+
+        if (repository.findUserByEmail(request.getEmail()).isEmpty()) {
+            throw new UserWithEmailNotFoundException(request.getEmail());
+        }
+        Token token = tokenService.createToken(request.getEmail());
+
+        final String resetUrl = String.format("%s/%s?email=%s", url, token.getToken(), request.getEmail());
+        final String subject = " Reset Your BloodCount App account password";
+        final String message = "Dear User,\n" +
+                "\n" +
+                "We received a request to reset your password for your BloodCount app account. " +
+                "If you didn't make this request, you can safely ignore this email. " +
+                "Your password won't be changed until you create a new one using the link below.\n" +
+                "\n" +
+                "To reset your password, please click the following link:\n" +
+                "\n" +
+                resetUrl +
+                "\n" +
+                "This link will expire in 3 hours. If you don't reset your password within this time frame, you'll need to submit a new request.\n" +
+                "\n" +
+                "Best regards,\n" +
+                "The Your BloodCount app Team";
+
+        mailService.sendMail(request.getEmail(), subject, message);
+    }
+
+    @Override
+    public void resetPassword(ResetPasswordRequest request) {
+        Token tokenEntity = tokenRepository.findByToken(request.getToken());
+
+        TokenValidationRequest tokenValidationRequest = TokenValidationRequest
+                .builder()
+                .token(request.getToken())
+                .email(request.getEmail())
+                .build();
+        // Validate token (you can reuse the validation logic from earlier)
+        if (!tokenService.validateToken(tokenValidationRequest)) {
+            throw new ResetTokenInvalidException("Invalid or expired token");
+        }
+
+        if (!ValidationUtil.validatePassword(request.getNewPassword())) {
+            throw new PasswordValidationException("Password is not valid, doesnt match regex rule");
+        }
+
+        if (!request.getNewPassword().equals(request.getNewPasswordRepeat())) {
+            throw new PasswordRepeatException("New password and new password confirmation are not the same");
+        }
+
+        User user = userValidator.validateEmailAndGet(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        repository.save(user);
+
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
+        String formattedDateTime = now.format(formatter);
+
+        final String loginUrl = String.format("%s/%s", url, "login");
+        final String subject = "Password has been reset";
+        final String message = "Dear User,\n" +
+                "\n" +
+                "You password has been reset at " + formattedDateTime + "\n" +
+                "and you can access the login page and enter to app with new credentials here ->" +
+                "\n" +
+                loginUrl +
+                "\n" +
+                "Best regards,\n" +
+                "The Your BloodCount app Team";
+
+        mailService.sendMail(request.getEmail(), subject, message);
+
+        tokenRepository.delete(tokenEntity);
+    }
+
     @Transactional
-    public void assignUserToGroup(UUID id, UserGroupAssignmentRequest request){
+    public void assignUserToGroup(UUID id, UserGroupAssignmentRequest request) {
         User user = findById(id);
         Group group = groupValidator.validateIfExistsAndGet(request.getGroupNumber());
         group.addUser(user);
@@ -169,20 +245,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserResponse> getGroupParticipants(String groupNumber){
+    public List<UserResponse> getGroupParticipants(String groupNumber) {
         groupValidator.validateIfExistsAndGet(groupNumber);
         return UserMapper.mapToResponseListDTO(repository.findByGroup_GroupNumber(groupNumber));
     }
 
     @Override
-    public SimpleGameResponse getUserGameById(UUID userId, Long gameId){
+    public SimpleGameResponse getUserGameById(UUID userId, Long gameId) {
         User user = userValidator.validateIfExistsAndGet(userId);
         Optional<Game> optionalGame = user.getGames().stream().filter(g -> Objects.equals(g.getId(), gameId)).findFirst();
-        if(optionalGame.isEmpty()){
+        if (optionalGame.isEmpty()) {
             throw new GameNotFoundException(gameId);
         }
         Game usersGame = optionalGame.get();
-        if(usersGame.getStatus().equals(Status.IN_PROGRESS)){
+        if (usersGame.getStatus().equals(Status.IN_PROGRESS)) {
             throw new GameCompleteException("Game " + usersGame.getId() + " is still in progress");
         }
         return GameMapper.mapToSimpleResponseDTO(usersGame);
@@ -190,18 +266,19 @@ public class UserServiceImpl implements UserService {
 
     /**
      * find user by id or throw RuntimeException
+     *
      * @param id of User entity
      * @return User
      */
-    private User findById(UUID id){
+    private User findById(UUID id) {
         return userValidator.validateIfExistsAndGet(id);
     }
 
-    private Role getRoleOfUser(User user){
+    private Role getRoleOfUser(User user) {
         return user.getRole();
     }
 
-    private String getPasswordOfUser(User user){
+    private String getPasswordOfUser(User user) {
         return user.getPassword();
     }
 }
