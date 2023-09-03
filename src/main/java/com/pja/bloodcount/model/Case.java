@@ -35,10 +35,13 @@ public class Case implements Serializable {
     @Enumerated(EnumType.STRING)
     private AffectedGender affectedGender;
     private String anemiaType;
+    @Column(length = 1000)
     private String diagnosis;
     private String hr;
     private String rr;
+    @Column(length = 1000)
     private String description;
+    @Column(length = 1000)
     private String infoCom;
     private String caseName;
     @Enumerated(EnumType.STRING)
