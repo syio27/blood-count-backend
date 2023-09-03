@@ -1,12 +1,12 @@
 package com.pja.bloodcount.service;
 
 import com.pja.bloodcount.dto.request.TokenValidationRequest;
+import com.pja.bloodcount.exceptions.ResetTokenInvalidException;
 import com.pja.bloodcount.model.Token;
 import com.pja.bloodcount.repository.TokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
@@ -28,7 +28,7 @@ public class ResetTokenService {
             token.append(chars.charAt(secureRandom.nextInt(chars.length())));
         }
 
-        LocalDateTime expirationTime = LocalDateTime.now().plusHours(3);
+        LocalDateTime expirationTime = LocalDateTime.now().plusMinutes(2);
         Token tokenEntity = Token
                 .builder()
                 .token(token.toString())
@@ -41,26 +41,27 @@ public class ResetTokenService {
         return tokenEntity;
     }
 
+    public void validateTokenAndThrowErrors(TokenValidationRequest request) {
+        if(!this.validateToken(request)){
+            throw new ResetTokenInvalidException("token invalid");
+        }
+    }
+
     public boolean validateToken(TokenValidationRequest request) {
-        // Fetch the token from the database
         Token tokenEntity = repository.findByToken(request.getToken());
 
-        // Check if the token exists
         if (tokenEntity == null) {
             return false;
         }
 
-        // Check if the token is associated with the user's email
         if (!request.getEmail().equals(tokenEntity.getEmail())) {
             return false;
         }
 
-        // Check if the token has expired
         if (LocalDateTime.now().isAfter(tokenEntity.getExpirationTime())) {
             return false;
         }
 
-        // If we've made it this far, the token is valid
         return true;
     }
 }

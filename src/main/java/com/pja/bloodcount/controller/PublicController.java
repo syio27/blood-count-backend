@@ -2,8 +2,9 @@ package com.pja.bloodcount.controller;
 
 import com.pja.bloodcount.dto.request.ForgotPasswordRequest;
 import com.pja.bloodcount.dto.request.ResetPasswordRequest;
+import com.pja.bloodcount.dto.request.TokenValidationRequest;
 import com.pja.bloodcount.dto.response.GroupResponse;
-import com.pja.bloodcount.model.enums.GroupType;
+import com.pja.bloodcount.service.ResetTokenService;
 import com.pja.bloodcount.service.contract.GroupService;
 import com.pja.bloodcount.service.contract.UserService;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ public class PublicController {
 
     private final GroupService service;
     private final UserService userService;
+    private final ResetTokenService tokenService;
 
     @GetMapping("/groups")
     @ResponseStatus(HttpStatus.OK)
@@ -39,5 +41,11 @@ public class PublicController {
     public ResponseEntity<Void> resetPassword(@RequestBody ResetPasswordRequest request) {
         userService.resetPassword(request);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PostMapping("/validate-token")
+    public ResponseEntity<Void> validateToken(@RequestBody TokenValidationRequest request) {
+        tokenService.validateTokenAndThrowErrors(request);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
