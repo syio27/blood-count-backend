@@ -28,7 +28,7 @@ public class ResetTokenService {
             token.append(chars.charAt(secureRandom.nextInt(chars.length())));
         }
 
-        LocalDateTime expirationTime = LocalDateTime.now().plusMinutes(2);
+        LocalDateTime expirationTime = LocalDateTime.now().plusHours(3);
         Token tokenEntity = Token
                 .builder()
                 .token(token.toString())
