@@ -76,6 +76,7 @@ public class GameServiceImpl implements GameService {
         Game game = Game
                 .builder()
                 .endTime(null)
+                .language(language)
                 .estimatedEndTime(Date.from(endTime))
                 .status(Status.IN_PROGRESS)
                 .currentPage(Pages.ONE)
@@ -210,8 +211,6 @@ public class GameServiceImpl implements GameService {
         if (currentPage != Pages.FOUR) {
             currentPage = currentPage.getNextPage();
         } else {
-            // Handle the case when you are at the last page and there is no next page.
-            // Maybe loop back to the beginning or do nothing, depending on your needs.
             log.warn("User is on last page of Game");
         }
         return currentPage;
@@ -234,7 +233,6 @@ public class GameServiceImpl implements GameService {
         if (optionalGame.isEmpty()) {
             throw new GameNotFoundException(gameId);
         }
-        Game game = optionalGame.get();
         List<UserAnswer> selectedAnswers = userAnswerRepository.findByUser_IdAndGame_Id(userId, gameId);
         selectedAnswers.forEach(savedUserAnswer -> {
             SavedUserAnswerResponse savedUserAnswerResponse = SavedUserAnswerResponse

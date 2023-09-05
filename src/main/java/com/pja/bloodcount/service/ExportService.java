@@ -2,6 +2,7 @@ package com.pja.bloodcount.service;
 
 import com.pja.bloodcount.dto.response.GameToExport;
 import com.pja.bloodcount.model.Game;
+import com.pja.bloodcount.model.enums.Language;
 import com.pja.bloodcount.model.enums.Role;
 import com.pja.bloodcount.model.enums.Status;
 import com.pja.bloodcount.repository.GameRepository;
@@ -32,6 +33,7 @@ public class ExportService {
             GameToExport gameToExport = GameToExport
                     .builder()
                     .id(game.getId())
+                    .language(game.getLanguage())
                     .userEmail(game.getUser().getEmail())
                     .userGroup(game.getUser().getGroup().getGroupNumber())
                     .startTime(game.getStartTime())
@@ -56,33 +58,35 @@ public class ExportService {
 
         Row headerRow = sheet.createRow(0);
         headerRow.createCell(0).setCellValue("GAME_ID");
-        headerRow.createCell(1).setCellValue("USER EMAIL");
-        headerRow.createCell(2).setCellValue("USER GROUP");
-        headerRow.createCell(3).setCellValue("START_TIME");
-        headerRow.createCell(4).setCellValue("END_TIME");
-        headerRow.createCell(5).setCellValue("ESTIMATED_END_TIME");
-        headerRow.createCell(6).setCellValue("STATUS");
-        headerRow.createCell(7).setCellValue("SCORE");
-        headerRow.createCell(8).setCellValue("TEST_DURATION");
-        headerRow.createCell(9).setCellValue("PATIENT_INFO");
-        headerRow.createCell(10).setCellValue("PLAYED_CASE_NUMBER");
-        headerRow.createCell(11).setCellValue("CASE_DETAILS");
+        headerRow.createCell(1).setCellValue("LANGUAGE");
+        headerRow.createCell(2).setCellValue("USER EMAIL");
+        headerRow.createCell(3).setCellValue("USER GROUP");
+        headerRow.createCell(4).setCellValue("START_TIME");
+        headerRow.createCell(5).setCellValue("END_TIME");
+        headerRow.createCell(6).setCellValue("ESTIMATED_END_TIME");
+        headerRow.createCell(7).setCellValue("STATUS");
+        headerRow.createCell(8).setCellValue("SCORE");
+        headerRow.createCell(9).setCellValue("TEST_DURATION");
+        headerRow.createCell(10).setCellValue("PATIENT_INFO");
+        headerRow.createCell(11).setCellValue("PLAYED_CASE_NUMBER");
+        headerRow.createCell(12).setCellValue("CASE_DETAILS");
 
         for (int i = 0; i < gamesToExport.size(); i++) {
             GameToExport gameToExport = gamesToExport.get(i);
             Row row = sheet.createRow(i + 1);
             row.createCell(0).setCellValue(gameToExport.getId());
-            row.createCell(1).setCellValue(gameToExport.getUserEmail());
-            row.createCell(2).setCellValue(gameToExport.getUserGroup());
-            row.createCell(3).setCellValue(gameToExport.getStartTime() != null ? gameToExport.getStartTime().toString() : null);
-            row.createCell(4).setCellValue(gameToExport.getEndTime() != null ? gameToExport.getEndTime().toString() : null);
-            row.createCell(5).setCellValue(gameToExport.getEstimatedEndTime() != null ? gameToExport.getEstimatedEndTime().toString() : null);
-            row.createCell(6).setCellValue(gameToExport.getStatus().name());
-            row.createCell(7).setCellValue(gameToExport.getScore());
-            row.createCell(8).setCellValue(gameToExport.getTestDuration());
-            row.createCell(9).setCellValue(gameToExport.getPatientInfo());
-            row.createCell(10).setCellValue(gameToExport.getPlayedCaseId());
-            row.createCell(11).setCellValue(gameToExport.getCaseInfo());
+            row.createCell(1).setCellValue(gameToExport.getLanguage().name());
+            row.createCell(2).setCellValue(gameToExport.getUserEmail());
+            row.createCell(3).setCellValue(gameToExport.getUserGroup());
+            row.createCell(4).setCellValue(gameToExport.getStartTime() != null ? gameToExport.getStartTime().toString() : null);
+            row.createCell(5).setCellValue(gameToExport.getEndTime() != null ? gameToExport.getEndTime().toString() : null);
+            row.createCell(6).setCellValue(gameToExport.getEstimatedEndTime() != null ? gameToExport.getEstimatedEndTime().toString() : null);
+            row.createCell(7).setCellValue(gameToExport.getStatus().name());
+            row.createCell(8).setCellValue(gameToExport.getScore());
+            row.createCell(9).setCellValue(gameToExport.getTestDuration());
+            row.createCell(10).setCellValue(gameToExport.getPatientInfo());
+            row.createCell(11).setCellValue(gameToExport.getPlayedCaseId());
+            row.createCell(12).setCellValue(gameToExport.getCaseInfo());
         }
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();

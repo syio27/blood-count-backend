@@ -1,5 +1,6 @@
 package com.pja.bloodcount.dto.response;
 
+import com.pja.bloodcount.model.enums.Language;
 import com.pja.bloodcount.model.enums.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,4 +22,5 @@ public class SimpleGameResponse {
     private Status status;
     private int score;
     private Long caseId;
+    private Language language;
 }

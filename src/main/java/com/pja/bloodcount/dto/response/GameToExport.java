@@ -1,5 +1,6 @@
 package com.pja.bloodcount.dto.response;
 
+import com.pja.bloodcount.model.enums.Language;
 import com.pja.bloodcount.model.enums.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,6 +15,7 @@ import java.util.Date;
 @NoArgsConstructor
 public class GameToExport {
     private Long id;
+    private Language language;
     private String userEmail;
     private String userGroup;
     private Date startTime;

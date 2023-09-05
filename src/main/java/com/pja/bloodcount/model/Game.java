@@ -1,5 +1,6 @@
 package com.pja.bloodcount.model;
 
+import com.pja.bloodcount.model.enums.Language;
 import com.pja.bloodcount.model.enums.Pages;
 import com.pja.bloodcount.model.enums.Status;
 import lombok.AllArgsConstructor;
@@ -40,6 +41,8 @@ public class Game {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id")
     private Patient patient;
+    @Enumerated(EnumType.STRING)
+    private Language language;
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "gameCaseDetails_id", referencedColumnName = "id")
     private GameCaseDetails caseDetails;

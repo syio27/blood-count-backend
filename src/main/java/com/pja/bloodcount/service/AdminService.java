@@ -88,8 +88,10 @@ public class AdminService {
             user.setActive(false);
             subject = "Your BloodCount App Account Has Been Suspended!";
             message = "Dear Admin User\n\n"
-                    + "We hope this message finds you well. " + "\n"
+                    + "We hope this message finds you well. "
+                    + "\n"
                     + "We regret to inform you that your account with "+ user.getEmail() +" has been temporarily suspended, effective immediately."
+                    + "\n"
                     + "Best regards,\n"
                     + "The Application Team";
         }
@@ -97,7 +99,10 @@ public class AdminService {
             user.setActive(true);
             subject = "Your BloodCount app Account Has Been Reinstated!";
             message = "Dear Admin User\n\n"
-                    + "We are pleased to inform you that the suspension on your account has been lifted, effective immediately."
+                    + "We are pleased to inform you that the suspension on your account has been lifted."
+                    + "\n"
+                    + "Your account is activated."
+                    + "\n"
                     + "Best regards,\n"
                     + "The Application Team";
         }
