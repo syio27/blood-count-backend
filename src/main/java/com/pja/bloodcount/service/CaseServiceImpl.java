@@ -67,7 +67,7 @@ public class CaseServiceImpl implements CaseService {
                 .affectedGender(request.getAffectedGender())
                 .diagnosis(request.getDiagnosis())
                 .hr(request.getHr())
-                .rr(request.getHr())
+                .rr(request.getRr())
                 .description(request.getDescription())
                 .infoCom(request.getInfoCom())
                 .language(request.getLanguage())
