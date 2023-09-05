@@ -23,5 +23,6 @@ public class GameToExport {
     private Status status;
     private int score;
     private String patientInfo;
+    private String playedCaseId;
     private String caseInfo;
 }

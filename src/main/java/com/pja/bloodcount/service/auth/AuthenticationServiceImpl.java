@@ -6,7 +6,7 @@ import com.pja.bloodcount.dto.response.AuthenticationResponse;
 import com.pja.bloodcount.exceptions.*;
 import com.pja.bloodcount.model.Group;
 import com.pja.bloodcount.service.contract.AuthenticationService;
-import com.pja.bloodcount.utils.ValidationUtil;
+import com.pja.bloodcount.utils.CredentialValidationUtil;
 import com.pja.bloodcount.validation.GroupValidator;
 import com.pja.bloodcount.validation.UserValidator;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +34,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public AuthenticationResponse register(RegisterRequest registerRequest) {
-        if (!ValidationUtil.validateEmail(registerRequest.getEmail())) {
+        if (!CredentialValidationUtil.validateEmail(registerRequest.getEmail())) {
             throw new EmailValidationException("Email is not valid, doesnt match regex rule");
         }
 
@@ -42,7 +42,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new UserConflictException(registerRequest.getEmail());
         }
 
-        if (!ValidationUtil.validatePassword(registerRequest.getPassword())) {
+        if (!CredentialValidationUtil.validatePassword(registerRequest.getPassword())) {
             throw new PasswordValidationException("Password is not valid, doesnt match regex rule");
         }
 

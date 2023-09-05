@@ -3,14 +3,13 @@ package com.pja.bloodcount.service;
 import com.pja.bloodcount.model.Game;
 import com.pja.bloodcount.model.enums.Status;
 import com.pja.bloodcount.repository.GameRepository;
+import com.pja.bloodcount.service.contract.GameService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 

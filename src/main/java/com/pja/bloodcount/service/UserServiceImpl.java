@@ -13,7 +13,7 @@ import com.pja.bloodcount.model.enums.Status;
 import com.pja.bloodcount.repository.*;
 import com.pja.bloodcount.service.auth.JwtService;
 import com.pja.bloodcount.service.contract.UserService;
-import com.pja.bloodcount.utils.ValidationUtil;
+import com.pja.bloodcount.utils.CredentialValidationUtil;
 import com.pja.bloodcount.validation.GroupValidator;
 import com.pja.bloodcount.validation.UserValidator;
 import lombok.RequiredArgsConstructor;
@@ -91,7 +91,7 @@ public class UserServiceImpl implements UserService {
         User user = userValidator.validateIfExistsAndGet(id);
         User updatedUserDetails = UserMapper.mapToUserModel(incomingEmailChangeRequest, id);
 
-        if (!ValidationUtil.validateEmail(incomingEmailChangeRequest.getEmail())) {
+        if (!CredentialValidationUtil.validateEmail(incomingEmailChangeRequest.getEmail())) {
             throw new EmailValidationException("Email is not valid, does not contain @ or .");
         }
 
@@ -117,7 +117,7 @@ public class UserServiceImpl implements UserService {
     public AuthenticationResponse changePassword(UUID id, PasswordChangeDTO passwordChangeDTO) {
         User user = findById(id);
 
-        if (!ValidationUtil.validatePassword(passwordChangeDTO.getNewPassword())) {
+        if (!CredentialValidationUtil.validatePassword(passwordChangeDTO.getNewPassword())) {
             throw new PasswordValidationException("Password is not valid, doesnt match regex rule");
         }
 
@@ -144,7 +144,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void forgotPassword(ForgotPasswordRequest request) {
-        if (!ValidationUtil.validateEmail(request.getEmail())) {
+        if (!CredentialValidationUtil.validateEmail(request.getEmail())) {
             throw new EmailValidationException("Email is not valid, doesnt match regex rule");
         }
 
@@ -187,7 +187,7 @@ public class UserServiceImpl implements UserService {
             throw new ResetTokenInvalidException("Invalid or expired token");
         }
 
-        if (!ValidationUtil.validatePassword(request.getNewPassword())) {
+        if (!CredentialValidationUtil.validatePassword(request.getNewPassword())) {
             throw new PasswordValidationException("Password is not valid, doesnt match regex rule");
         }
 

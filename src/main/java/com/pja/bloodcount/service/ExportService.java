@@ -2,6 +2,7 @@ package com.pja.bloodcount.service;
 
 import com.pja.bloodcount.dto.response.GameToExport;
 import com.pja.bloodcount.model.Game;
+import com.pja.bloodcount.model.enums.Role;
 import com.pja.bloodcount.model.enums.Status;
 import com.pja.bloodcount.repository.GameRepository;
 import lombok.AllArgsConstructor;
@@ -24,7 +25,7 @@ public class ExportService {
     public byte[] exportData() throws IOException {
 
         List<Game> allGames = gameRepository.findAll();
-        List<Game> completedGames = allGames.stream().filter(game -> game.getStatus().equals(Status.COMPLETED)).toList();
+        List<Game> completedGames = allGames.stream().filter(game -> game.getStatus().equals(Status.COMPLETED) && game.getUser().getRole().equals(Role.STUDENT)).toList();
 
         List<GameToExport> gamesToExport = new ArrayList<>();
         completedGames.forEach(game -> {
@@ -35,11 +36,11 @@ public class ExportService {
                     .userGroup(game.getUser().getGroup().getGroupNumber())
                     .startTime(game.getStartTime())
                     .endTime(game.getEndTime())
-                    .estimatedEndTime(game.getEstimatedEndTime())
                     .status(game.getStatus())
                     .score(game.getScore())
                     .testDuration(game.getTestDuration())
                     .patientInfo("Gender: " + game.getPatient().getGender() + ", age: " + game.getPatient().getAge())
+                    .playedCaseId("Case number: " + game.getCaseDetails().getAnActualCaseId())
                     .caseInfo("Anemia type: " + game.getCaseDetails().getAnemiaType() + ", diagnosis: " + game.getCaseDetails().getDiagnosis())
                     .build();
 
@@ -64,7 +65,8 @@ public class ExportService {
         headerRow.createCell(7).setCellValue("SCORE");
         headerRow.createCell(8).setCellValue("TEST_DURATION");
         headerRow.createCell(9).setCellValue("PATIENT_INFO");
-        headerRow.createCell(10).setCellValue("CASE_DETAILS");
+        headerRow.createCell(10).setCellValue("PLAYED_CASE_NUMBER");
+        headerRow.createCell(11).setCellValue("CASE_DETAILS");
 
         for (int i = 0; i < gamesToExport.size(); i++) {
             GameToExport gameToExport = gamesToExport.get(i);
@@ -79,7 +81,8 @@ public class ExportService {
             row.createCell(7).setCellValue(gameToExport.getScore());
             row.createCell(8).setCellValue(gameToExport.getTestDuration());
             row.createCell(9).setCellValue(gameToExport.getPatientInfo());
-            row.createCell(10).setCellValue(gameToExport.getCaseInfo());
+            row.createCell(10).setCellValue(gameToExport.getPlayedCaseId());
+            row.createCell(11).setCellValue(gameToExport.getCaseInfo());
         }
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();

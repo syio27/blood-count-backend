@@ -1,6 +1,5 @@
 package com.pja.bloodcount.service;
 
-import com.pja.bloodcount.config.PropertiesConfig;
 import com.pja.bloodcount.dto.request.InviteUserRequest;
 import com.pja.bloodcount.dto.response.UserResponse;
 import com.pja.bloodcount.exceptions.EmailValidationException;
@@ -8,10 +7,9 @@ import com.pja.bloodcount.exceptions.UserConflictException;
 import com.pja.bloodcount.mapper.UserMapper;
 import com.pja.bloodcount.model.Group;
 import com.pja.bloodcount.model.User;
-import com.pja.bloodcount.repository.GroupRepository;
 import com.pja.bloodcount.repository.UserRepository;
 import com.pja.bloodcount.utils.PasswordGeneratorUtil;
-import com.pja.bloodcount.utils.ValidationUtil;
+import com.pja.bloodcount.utils.CredentialValidationUtil;
 import com.pja.bloodcount.validation.GroupValidator;
 import com.pja.bloodcount.validation.UserValidator;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +34,7 @@ public class AdminService {
     private String url;
 
     public void invite(InviteUserRequest inviteRequest) {
-        if (!ValidationUtil.validateEmail(inviteRequest.getEmail())) {
+        if (!CredentialValidationUtil.validateEmail(inviteRequest.getEmail())) {
             throw new EmailValidationException("Email is not valid, doesnt match regex rule");
         }
 

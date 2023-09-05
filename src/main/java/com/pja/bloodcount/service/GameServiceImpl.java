@@ -9,6 +9,7 @@ import com.pja.bloodcount.model.enums.Language;
 import com.pja.bloodcount.model.enums.Pages;
 import com.pja.bloodcount.model.enums.Status;
 import com.pja.bloodcount.repository.*;
+import com.pja.bloodcount.service.contract.GameService;
 import com.pja.bloodcount.validation.CaseValidator;
 import com.pja.bloodcount.validation.UserValidator;
 import lombok.AllArgsConstructor;
@@ -24,7 +25,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Service
 @Slf4j
 @AllArgsConstructor
-public class GameService {
+public class GameServiceImpl implements GameService {
 
     private final GameRepository repository;
     private final UserRepository userRepository;
@@ -37,6 +38,7 @@ public class GameService {
     private final QuestionRepository questionRepository;
     private final AnswerRepository answerRepository;
 
+    @Override
     public GameResponse createGame(Long caseId, UUID userId, Language language) {
         User user = userValidator.validateIfExistsAndGet(userId);
         List<Game> gamesOfUser = repository.findByUser_Id(userId);
@@ -73,7 +75,6 @@ public class GameService {
 
         Game game = Game
                 .builder()
-                // end time not applicable yet, should be updated when Status.COMPLETED
                 .endTime(null)
                 .estimatedEndTime(Date.from(endTime))
                 .status(Status.IN_PROGRESS)
@@ -101,6 +102,7 @@ public class GameService {
         return GameMapper.mapToResponseDTO(game, currentDate, getSavedAnswersOfGame(userId, game.getId()));
     }
 
+    @Override
     public SimpleGameResponse completeGame(Long gameId) {
         Optional<Game> optionalGame = repository.findById(gameId);
         if (optionalGame.isEmpty()) {
@@ -121,6 +123,7 @@ public class GameService {
         return GameMapper.mapToSimpleResponseDTO(game);
     }
 
+    @Override
     public void saveSelectedAnswers(Long gameId, List<AnswerRequest> answerRequestList) {
         Optional<Game> optionalGame = repository.findById(gameId);
         if (optionalGame.isEmpty()) {
@@ -177,6 +180,7 @@ public class GameService {
         userAnswerRepository.saveAll(userAnswers);
     }
 
+    @Override
     public GameCurrentSessionState next(UUID userId, Long gameId, List<AnswerRequest> answerRequestList) {
         Optional<Game> optionalGame = repository.findById(gameId);
         if (optionalGame.isEmpty()) {
@@ -213,6 +217,7 @@ public class GameService {
         return currentPage;
     }
 
+    @Override
     public List<SimpleGameResponse> getAllCompletedGamesOfUser(UUID userId) {
         userValidator.validateIfExistsAndGet(userId);
         List<Game> games = repository.findByUser_Id(userId);
@@ -245,6 +250,7 @@ public class GameService {
     }
 
     @Deprecated
+    @Override
     public List<UserSelectedAnswerResponse> getSelectedAnswersOfGame(UUID userId, Long gameId) {
         List<UserSelectedAnswerResponse> selectedAnswerResponses = new ArrayList<>();
         userValidator.validateIfExistsAndGet(userId);
@@ -281,6 +287,7 @@ public class GameService {
         return selectedAnswerResponses;
     }
 
+    @Override
     public GameResponse getInProgressGame(Long gameId, UUID userId) {
         userValidator.validateIfExistsAndGet(userId);
         Optional<Game> optionalGame = repository.findById(gameId);
@@ -299,6 +306,7 @@ public class GameService {
         return GameMapper.mapToResponseDTO(game, currentDate, getSavedAnswersOfGame(userId, gameId));
     }
 
+    @Override
     public GameInProgress hasGameInProgress(UUID userId) {
         GameInProgress gameInProgress = GameInProgress.builder().build();
         User user = userValidator.validateIfExistsAndGet(userId);

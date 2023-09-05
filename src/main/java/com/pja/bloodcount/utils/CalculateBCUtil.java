@@ -41,11 +41,7 @@ public class CalculateBCUtil {
                                  String parameter2, String unit2,
                                  Patient patient) {
         Double valueParam1 = bloodCountRepository.findByParameterAndUnitAndPatient(parameter1, unit1, patient).getValue();
-        System.out.println("MCHC calculation log param1: " + bloodCountRepository.findByParameterAndUnitAndPatient(parameter1, unit1, patient).getParameter());
-        System.out.println("MCHC calculation log param1: " + valueParam1);
         Double valueParam2 = bloodCountRepository.findByParameterAndUnitAndPatient(parameter2, unit2, patient).getValue();
-        System.out.println("MCHC calculation log param2: " + valueParam2);
-        System.out.println("MCHC calculation log patient id: " + patient.getId());
         return valueParam1
                 * 100
                 / valueParam2;

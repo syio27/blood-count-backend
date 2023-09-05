@@ -10,12 +10,8 @@ import java.util.regex.Pattern;
  * @author baglan
  * @version 1.0
  */
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import org.springframework.stereotype.Service;
-
 @Service
-public class ValidationUtil {
+public class CredentialValidationUtil {
 
     /**
      * Password regex pattern

@@ -5,24 +5,17 @@ import com.pja.bloodcount.dto.response.AuthenticationResponse;
 import com.pja.bloodcount.dto.response.SimpleGameResponse;
 import com.pja.bloodcount.dto.response.UserResponse;
 import com.pja.bloodcount.dto.response.UserSelectedAnswerResponse;
-import com.pja.bloodcount.exceptions.UserNotAllowedException;
-import com.pja.bloodcount.model.Token;
-import com.pja.bloodcount.model.User;
 import com.pja.bloodcount.model.enums.Role;
 import com.pja.bloodcount.service.AdminService;
-import com.pja.bloodcount.service.GameService;
+import com.pja.bloodcount.service.contract.GameService;
 import com.pja.bloodcount.service.contract.UserService;
 import com.pja.bloodcount.utils.AuthenticationUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -136,8 +129,7 @@ public class UserController {
 
     @PreAuthorize("hasRole('ROOT')")
     @PostMapping("/{userId}/ban")
-    public ResponseEntity<UserResponse> ban(@PathVariable UUID userId, Authentication authentication){
-        AuthenticationUtil.isRequestFromSameUser(authentication, userId);
+    public ResponseEntity<UserResponse> ban(@PathVariable UUID userId){
         return ResponseEntity.ok(adminService.banUser(userId));
     }
 
