@@ -80,15 +80,30 @@ public class AdminService {
     }
 
     public UserResponse banUser(UUID id) {
+        String subject;
+        String message;
+
         User user = userValidator.validateIfExistsAndGet(id);
         if(user.isActive()) {
             user.setActive(false);
-            log.info("User with id: {}; email: {} banned", user.getId(), user.getEmail());
+            subject = "Your BloodCount App Account Has Been Suspended!";
+            message = "Dear Admin User\n\n"
+                    + "We hope this message finds you well. " + "\n"
+                    + "We regret to inform you that your account with "+ user.getEmail() +" has been temporarily suspended, effective immediately."
+                    + "Best regards,\n"
+                    + "The Application Team";
         }
         else{
             user.setActive(true);
-            log.info("User with id: {} unbanned", user.getId());
+            subject = "Your BloodCount app Account Has Been Reinstated!";
+            message = "Dear Admin User\n\n"
+                    + "We are pleased to inform you that the suspension on your account has been lifted, effective immediately."
+                    + "Best regards,\n"
+                    + "The Application Team";
         }
+
+        mailService.sendMail(user.getEmail(), subject, message);
+
         User savedUser = userRepository.save(user);
         return UserMapper.mapToResponseDTO(savedUser);
     }
