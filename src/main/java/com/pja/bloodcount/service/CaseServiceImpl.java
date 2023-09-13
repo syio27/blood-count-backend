@@ -84,7 +84,6 @@ public class CaseServiceImpl implements CaseService {
     public void createBCAbnormality(Long caseId, List<CreateAbnormalityRequest> createAbnormalityRequestList) {
         Case aCase = validator.validateIfExistsAndGet(caseId);
 
-        log.info("request size: {}", createAbnormalityRequestList.size());
         for (CreateAbnormalityRequest abnormalityRequest : createAbnormalityRequestList) {
             BloodCountAbnormality abnormality = BloodCountAbnormality
                     .builder()

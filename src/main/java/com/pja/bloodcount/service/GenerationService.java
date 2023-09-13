@@ -60,14 +60,12 @@ public class GenerationService {
         List<BloodCountReference> referenceTable = referenceService.fullTableOfBCReference();
 
 
-        // Check if patient already has Blood Count attached to it
         if (bloodCountRepository.findByParameterAndUnitAndPatient("WBC", "10^9/L", patient) != null) {
             throw new PatientBloodCountConflictException(patientId);
         }
 
         List<BloodCount> bloodCounts = new ArrayList<>();
 
-        // First loop: Create and randomize blood counts
         for (BloodCountReference reference : referenceTable) {
             double value = randomizeValueBasedOnGender(reference, patient);
             double roundedValue = roundFormat(value);
@@ -83,14 +81,12 @@ public class GenerationService {
                     .build();
 
             bloodCounts.add(bloodCount);
-            patient.addBloodCount(bloodCount); // This should update both the patient and the bloodCount thanks to the @OneToMany relationship
+            patient.addBloodCount(bloodCount);
             log.info("Randomized value of blood-count - {} is: {}", reference.getParameter(), value);
         }
 
-        // Save all blood counts to database here
         bloodCountRepository.saveAll(bloodCounts);
 
-        // Second loop: Recalculate the necessary parameters
         for (BloodCount bloodCount : bloodCounts) {
             if (needsToBeCalculated(bloodCount.getParameter(), bloodCount.getUnit())) {
                 double recalculatedValue = callCalculationUtil(bloodCount.getParameter(), patient);
@@ -100,13 +96,11 @@ public class GenerationService {
             }
         }
 
-        // Save updated blood counts and patient to database
         bloodCountRepository.saveAll(bloodCounts);
         patientRepository.save(patient);
 
         log.info("Patients blood count normal value generation end");
 
-        // Adjust the value of blood count if bloodCount in generatedNormalValueBloodCount is present in caseAbnormalities
         List<BloodCount> generatedNormalValueBloodCount = patient.getBloodCounts();
         log.info("abnormality size: {}", caseAbnormalities.size());
         for (BloodCount bloodCount : generatedNormalValueBloodCount) {
@@ -134,7 +128,6 @@ public class GenerationService {
             }
         }
         log.info("Recalculating BC");
-        // Recalculate by abnormalities change
         List<BloodCount> adjustedByAbnoBCList = patient.getBloodCounts();
         for (BloodCount bloodCount : adjustedByAbnoBCList) {
             double roundedValue;

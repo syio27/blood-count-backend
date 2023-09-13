@@ -299,8 +299,6 @@ public class GameServiceImpl implements GameService {
 
         Instant currentTimeInstant = Instant.now();
         Date currentDate = Date.from(currentTimeInstant);
-        log.info("BC question set size: {}", game.getBcAssessmentQuestions().size());
-        log.info("MS question set size: {}", game.getMsQuestions().size());
         return GameMapper.mapToResponseDTO(game, currentDate, getSavedAnswersOfGame(userId, gameId));
     }
 
