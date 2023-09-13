@@ -22,6 +22,7 @@
 - Autosave selected answers during the exam session
 - Automated grading and results generation
 - Export user's info into CSV
+- Localization - English and Polish languages
 - Fully responsive web application -> mobile (portrait/landscape modes), desktop, tablet
 
 **Requirements**
