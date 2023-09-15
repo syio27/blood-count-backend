@@ -28,11 +28,9 @@ public class Game {
     private Long id;
     @CreationTimestamp
     private Date startTime;
-    // record time when user completes game
     private Date endTime;
-    // time when test auto closes
     private Date estimatedEndTime;
-    private int testDuration; // in minutes
+    private int testDuration;
     @Enumerated(EnumType.STRING)
     private Status status;
     private int score = 0;

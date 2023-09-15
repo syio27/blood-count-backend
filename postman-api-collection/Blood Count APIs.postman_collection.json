@@ -1,0 +1,1461 @@
+{
+	"info": {
+		"_postman_id": "e8441e38-897e-4220-b411-12c49fc241d5",
+		"name": "Blood Count APIs",
+		"description": "Buy or rent spacecrafts",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "15164116"
+	},
+	"item": [
+		{
+			"name": "User related",
+			"item": [
+				{
+					"name": "GET all users by role",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/users?role=ADMIN",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"users"
+							],
+							"query": [
+								{
+									"key": "role",
+									"value": "ADMIN"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET user by id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/users/3adccd94-b8b2-4e1c-ac99-0bd3f162c844",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"3adccd94-b8b2-4e1c-ac99-0bd3f162c844"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET user by email",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJnZ2dAZ21haWwuY29tIiwiaWF0IjoxNjgyODg4MzYwLCJleHAiOjE2ODI5MDk5NjB9.FzJRiSN72Hg4omr8hT5AIMdXlF6MzxUClm2Ymw9q9Rs",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/users/email/ggg@gmail.com",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"email",
+								"ggg@gmail.com"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UPDATE user by id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0MUBnbWFpbC5jb20iLCJpYXQiOjE2ODMyMjE4ODcsImV4cCI6MTY4MzI0MzQ4N30.LR89HY19BXKhjlA7rS65Jz4iqaiPI966UmB9Ahl1DUM",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "    {\r\n        \"email\": \"emailChangedFromPostman@gmail.com\"\r\n    }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/users/f24ec1a0-b01b-4ef9-936b-81653efc252d/email",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"f24ec1a0-b01b-4ef9-936b-81653efc252d",
+								"email"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE user by id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJib3RhZ2F5QGdtYWlsLmNvbSIsImlhdCI6MTY4MjAzNzg4MCwiZXhwIjoxNjgyMDM5MzIwfQ.xhcD4ybhqSiEKtZUKHq-BJ_xqzGXRwjgOYa6L_MtbAA",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/users/eac675fe-e63e-49c5-899d-4d058eee5b72",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"eac675fe-e63e-49c5-899d-4d058eee5b72"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Current user",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJiYmJAZ21haWwuY29tIiwiaWF0IjoxNjgyNTkwODE3LCJleHAiOjE2ODI1OTIyNTd9.4KqtqrFCL616sdoIXQlVGO7vInbPrH6h12ExWo52Hlw",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/users/current",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"current"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invite user",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"baglansagidulladev@gmail.com\",\r\n    \"role\": \"STUDENT\",\r\n    \"groupNumber\": \"GRP1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/users/invite",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"invite"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST assign user to group",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"groupNumber\": \"GRP1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/users/dff1137c-8c0b-48c1-9837-c9f64ccdab8e/group",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"dff1137c-8c0b-48c1-9837-c9f64ccdab8e",
+								"group"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST assign group to batch of users",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userIds\": [\"7fa6079f-8074-436f-b799-3fd380c26f57\", \"295943fd-578c-4342-bbb4-187b291bbf79\", \"fc787bb9-c43c-405b-8a85-1b2fc001b606\"],\r\n    \"groupNumber\": \"GRP3\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/users/group",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"group"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PUT change group of user",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": \"1161daf7-a8ee-4128-a01e-2e2404520af8\",\r\n    \"groupNumber\": \"GRP1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/users/user/group",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"user",
+								"group"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Group participants",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/users/group?groupNumber=GRP1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"group"
+							],
+							"query": [
+								{
+									"key": "groupNumber",
+									"value": "GRP1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PUT: Update Password",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"oldPassword\": \"jjj2727GG$$$\",\r\n    \"newPassword\": \"newTestPass$$1\",\r\n    \"newPasswordRepeat\": \"newTestPass$$1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/users/c335d1e8-4cfe-468e-9d7e-9d260e7c944a/password",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"c335d1e8-4cfe-468e-9d7e-9d260e7c944a",
+								"password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET user's all completed game sessions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/users/6142b361-0062-4056-b2cb-184c5f964cb7/games/completed",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"6142b361-0062-4056-b2cb-184c5f964cb7",
+								"games",
+								"completed"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET selected answers of game",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "Ban user",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/users/0d6efdd6-5bf7-4673-9e07-5d39e2d32e59/ban",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"0d6efdd6-5bf7-4673-9e07-5d39e2d32e59",
+								"ban"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Forgot password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"baglansagidulladev@gmail.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/users/forgot-password",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"forgot-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reset password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"token\": \"iFfG6toxJ0q2kVWBinVq\",\r\n    \"email\": \"baglansagidulladev@gmail.com\",\r\n    \"newPassword\": \"jjj2727GG$$&&\",\r\n    \"newPasswordRepeat\": \"jjj2727GG$$&&\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/users/reset-password",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"reset-password"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Group",
+			"item": [
+				{
+					"name": "GET all groups",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/public/api/v1/groups",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"public",
+								"api",
+								"v1",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST new group",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"groupNumber\": \"GRP1\",\r\n    \"groupType\": \"STUDENT_GROUP\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/groups",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET group by number",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/groups/GRP1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"groups",
+								"GRP1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET groups type ADMIN",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/groups/admin-groups",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"groups",
+								"admin-groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET groups type STUDENT",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/groups/student-groups",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"groups",
+								"student-groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST clear group from students",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/groups/clear?groupNumber=GRP1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"groups",
+								"clear"
+							],
+							"query": [
+								{
+									"key": "groupNumber",
+									"value": "GRP1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE group",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/groups/GRP2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"groups",
+								"GRP2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE user from group",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/public/api/v1/groups/GRP2/users/cf51e469-44a9-4cf5-8a26-4c9cf2e41615",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"public",
+								"api",
+								"v1",
+								"groups",
+								"GRP2",
+								"users",
+								"cf51e469-44a9-4cf5-8a26-4c9cf2e41615"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Reference Table",
+			"item": [
+				{
+					"name": "GET reference table of BC",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/bc-ref/table",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"bc-ref",
+								"table"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Populate ref table",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/bc-ref/populate",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"bc-ref",
+								"populate"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Case",
+			"item": [
+				{
+					"name": "POST: new case",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"firstMinAge\": 23,\r\n  \"firstMaxAge\": 43,\r\n  \"secondMinAge\": 54,\r\n  \"secondMaxAge\": 75,\r\n  \"affectedGender\": \"BOTH\",\r\n  \"anemiaType\": \"N. mikrocytowa\",\r\n  \"diagnosis\": \"OBSZ\",\r\n  \"hr\": \"qwerqer\",\r\n  \"rr\": \"rr\",\r\n  \"infoCom\": \"infoCom\",\r\n  \"caseName\": \"caseName\",\r\n  \"language\": \"PL\",\r\n  \"bodyMass\": \"12\",\r\n  \"height\": \"12\",\r\n  \"bmi\": \"12\",\r\n  \"description\": \"description\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/cases",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"cases"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST: create new abnormality for case",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n    {\r\n        \"parameter\": \"TTT\",\r\n        \"minValue\": 55,\r\n        \"maxValue\": 75,\r\n        \"type\": \"DECREASED\"\r\n    },\r\n    {\r\n        \"parameter\": \"TTT\",\r\n        \"minValue\": 55,\r\n        \"maxValue\": 75,\r\n        \"type\": \"DECREASED\"\r\n    },\r\n    {\r\n        \"parameter\": \"TTT\",\r\n        \"minValue\": 55,\r\n        \"maxValue\": 75,\r\n        \"type\": \"DECREASED\"\r\n    },\r\n    {\r\n        \"parameter\": \"TTT\",\r\n        \"minValue\": 55,\r\n        \"maxValue\": 75,\r\n        \"type\": \"DECREASED\"\r\n    }\r\n]\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/cases/2/abnormalities",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"cases",
+								"2",
+								"abnormalities"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET All Cases With Abnormalities",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/cases/abnormalities",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"cases",
+								"abnormalities"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET case with abnormalities",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/cases/1/abnormalities",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"cases",
+								"1",
+								"abnormalities"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE case",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/cases/2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"cases",
+								"2"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Generation",
+			"item": [
+				{
+					"name": "Generate patient from case id",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "Generate blood count for patient",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/generation/1/1/bc",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"generation",
+								"1",
+								"1",
+								"bc"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET patient by id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/generation/1/1/bc",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"generation",
+								"1",
+								"1",
+								"bc"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET all patients",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/generation/patients/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"generation",
+								"patients",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Game",
+			"item": [
+				{
+					"name": "Create Game",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/games/case/1?userId=4a871e34-49d3-412b-866e-4116e6d44712",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"games",
+								"case",
+								"1"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "4a871e34-49d3-412b-866e-4116e6d44712"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get in progress game of user",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/games?userId=4c1728d6-23b1-4227-abb3-7f1f8535e118",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"games"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "4c1728d6-23b1-4227-abb3-7f1f8535e118"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Complete game",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n    {\r\n        \"questionId\": 1,\r\n        \"answerId\": 2\r\n    },\r\n    {\r\n        \"questionId\": 2,\r\n        \"answerId\": 5\r\n    },\r\n    {\r\n        \"questionId\": 3,\r\n        \"answerId\": 9\r\n    },\r\n    {\r\n        \"questionId\": 4,\r\n        \"answerId\": 11\r\n    },\r\n    {\r\n        \"questionId\": 5,\r\n        \"answerId\": 13\r\n    },\r\n    {\r\n        \"questionId\": 6,\r\n        \"answerId\": 18\r\n    },\r\n    {\r\n        \"questionId\": 7,\r\n        \"answerId\": 21\r\n    },\r\n    {\r\n        \"questionId\": 8,\r\n        \"answerId\": 23\r\n    },\r\n    {\r\n        \"questionId\": 9,\r\n        \"answerId\": 25\r\n    },\r\n    {\r\n        \"questionId\": 10,\r\n        \"answerId\": 30\r\n    },\r\n    {\r\n        \"questionId\": 11,\r\n        \"answerId\": 35\r\n    },\r\n    {\r\n        \"questionId\": 12,\r\n        \"answerId\": 36\r\n    },\r\n    {\r\n        \"questionId\": 13,\r\n        \"answerId\": 39\r\n    },\r\n    {\r\n        \"questionId\": 14,\r\n        \"answerId\": 40\r\n    },\r\n    {\r\n        \"questionId\": 15,\r\n        \"answerId\": 43\r\n    },\r\n    {\r\n        \"questionId\": 16,\r\n        \"answerId\": 45\r\n    },\r\n    {\r\n        \"questionId\": 17,\r\n        \"answerId\": 47\r\n    },\r\n    {\r\n        \"questionId\": 18,\r\n        \"answerId\": 48\r\n    },\r\n    {\r\n        \"questionId\": 19,\r\n        \"answerId\": 51\r\n    },\r\n    {\r\n        \"questionId\": 20,\r\n        \"answerId\": 53\r\n    }\r\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/games/1/complete?userId=4c1728d6-23b1-4227-abb3-7f1f8535e118",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"games",
+								"1",
+								"complete"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "4c1728d6-23b1-4227-abb3-7f1f8535e118"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Save",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n    {\r\n        \"questionId\": 1,\r\n        \"answerId\": 3\r\n    },\r\n    {\r\n        \"questionId\": 2,\r\n        \"answerId\": 5\r\n    },\r\n    {\r\n        \"questionId\": 3,\r\n        \"answerId\": 9\r\n    },\r\n    {\r\n        \"questionId\": 4,\r\n        \"answerId\": 11\r\n    },\r\n    {\r\n        \"questionId\": 5,\r\n        \"answerId\": 13\r\n    },\r\n    {\r\n        \"questionId\": 6,\r\n        \"answerId\": 18\r\n    },\r\n    {\r\n        \"questionId\": 7,\r\n        \"answerId\": 21\r\n    },\r\n    {\r\n        \"questionId\": 8,\r\n        \"answerId\": 23\r\n    },\r\n    {\r\n        \"questionId\": 9,\r\n        \"answerId\": 25\r\n    },\r\n    {\r\n        \"questionId\": 10,\r\n        \"answerId\": 30\r\n    },\r\n    {\r\n        \"questionId\": 11,\r\n        \"answerId\": 35\r\n    },\r\n    {\r\n        \"questionId\": 12,\r\n        \"answerId\": 36\r\n    },\r\n    {\r\n        \"questionId\": 13,\r\n        \"answerId\": 39\r\n    },\r\n    {\r\n        \"questionId\": 14,\r\n        \"answerId\": 40\r\n    },\r\n    {\r\n        \"questionId\": 15,\r\n        \"answerId\": 43\r\n    },\r\n    {\r\n        \"questionId\": 16,\r\n        \"answerId\": 45\r\n    },\r\n    {\r\n        \"questionId\": 17,\r\n        \"answerId\": 47\r\n    },\r\n    {\r\n        \"questionId\": 18,\r\n        \"answerId\": 48\r\n    },\r\n    {\r\n        \"questionId\": 19,\r\n        \"answerId\": 51\r\n    },\r\n    {\r\n        \"questionId\": 20,\r\n        \"answerId\": 53\r\n    }\r\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/games/1/save?userId=5204e4c3-ca92-4fde-9fb3-827b4ee795b1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"games",
+								"1",
+								"save"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "5204e4c3-ca92-4fde-9fb3-827b4ee795b1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Next",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/games/1/next?userId=f40d7219-bd45-473c-94bc-a8b443bdd4d1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"games",
+								"1",
+								"next"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "f40d7219-bd45-473c-94bc-a8b443bdd4d1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "New Request",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Question Base",
+			"item": [
+				{
+					"name": "Add erythrocytes PL",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n    {\r\n        \"text\": \"U zdrowego człowieka 65% objętości krwi stanowi osocze  \",\r\n        \"answer\": \"Fałsz\"\r\n    },\r\n    {\r\n        \"text\": \"Objętość krwi u zdrowego, dorosłego człowieka o przeciętnej masie ciała (70 kg) waha się w granicach 4-6,5 l\",\r\n        \"answer\": \"Fałsz\"\r\n    },\r\n    {\r\n        \"text\": \"Hematokryt to wskaźnik opisujący procentowy udział erytrocytów w danej objętości krwi\",\r\n        \"answer\": \"Fałsz\"\r\n    },\r\n    {\r\n        \"text\": \"Hematokryt to wskaźnik opisujący procentowy udział elementów morfotycznych w danej objętości krwi\",\r\n        \"answer\": \"Prawda\"\r\n    },\r\n    {\r\n        \"text\": \"Wartość hematokrytu (Hct) u zdrowego, dorosłego człowieka wynosi ok. 45%, z czego większość stanowi masa erytrocytów, a łączna masa leukocytów i trombocytów stanowi tylko ok. 1%\",\r\n        \"answer\": \"Prawda\"\r\n    },\r\n    {\r\n        \"text\": \"U kobiet wartość hematokrytu jest taka sama, jak u mężczyzn\",\r\n        \"answer\": \"Fałsz\"\r\n    },\r\n    {\r\n        \"text\": \"Względny wzrost hematokrytu może być skutkiem obfitych biegunek i wymiotów\",\r\n        \"answer\": \"Prawda\"\r\n    },\r\n    {\r\n        \"text\": \"Erytrocyty mają zdolność do odkształcania się, aby móc przepłynąć przez naczynia o średnicy mniejszej niż one same\",\r\n        \"answer\": \"Prawda\"\r\n    },\r\n    {\r\n        \"text\": \"Na podstawie charakterystycznej zmiany kształtu erytrocytów oglądanych pod mikroskopem, można wstępnie ustalić przyczynę niedokrwistości\",\r\n        \"answer\": \"Prawda\"\r\n    },\r\n    {\r\n        \"text\": \"Średni czas życia erytrocytów wynosi ok. 4 miesiące\",\r\n        \"answer\": \"Prawda\"\r\n    },\r\n    {\r\n        \"text\": \"Hemoblogina płodowa (HbF) pełni ważną funkcję także w życiu dorosłym\",\r\n        \"answer\": \"Fałsz\"\r\n    },\r\n    {\r\n        \"text\": \"Głównym rodzajem hemoglobiny u ludzi jest HbA2, która stanowi aż 97%\",\r\n        \"answer\": \"Fałsz\"\r\n    },\r\n    {\r\n        \"text\": \"Łańcuch alfa hemoglobiny jest stały dla HbA1, HbA2 i HbF\",\r\n        \"answer\": \"Prawda\"\r\n    },\r\n    {\r\n        \"text\": \"HbA1, HbA2 i HbF składają się z czterech łańcuchów: dwóch alfa i dwóch charakterystycznych dla danego rodzaju hemoglobiny\",\r\n        \"answer\": \"Prawda\"\r\n    },\r\n    {\r\n        \"text\": \"HbA1c to tak zwana hemoglobina glikowana, której zawartość jest jednym z podstawowych kryteriów wyrównania zaburzeń gospodarki węglowodanowej\",\r\n        \"answer\": \"Prawda\"\r\n    },\r\n    {\r\n        \"text\": \"Hemoglobina to cząsteczka zbudowana z białka globuliny połączonego z dwoma grupami hemu\",\r\n        \"answer\": \"Fałsz\"\r\n    },\r\n    {\r\n        \"text\": \"Pomiędzy łańcuchami β hemoglobiny znajduje się miejsce wiązania dla 2,3-difosfoglicerynianu (2,3-DPG), który odgrywa ważną rolę w regulacji powinowactwa hemoglobiny do tlenu\",\r\n        \"answer\": \"Prawda\"\r\n    },\r\n    {\r\n        \"text\": \"Związanie 2,3-difosfoglicerynianu (2,3-DPG) z hemoglobiną powoduje zmianę jej konformacji na ścisłą, przez co powinowactwo do tlenu ulega zmniejszeniu\",\r\n        \"answer\": \"Prawda\"\r\n    },\r\n    {\r\n        \"text\": \"Błona komórkowa krwinki jest dobrze przepuszczalna dla anionów, dzięki czemu może zachodzić wymiana jonów wodorowęglanowych z jonami chlorkowymi (wymiana Hamburgera)\",\r\n        \"answer\": \"Prawda\"\r\n    },\r\n    {\r\n        \"text\": \"Retikulocyty to młode erytrocyty, które w prawidłowych warunkach stanowią ok. 5% krwinek czerwonych\",\r\n        \"answer\": \"Fałsz\"\r\n    },\r\n    {\r\n        \"text\": \"Liczba retikulocytów jest wykładnikiem aktywności krwiotwórczej szpiku\",\r\n        \"answer\": \"Prawda\"\r\n    },\r\n    {\r\n        \"text\": \"Dojrzałe erytrocyty mają zdolność ciągłej syntezy nowych cząsteczek hemoglobiny\",\r\n        \"answer\": \"Fałsz\"\r\n    },\r\n    {\r\n        \"text\": \"Anizocytoza to występowanie erytrocytów o zróżnicowanych kształtach\",\r\n        \"answer\": \"Fałsz\"\r\n    },\r\n    {\r\n        \"text\": \"Poikilocytoza to występowanie erytrocytów o zróżnicowanych kształtach\",\r\n        \"answer\": \"Prawda\"\r\n    },\r\n    {\r\n        \"text\": \"Wzrost wskaźnika MCV wskazuje na makrocytozę, czyli zwiększenie liczby erytrocytów\",\r\n        \"answer\": \"Fałsz\"\r\n    }\r\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/questions/erythrocytes/PL",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"questions",
+								"erythrocytes",
+								"PL"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add leukocytes PL",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n    {\r\n        \"text\": \"Białe krwinki powstają tylko w szpiku kostnym\",\r\n        \"answer\": \"Fałsz\"\r\n    },\r\n    {\r\n        \"text\": \"W warunkach prawidłowych WBC wynosi 4-10 x 109/litr\",\r\n        \"answer\": \"Prawda\"\r\n    },\r\n    {\r\n        \"text\": \"Granulocyty powstają przede wszystkim w narządach limfatycznych takich jak węzły chłonne i śledziona\",\r\n        \"answer\": \"Fałsz\"\r\n    },\r\n    {\r\n        \"text\": \"Granulocyty posiadają zdolność diapedezy, czyli przechodzenia przez ściany naczyń krwionośnych do okolicznych tkanek\",\r\n        \"answer\": \"Prawda\"\r\n    },\r\n    {\r\n        \"text\": \"Pula granulocytów przyściennych to spoczynkowa frakcja komórek, które mogą zostać zmobilizowane do działania w razie potrzeby\",\r\n        \"answer\": \"Prawda\"\r\n    },\r\n    {\r\n        \"text\": \"We wzorze Arnetha, przesunięcie w prawo oznacza pojawienie się we krwi „świeżych” granulocytów hiposegmentowanych\",\r\n        \"answer\": \"Fałsz\"\r\n    },\r\n    {\r\n        \"text\": \"Przesunięcie wzoru Arnetha w prawo może sugerować zmniejszoną aktywność hematopoetyczną szpiku, np. w przypadku niedoboru witaminy B12\",\r\n        \"answer\": \"Prawda\"\r\n    },\r\n    {\r\n        \"text\": \"Substancje o działaniu chemotaktycznym umożliwiają dotarcie leukocytów do miejsca zapalenia\",\r\n        \"answer\": \"Prawda\"\r\n    },\r\n    {\r\n        \"text\": \"Opsoniny to związki obronne drobnoustrojów, które utrudniają fagocytozę patogenów\",\r\n        \"answer\": \"Fałsz\"\r\n    },\r\n    {\r\n        \"text\": \"Neutrofile są ważnym elementem odpowiedzi swoistej\",\r\n        \"answer\": \"Fałsz\"\r\n    },\r\n    {\r\n        \"text\": \"Granulocyty uwalniają ze swoich ziarnistości związki selektywnie niszczące różne patogeny\",\r\n        \"answer\": \"Fałsz\"\r\n    },\r\n    {\r\n        \"text\": \"Granulocyty kwasochłonne są głównymi komórkami zaangażowanymi w proces alergii\",\r\n        \"answer\": \"Fałsz\"\r\n    },\r\n    {\r\n        \"text\": \"Bazofile przypominają funkcją komórki tuczne\",\r\n        \"answer\": \"Prawda\"\r\n    },\r\n    {\r\n        \"text\": \"Główne białko zasadowe jest charakterystycznym związkiem wytwarzanym przez bazofile\",\r\n        \"answer\": \"Fałsz\"\r\n    },\r\n    {\r\n        \"text\": \"Komórki tuczne wydzielają między innymi histaminę, która jest silnym czynnikiem rozszerzającym naczynia i zwiększającym ich przepuszczalność\",\r\n        \"answer\": \"Prawda\"\r\n    },\r\n    {\r\n        \"text\": \"Neutrofile to najobficiej występujące leukocyty\",\r\n        \"answer\": \"Prawda\"\r\n    },\r\n    {\r\n        \"text\": \"Główną funkcją eozynofilów jest rozkładanie histaminy i hamowanie działania serotoniny i bradykininy\",\r\n        \"answer\": \"Prawda\"\r\n    },\r\n    {\r\n        \"text\": \"Neutrofile najefektywniej przeprowadzają proces fagocytozy z wszystkich granulocytów\",\r\n        \"answer\": \"Prawda\"\r\n    },\r\n    {\r\n        \"text\": \"Degranulacja bazofilów i mastocytów pod wpływem reagin leży u podłoża reakcji alergicznej\",\r\n        \"answer\": \"Prawda\"\r\n    }\r\n]\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/questions/leukocytes/PL",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"questions",
+								"leukocytes",
+								"PL"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add various PL",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n    {\r\n        \"text\": \"Głównym zadaniem trombocytów jest utrzymanie homeostazy\",\r\n        \"answer\": \"Fałsz\"\r\n    },\r\n    {\r\n        \"text\": \"Hemostaza jest wspólnym określeniem dla wielu procesów utrzymujących ciągłość śródbłonka łożyska naczyniowego oraz płynny stan krwi\",\r\n        \"answer\": \"Prawda\"\r\n    },\r\n    {\r\n        \"text\": \"Zarówno krzepnięcie krwi jak i fibrynoliza są podstawowymi składowymi hemostazy\",\r\n        \"answer\": \"Prawda\"\r\n    },\r\n    {\r\n        \"text\": \"Trombocyty posiadają jądro komórkowe, dzięki czemu przez cały okres swojego życia mogą syntetyzować potrzebne białka\",\r\n        \"answer\": \"Fałsz\"\r\n    },\r\n    {\r\n        \"text\": \"Glikoproteiny powierzchniowe trombocytów uczestniczą w procesie adhezji do uszkodzonego śródbłonka oraz w procesie agregacji\",\r\n        \"answer\": \"Prawda\"\r\n    },\r\n    {\r\n        \"text\": \"Żelazo wchodzi w skład enzymów uczestniczących w proces oddychania.\",\r\n        \"answer\": \"Prawda\"\r\n    },\r\n    {\r\n        \"text\": \"Największa część żelaza znajduje się wewnątrz erytrocytów w postaci hemoglobiny.\",\r\n        \"answer\": \"Prawda\"\r\n    },\r\n    {\r\n        \"text\": \"Żelazo magazynowane jest w wątrobie w kompleksach z białkiem transferryną.\",\r\n        \"answer\": \"Fałsz\"\r\n    },\r\n    {\r\n        \"text\": \"Proces odzyskiwania żelaza jest mało wydajny, więc jego niedobór w diecie widoczny jest bardzo szybko.\",\r\n        \"answer\": \"Fałsz\"\r\n    },\r\n    {\r\n        \"text\": \"Żelazo jest bardzo dobrze wchłanialne zarówno w postaci Fe2+ jak i Fe3+, natomiast żelazo hemowe wchłania się dość słabo.\",\r\n        \"answer\": \"Fałsz\"\r\n    },\r\n    {\r\n        \"text\": \"Dzięki niewielkiej liczbie antygenów grupowych erytrocytów, możliwy jest dokładny dobór dawcy do biorcy krwi.\",\r\n        \"answer\": \"Fałsz\"\r\n    },\r\n    {\r\n        \"text\": \"Przetoczenie krwi posiadającej antygen, którego nie ma biorca, grozi powstaniem przeciwciał przeciw niemu.\",\r\n        \"answer\": \"Prawda\"\r\n    },\r\n    {\r\n        \"text\": \"Silne antygeny występują głównie w układach AB0 i Rh, więc zgodność w nich wyklucza potrzebę wykonania próby krzyżowej.\",\r\n        \"answer\": \"Fałsz\"\r\n    },\r\n    {\r\n        \"text\": \"Próbę krzyżową wykonuje się poprzez połączenie surowicy dawcy z erytrocytami biorcy.\",\r\n        \"answer\": \"Fałsz\"\r\n    },\r\n    {\r\n        \"text\": \"Przeciwciała naturalne to przeciwciała występujące w surowicy już przed pierwszym zetknięciem się z antygenem.\",\r\n        \"answer\": \"Prawda\"\r\n    },\r\n    {\r\n        \"text\": \"Hemoglobinopatie to grupa chorób genetycznych, w których ekspresja hemoglobiny jest zbyt niska, aby erytrocyty mogły prawidłowo spełniać swoją funkcję.\",\r\n        \"answer\": \"Fałsz\"\r\n    },\r\n    {\r\n        \"text\": \"Talasemie to grupa chorób genetycznych, w których ekspresja hemoglobiny jest zbyt niska, aby erytrocyty mogły prawidłowo spełniać swoją funkcję.\",\r\n        \"answer\": \"Prawda\"\r\n    },\r\n    {\r\n        \"text\": \"Anemia sierpowowata to choroba genetyczna, której istotą jest powstawanie nieprawidłowych cząsteczek hemoglobiny.\",\r\n        \"answer\": \"Prawda\"\r\n    },\r\n    {\r\n        \"text\": \"Cechą wspólną wszystkich niedokrwistości w badaniach laboratoryjnych jest obniżenie stężenia hemoglobiny\",\r\n        \"answer\": \"Prawda\"\r\n    },\r\n    {\r\n        \"text\": \"Wzrost wartości MCH w przypadku anemii sugeruje niedokrwistość hipochromiczną.\",\r\n        \"answer\": \"Fałsz\"\r\n    }\r\n]\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/questions/various/PL",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"questions",
+								"various",
+								"PL"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add erythrocytes EN",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n    {\r\n        \"text\": \"In a healthy person, 65% of the blood volume is plasma \",\r\n        \"answer\": \"False\"\r\n    },\r\n    {\r\n        \"text\": \"The volume of blood in a healthy adult with an average body weight (70 kg) varies between 4-6. 5 l\",\r\n        \"answer\": \"False\"\r\n    },\r\n    {\r\n        \"text\": \"Hematocrit is an indicator describing the percentage of erythrocytes in a given volume of blood\",\r\n        \"answer\": \"False\"\r\n    },\r\n    {\r\n        \"text\": \"Hematocrit is an indicator describing the percentage of morphotic elements in a given volume of blood\",\r\n        \"answer\": \"True\"\r\n    },\r\n    {\r\n        \"text\": \"The hematocrit (Hct) value in a healthy adult is approx. 45%, the majority of which is the mass of erythrocytes, and the total mass of leukocytes and platelets is only approx. 1%\",\r\n        \"answer\": \"True\"\r\n    },\r\n    {\r\n        \"text\": \"In women, the hematocrit value is the same as in men\",\r\n        \"answer\": \"False\"\r\n    },\r\n    {\r\n        \"text\": \"Relative increase in hematocrit may be due to copious diarrhea and vomiting\",\r\n        \"answer\": \"True\"\r\n    },\r\n    {\r\n        \"text\": \"Erythrocytes have the ability to deform in order to flow through vessels smaller in diameter than themselves\",\r\n        \"answer\": \"True\"\r\n    },\r\n    {\r\n        \"text\": \"Based on the characteristic change in The Shape of erythrocytes viewed under a microscope, the cause of anemia can be tentatively established\",\r\n        \"answer\": \"True\"\r\n    },\r\n    {\r\n        \"text\": \"The average lifespan of erythrocytes is approx. 4 months\",\r\n        \"answer\": \"True\"\r\n    },\r\n    {\r\n        \"text\": \"Fetal Hemoblogin (HbF) also plays an important role in adult life\",\r\n        \"answer\": \"False\"\r\n    },\r\n    {\r\n        \"text\": \"The main type of hemoglobin in humans is HbA2, which accounts for as much as 97%\",\r\n        \"answer\": \"False\"\r\n    },\r\n    {\r\n        \"text\": \"The alpha hemoglobin chain is constant for HbA1, HbA2 and HbF\",\r\n        \"answer\": \"True\"\r\n    },\r\n    {\r\n        \"text\": \"HbA1, HbA2 and HbF consist of four chains: two alpha and two hemoglobin-specific\",\r\n        \"answer\": \"True\"\r\n    },\r\n    {\r\n        \"text\": \"HbA1c is the so-called glycated hemoglobin, the content of which is one of the basic criteria for compensating for carbohydrate disorders\",\r\n        \"answer\": \"True\"\r\n    },\r\n    {\r\n        \"text\": \"Hemoglobin is a molecule made up of a globulin protein linked to two groups of heme\",\r\n        \"answer\": \"False\"\r\n    },\r\n    {\r\n        \"text\": \"Between the β-chains of hemoglobin there is a binding site for 2,3-diphosphoglycerate (2,3-DPG), which plays an important role in the regulation of hemoglobin affinity for oxygen\",\r\n        \"answer\": \"True\"\r\n    },\r\n    {\r\n        \"text\":\"Binding of 2,3-diphosphoglycerate (2,3-DPG) to hemoglobin causes a change in its conformation to close, thereby reducing the affinity for oxygen\",\r\n        \"answer\": \"True\"\r\n    },\r\n    {\r\n        \"text\": \"The cell membrane of the blood cell is well permeable to anions, thanks to which the exchange of bicarbonate ions with chloride ions can take place (hamburger exchange)\",\r\n        \"answer\": \"True\"\r\n    },\r\n    {\r\n        \"text\": \"Reticulocytes are young erythrocytes, which under normal conditions are approx. 5% of red blood cells\",\r\n        \"answer\": \"False\"\r\n    },\r\n    {\r\n        \"text\": \"The number of reticulocytes is an exponent of hematopoietic activity of the bone marrow\",\r\n        \"answer\": \"True\"\r\n    },\r\n    {\r\n        \"text\": \"mature erythrocytes have the ability to continuously synthesize new hemoglobin molecules\",\r\n        \"answer\": \"False\"\r\n    },\r\n    {\r\n        \"text\": \"Anisocytosis is the presence of erythrocytes of various shapes\",\r\n        \"answer\": \"False\"\r\n    },\r\n    {\r\n        \"text\": \"Poikilocytosis is the occurrence of erythrocytes of various shapes\",\r\n        \"answer\": \"True\"\r\n    },\r\n    {\r\n        \"text\": \"An increase in the MCV index indicates macrocytosis, that is, an increase in the number of erythrocytes\",\r\n        \"answer\": \"False\"\r\n    }\r\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/questions/erythrocytes/EN",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"questions",
+								"erythrocytes",
+								"EN"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add leukocytes EN",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n    {\r\n        \"text\": \"White blood cells are formed only in the bone marrow\",\r\n        \"answer\": \"False\"\r\n    },\r\n    {\r\n        \"text\": \"Under normal conditions WBC is 4-10 x 109 / liter\",\r\n        \"answer\": \"True\"\r\n    },\r\n    {\r\n        \"text\": \"Granulocytes are formed primarily in lymphatic organs such as lymph nodes and spleen\",\r\n        \"answer\": \"False\"\r\n    },\r\n    {\r\n        \"text\": \"Granulocytes have the ability to diapedesis, that is, to pass through the walls of blood vessels to surrounding tissues\",\r\n        \"answer\": \"True\"\r\n    },\r\n    {\r\n        \"text\": \"The granulocyte pool is a resting fraction of cells that can be mobilized into action if necessary\",\r\n        \"answer\": \"True\"\r\n    },\r\n    {\r\n        \"text\": \"In Arneth's formula, a shift to the right means the appearance of 'fresh' hyposegmented granulocytes in the blood \",\r\n        \"answer\": \"False\"\r\n    },\r\n    {\r\n        \"text\": \"Shifting Arneth's pattern to the right may suggest decreased bone marrow hematopoietic activity, e.g. in case of vitamin B12 deficiency\",\r\n        \"answer\": \"True\"\r\n    },\r\n    {\r\n        \"text\": \"Chemotactic substances allow leukocytes to reach the site of inflammation\",\r\n        \"answer\": \"True\"\r\n    },\r\n    {\r\n        \"text\": \"Opsonins are microbial defense compounds that impede pathogen phagocytosis\",\r\n        \"answer\": \"False\"\r\n    },\r\n    {\r\n        \"text\": \"Neutrophils are an important part of the specific response\",\r\n        \"answer\": \"False\"\r\n    },\r\n    {\r\n        \"text\": \"Granulocytes release from their granularity compounds that selectively destroy various pathogens\",\r\n        \"answer\": \"False\"\r\n    },\r\n    {\r\n        \"text\": \"Acid-absorbing granulocytes are the main cells involved in the allergy process\",\r\n        \"answer\": \"False\"\r\n    },\r\n    {\r\n        \"text\": \"Basophils resemble fat cells function\",\r\n        \"answer\": \"True\"\r\n    },\r\n    {\r\n        \"text\": \"The main base protein is a characteristic compound produced by basophils\",\r\n        \"answer\": \"False\"\r\n    },\r\n    {\r\n        \"text\": \"Fat cells secrete, among other things, histamine, which is a powerful factor that dilates blood vessels and increases their permeability\",\r\n        \"answer\": \"True\"\r\n    },\r\n    {\r\n        \"text\": \"Neutrophils are the most abundant leukocytes\",\r\n        \"answer\": \"True\"\r\n    },\r\n    {\r\n        \"text\": \"The main function of eosinophils is to break down histamine and inhibit the action of serotonin and bradykinin\",\r\n        \"answer\": \"True\"\r\n    },\r\n    {\r\n        \"text\": \"Neutrophils most effectively carry out the process of phagocytosis from all granulocytes\",\r\n        \"answer\": \"True\"\r\n    },\r\n    {\r\n        \"text\": \"Degranulation of basophils and mast cells under the influence of Reagins is the basis of an allergic reaction\",\r\n        \"answer\": \"True\"\r\n    }\r\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/questions/leukocytes/EN",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"questions",
+								"leukocytes",
+								"EN"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add various EN",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n     {\r\n         \"text\": \"The main task of thrombocytes is to maintain homeostasis\",\r\n         \"answer\": \"False\"\r\n     },\r\n     {\r\n         \"text\": \"Hemostasis is a collective term for many processes that maintain the continuity of the endothelium of the vascular bed and the fluid state of the blood\",\r\n         \"answer\": \"True\"\r\n     },\r\n     {\r\n         \"text\": \"Both blood coagulation and fibrinolysis are essential components of hemostasis\",\r\n         \"answer\": \"True\"\r\n     },\r\n     {\r\n         \"text\": \"Thrombocytes have a cell nucleus, thanks to which they can synthesize the necessary proteins throughout their life\",\r\n         \"answer\": \"False\"\r\n     },\r\n     {\r\n         \"text\": \"Thrombocyte surface glycoproteins participate in the process of adhesion to damaged endothelium and in the aggregation process\",\r\n         \"answer\": \"True\"\r\n     },\r\n     {\r\n         \"text\": \"Iron is part of the enzymes involved in the respiration process.\",\r\n         \"answer\": \"True\"\r\n     },\r\n     {\r\n         \"text\": \"The largest part of iron is found inside red blood cells in the form of hemoglobin.\",\r\n         \"answer\": \"True\"\r\n     },\r\n     {\r\n         \"text\": \"Iron is stored in the liver in complexes with the protein transferrin.\",\r\n         \"answer\": \"False\"\r\n     },\r\n     {\r\n         \"text\": \"The process of iron recovery is inefficient, so iron deficiency in the diet becomes apparent very quickly.\",\r\n         \"answer\": \"False\"\r\n     },\r\n     {\r\n         \"text\": \"Iron is very well absorbed in both Fe2+ and Fe3+ forms, while heme iron is quite poorly absorbed.\",\r\n         \"answer\": \"False\"\r\n     },\r\n     {\r\n         \"text\": \"Thanks to the small number of erythrocyte group antigens, it is possible to accurately match the donor to the blood recipient.\",\r\n         \"answer\": \"False\"\r\n     },\r\n     {\r\n         \"text\": \"Transfusion of blood that contains an antigen that the recipient does not have, may result in the development of anti-antibodies.\",\r\n         \"answer\": \"True\"\r\n     },\r\n     {\r\n         \"text\": \"Strong antigens are found mainly in the AB0 and Rh systems, so compatibility in them precludes the need for cross-matching.\",\r\n         \"answer\": \"False\"\r\n     },\r\n     {\r\n         \"text\": \"Crossmatch is performed by combining the donor's serum with the recipient's erythrocytes.\",\r\n         \"answer\": \"False\"\r\n     },\r\n     {\r\n         \"text\": \"Natural antibodies are antibodies present in the serum before the first contact with the antigen.\",\r\n         \"answer\": \"True\"\r\n     },\r\n     {\r\n         \"text\": \"Hemoglobinopathies are a group of genetic diseases in which the expression of hemoglobin is too low for the erythrocytes to function properly.\",\r\n         \"answer\": \"False\"\r\n     },\r\n     {\r\n         \"text\": \"Thalassemias are a group of genetic diseases in which the expression of hemoglobin is too low for the erythrocytes to function properly.\",\r\n         \"answer\": \"True\"\r\n     },\r\n     {\r\n         \"text\": \"Sickle cell anemia is a genetic disease, the essence of which is the formation of abnormal hemoglobin molecules.\",\r\n         \"answer\": \"True\"\r\n     },\r\n     {\r\n         \"text\": \"The common feature of all anemias in laboratory tests is a decrease in hemoglobin\",\r\n         \"answer\": \"True\"\r\n     },\r\n     {\r\n         \"text\": \"An increase in MCH in anemia suggests hypochromic anemia.\",\r\n         \"answer\": \"False\"\r\n     }\r\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/questions/various/EN",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"questions",
+								"various",
+								"EN"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Export",
+			"item": [
+				{
+					"name": "Export games stats to excel file",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "AUTH register",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "    {\r\n        \"password\": \"jjj2727GG$$$\",\r\n        \"email\": \"student9@gmail.com\",\r\n        \"groupNumber\": \"GRP1\",\r\n        \"timezoneOffset\": 0\r\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/auth/register",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "AUTH authenticate",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n        \"email\": \"defAdmin@gmail.com\",\r\n        \"password\": \"aaa1212AAA#\",\r\n        \"timezoneOffset\": 0\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/auth/authenticate",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"authenticate"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6WyJST0xFX1JPT1QiXSwidXNlcklkIjoiMDkzMzBiMWQtOTI1Mi00NWQ2LTgxYTMtNzQyZjU0MTI4MTg5IiwiZW1haWwiOiJkZWZBZG1pbkBnbWFpbC5jb20iLCJzdWIiOiJkZWZBZG1pbkBnbWFpbC5jb20iLCJpYXQiOjE2OTQ2Mjk1MzgsImV4cCI6MTY5NDcxNTkzOH0.MHjaang2O0GFrJ2Eyz_qcrQc15ZyG-nhpHzl_xm_SS8",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "/",
+			"type": "string"
+		}
+	]
+}
