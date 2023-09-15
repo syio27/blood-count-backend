@@ -25,12 +25,15 @@
 - Localization - English and Polish languages
 - Fully responsive web application -> mobile (portrait/landscape modes), desktop, tablet
 
+*UI screenshots* -> https://github.com/syio27/blood-count-backend/tree/main/ui-screenshots
+
 **Requirements**
-- Server with Java 19, Spring Boot 2.7.10, Maven 3.8.6
-- Client with Angular 15 or higher
+- Server with Java 17, Spring Boot 2.7.10, Maven 3.8.6
+- Client with Angular 16 or higher
 - PostgreSQL
 - Modern web browser (Chrome, Firefox, Safari, Edge)
 
 *Deployed in Heroku* -> https://morphology-app-ceefa3648a59.herokuapp.com/login
 
 *Client side application's repository* -> https://github.com/syio27/blood-count-frontend
+
