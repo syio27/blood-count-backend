@@ -10,6 +10,7 @@ import com.pja.bloodcount.model.UserAnswer;
 import com.pja.bloodcount.repository.AnswerRepository;
 import com.pja.bloodcount.repository.QuestionRepository;
 import com.pja.bloodcount.repository.UserAnswerRepository;
+import com.pja.bloodcount.service.contract.ScoreService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

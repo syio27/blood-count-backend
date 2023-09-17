@@ -182,7 +182,7 @@ public class UserServiceImpl implements UserService {
                 .token(request.getToken())
                 .email(request.getEmail())
                 .build();
-        // Validate token (you can reuse the validation logic from earlier)
+
         if (!tokenService.validateToken(tokenValidationRequest)) {
             throw new ResetTokenInvalidException("Invalid or expired token");
         }
@@ -263,13 +263,7 @@ public class UserServiceImpl implements UserService {
         }
         return GameMapper.mapToSimpleResponseDTO(usersGame);
     }
-
-    /**
-     * find user by id or throw RuntimeException
-     *
-     * @param id of User entity
-     * @return User
-     */
+    
     private User findById(UUID id) {
         return userValidator.validateIfExistsAndGet(id);
     }

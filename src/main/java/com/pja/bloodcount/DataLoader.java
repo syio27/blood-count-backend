@@ -16,9 +16,7 @@ import java.util.List;
 public class DataLoader implements CommandLineRunner {
     private final GroupRepository groupRepository;
     private final UserRepository userRepository;
-    private final BCReferenceRepository bcReferenceRepository;
     private final PasswordEncoder passwordEncoder;
-
 
     private static final String ADMINISTRATION_GROUP = "ADMIN_GR";
     private static final String NO_GROUP = "NO_GR";
@@ -26,16 +24,14 @@ public class DataLoader implements CommandLineRunner {
     @Autowired
     public DataLoader(GroupRepository groupRepository,
                       UserRepository userRepository,
-                      BCReferenceRepository bcReferenceRepository,
                       PasswordEncoder passwordEncoder) {
         this.groupRepository = groupRepository;
         this.userRepository = userRepository;
-        this.bcReferenceRepository = bcReferenceRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         Group defaultAdminGroup = Group
                 .builder()
                 .groupNumber(ADMINISTRATION_GROUP)

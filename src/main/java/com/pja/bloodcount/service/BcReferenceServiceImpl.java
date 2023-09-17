@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -18,7 +17,6 @@ public class BcReferenceServiceImpl implements BCReferenceService {
 
     private final BCReferenceRepository repository;
     private static final int TABLE_SIZE = 20;
-
 
     @Override
     public List<BloodCountReference> populateTable() {
@@ -30,7 +28,7 @@ public class BcReferenceServiceImpl implements BCReferenceService {
     @Override
     public List<BloodCountReference> fullTableOfBCReference() {
         List<BloodCountReference> referenceTable = repository.findAll();
-        if(referenceTable.isEmpty() || referenceTable.size() != TABLE_SIZE){
+        if (referenceTable.isEmpty() || referenceTable.size() != TABLE_SIZE) {
             throw new ReferenceTableException("Reference Table size is not enough");
         }
         return referenceTable;
@@ -237,9 +235,9 @@ public class BcReferenceServiceImpl implements BCReferenceService {
                 .maxMale(2d)
                 .build();
 
-       return List.of(WBC, RBC, HGB, HCT, MCV, MCH, MCHC, PLT,
-               RDW_CV, RDW_SD,
-               NEU, LYM, MONO, EOS, BASO,
-               NEU_p, LYM_p, MONO_p, EOS_p, BASO_p);
+        return List.of(WBC, RBC, HGB, HCT, MCV, MCH, MCHC, PLT,
+                RDW_CV, RDW_SD,
+                NEU, LYM, MONO, EOS, BASO,
+                NEU_p, LYM_p, MONO_p, EOS_p, BASO_p);
     }
 }

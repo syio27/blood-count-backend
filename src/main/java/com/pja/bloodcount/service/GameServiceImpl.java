@@ -10,6 +10,7 @@ import com.pja.bloodcount.model.enums.Pages;
 import com.pja.bloodcount.model.enums.Status;
 import com.pja.bloodcount.repository.*;
 import com.pja.bloodcount.service.contract.GameService;
+import com.pja.bloodcount.service.contract.ScoreService;
 import com.pja.bloodcount.validation.CaseValidator;
 import com.pja.bloodcount.validation.UserValidator;
 import lombok.AllArgsConstructor;
