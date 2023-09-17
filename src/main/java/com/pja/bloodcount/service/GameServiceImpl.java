@@ -37,6 +37,7 @@ public class GameServiceImpl implements GameService {
     private final UserAnswerRepository userAnswerRepository;
     private final QuestionRepository questionRepository;
     private final AnswerRepository answerRepository;
+    private final ScoreService scoreService;
 
     @Override
     public GameResponse createGame(Long caseId, UUID userId, Language language) {
@@ -113,7 +114,7 @@ public class GameServiceImpl implements GameService {
         if (game.getStatus().equals(Status.COMPLETED)) {
             throw new GameCompleteException("Game is already submitted");
         }
-        int score = qnAService.score(gameId);
+        int score = scoreService.score(gameId);
         game.setStatus(Status.COMPLETED);
         game.setScore(score);
         if (game.getStatus() == Status.COMPLETED) {

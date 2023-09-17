@@ -22,11 +22,8 @@ import java.util.regex.Pattern;
 public class QnAService {
 
     private final BCAssessmentQuestionRepository bcaQuestionRepository;
-    private final AnswerRepository answerRepository;
     private final MSQuestionRepository msQuestionRepository;
-    private final UserAnswerRepository userAnswerRepository;
     private final GameRepository gameRepository;
-    private final QuestionRepository questionRepository;
     private final ErythrocyteQBRepository erythrocyteQBRepository;
     private final LeukocyteQBRepository leukocyteQBRepository;
     private final VariousQBRepository variousQBRepository;
@@ -113,6 +110,7 @@ public class QnAService {
             log.info("Answer of msq 2 {}: ", answer);
             String range = getRangeInString(answer.getText());
             log.info("Range of answer's text: {}", range);
+            assert range != null;
             if (isInRange(range, hgbValue)) {
                 msQuestion2.setCorrectAnswerId(answer.getId());
             }
@@ -217,44 +215,6 @@ public class QnAService {
         }
         msQuestion.addAnswer(answerTrue);
         msQuestion.addAnswer(answerFalse);
-    }
-
-    public int score(Long gameId) {
-
-        AtomicInteger score = new AtomicInteger(0);
-        List<UserAnswer> userAnswers = userAnswerRepository.findByGame_Id(gameId);
-
-        log.info("Started validation of QnA of user");
-        userAnswers.forEach(answerRequest -> {
-            Optional<Question> optionalQuestion = questionRepository.findById(answerRequest.getQuestion().getId());
-            if (optionalQuestion.isEmpty()) {
-                throw new QuestionNotFoundException(answerRequest.getQuestion().getId());
-            }
-            Question question = optionalQuestion.get();
-            if (!Objects.equals(question.getGame().getId(), gameId)) {
-                throw new QuestionNotPartException("Question is not part game: " + gameId);
-            }
-            Optional<Answer> optionalAnswer = answerRepository.findById(answerRequest.getAnswer().getId());
-            if (optionalAnswer.isEmpty()) {
-                throw new AnswerNotFoundException(answerRequest.getAnswer().getId());
-            }
-            Answer answer = optionalAnswer.get();
-            if (!Objects.equals(answer.getQuestion().getId(), answerRequest.getQuestion().getId())) {
-                throw new AnswerNotPartException("Answer is not part of answers set of question: " + answerRequest.getQuestion().getId());
-            }
-
-            log.info("Started scoring");
-
-            log.info("Correct answer id of question: {}, is {}, and user selected answer with id {}", question.getId(), question.getCorrectAnswerId(), answerRequest.getAnswer().getId());
-            log.info("Score was before incrementing: {}", score);
-            if (Objects.equals(question.getCorrectAnswerId(), answerRequest.getAnswer().getId())) {
-
-                score.getAndIncrement();
-                log.info("Score after incrementing: {}", score);
-            }
-        });
-        log.info("Scoring end");
-        return score.get();
     }
 
     private boolean isForAssessment(String parameter, String unit) {
