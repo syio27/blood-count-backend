@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public interface GameService {
 
-    GameResponse createGame(Long caseId, UUID userId, Language language);
+    GameResponse startGameSession(Long caseId, UUID userId, Language language);
     SimpleGameResponse completeGame(Long gameId);
     void saveSelectedAnswers(Long gameId, List<AnswerRequest> answerRequestList);
     GameCurrentSessionState next(UUID userId, Long gameId, List<AnswerRequest> answerRequestList);

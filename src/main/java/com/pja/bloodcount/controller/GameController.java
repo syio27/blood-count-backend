@@ -27,7 +27,7 @@ public class GameController {
     public ResponseEntity<GameResponse> start(@RequestBody StartGameRequest request,
                                               Authentication authentication) {
         AuthenticationUtil.isRequestFromSameUser(authentication, request.getUserId());
-        return ResponseEntity.ok(service.createGame(request.getCaseId(), request.getUserId(), request.getLanguage()));
+        return ResponseEntity.ok(service.startGameSession(request.getCaseId(), request.getUserId(), request.getLanguage()));
     }
 
     @PostMapping(value = "/{gameId}/complete", params = "userId")

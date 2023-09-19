@@ -10,6 +10,9 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
+/**
+ * Reference Entity to Case
+ */
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor

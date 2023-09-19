@@ -9,6 +9,7 @@ import com.pja.bloodcount.model.enums.Language;
 import com.pja.bloodcount.model.enums.Pages;
 import com.pja.bloodcount.model.enums.Status;
 import com.pja.bloodcount.repository.*;
+import com.pja.bloodcount.service.completion.DelayedGame;
 import com.pja.bloodcount.service.contract.GameService;
 import com.pja.bloodcount.service.contract.ScoreService;
 import com.pja.bloodcount.validation.CaseValidator;
@@ -21,6 +22,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.DelayQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
@@ -39,9 +42,10 @@ public class GameServiceImpl implements GameService {
     private final QuestionRepository questionRepository;
     private final AnswerRepository answerRepository;
     private final ScoreService scoreService;
+    private final DelayQueue<DelayedGame> delayedGameQueue;
 
     @Override
-    public GameResponse createGame(Long caseId, UUID userId, Language language) {
+    public GameResponse startGameSession(Long caseId, UUID userId, Language language) {
         User user = userValidator.validateIfExistsAndGet(userId);
         List<Game> gamesOfUser = repository.findByUser_Id(userId);
         gamesOfUser.forEach(game -> {
@@ -53,7 +57,7 @@ public class GameServiceImpl implements GameService {
         Patient patient = generationService.generatePatient(caseId);
         Case aCase = caseValidator.validateIfExistsAndGet(caseId);
         generationService.generateBloodCount(caseId, patient.getId());
-        int durationInMin = 30;
+        int durationInMin = 2;
         int durationInSec = durationInMin * 60;
         Instant endTime = Instant.now().plusSeconds(durationInSec);
 
@@ -101,7 +105,10 @@ public class GameServiceImpl implements GameService {
         repository.save(game);
         user.addGame(game);
         userRepository.save(user);
-        log.info("Game is created");
+        log.info("Game session is being started");
+        delayedGameQueue.put(new DelayedGame(game, durationInMin, TimeUnit.MINUTES));
+        log.info("Game session added to delay queue");
+        delayedGameQueue.forEach(delayedGame -> System.out.println(delayedGame.getGame().getId()));
         return GameMapper.mapToResponseDTO(game, currentDate, getSavedAnswersOfGame(userId, game.getId()));
     }
 
