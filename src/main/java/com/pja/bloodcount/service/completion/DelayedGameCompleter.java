@@ -1,5 +1,7 @@
 package com.pja.bloodcount.service.completion;
 
+import com.pja.bloodcount.exceptions.GameCompleteException;
+import com.pja.bloodcount.exceptions.GameNotFoundException;
 import com.pja.bloodcount.service.contract.GameService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +28,12 @@ public class DelayedGameCompleter implements Runnable {
         while (true) {
             try {
                 DelayedGame delayedGame = delayQueue.take();
-                gameService.completeGame(delayedGame.getGame().getId());
+                gameService.queueCompleteGame(delayedGame.getGame().getId());
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
+            }
+            catch (GameCompleteException | GameNotFoundException e) {
+                log.info("Delayed game was completed already, removing it from queue");
             }
         }
     }

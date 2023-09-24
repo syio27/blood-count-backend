@@ -126,7 +126,29 @@ public class GameServiceImpl implements GameService {
             game.setEndTime(Date.from(completedTime));
         }
         repository.save(game);
+        delayedGameQueue.removeIf(delayedGame -> delayedGame.getGame().getId().equals(gameId));
         return GameMapper.mapToSimpleResponseDTO(game);
+    }
+
+    @Override
+    public void queueCompleteGame(Long gameId) {
+        Optional<Game> optionalGame = repository.findById(gameId);
+        if (optionalGame.isEmpty()) {
+            throw new GameNotFoundException(gameId);
+        }
+        Game game = optionalGame.get();
+        if (game.getStatus().equals(Status.COMPLETED)) {
+            delayedGameQueue.removeIf(delayedGame -> delayedGame.getGame().getId().equals(gameId));
+            throw new GameCompleteException("Game is already submitted");
+        }
+        int score = scoreService.score(gameId);
+        game.setStatus(Status.COMPLETED);
+        game.setScore(score);
+        if (game.getStatus() == Status.COMPLETED) {
+            Instant completedTime = Instant.now();
+            game.setEndTime(Date.from(completedTime));
+        }
+        repository.save(game);
     }
 
     @Override

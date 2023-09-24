@@ -11,6 +11,7 @@ public interface GameService {
 
     void startGameSession(Long caseId, UUID userId, Language language);
     SimpleGameResponse completeGame(Long gameId);
+    void queueCompleteGame(Long gameId);
     void saveSelectedAnswers(Long gameId, List<AnswerRequest> answerRequestList);
     GameCurrentSessionState next(UUID userId, Long gameId, List<AnswerRequest> answerRequestList);
     List<SimpleGameResponse> getAllCompletedGamesOfUser(UUID userId);
