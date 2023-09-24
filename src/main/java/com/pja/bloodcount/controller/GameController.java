@@ -24,10 +24,11 @@ public class GameController {
     private final GameService service;
 
     @PostMapping("/")
-    public ResponseEntity<GameResponse> start(@RequestBody StartGameRequest request,
+    public ResponseEntity<Void> start(@RequestBody StartGameRequest request,
                                               Authentication authentication) {
         AuthenticationUtil.isRequestFromSameUser(authentication, request.getUserId());
-        return ResponseEntity.ok(service.startGameSession(request.getCaseId(), request.getUserId(), request.getLanguage()));
+        service.startGameSession(request.getCaseId(), request.getUserId(), request.getLanguage());
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping(value = "/{gameId}/complete", params = "userId")

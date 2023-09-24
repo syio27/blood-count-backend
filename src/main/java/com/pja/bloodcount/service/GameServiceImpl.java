@@ -45,7 +45,7 @@ public class GameServiceImpl implements GameService {
     private final DelayQueue<DelayedGame> delayedGameQueue;
 
     @Override
-    public GameResponse startGameSession(Long caseId, UUID userId, Language language) {
+    public void startGameSession(Long caseId, UUID userId, Language language) {
         User user = userValidator.validateIfExistsAndGet(userId);
         List<Game> gamesOfUser = repository.findByUser_Id(userId);
         gamesOfUser.forEach(game -> {
@@ -93,9 +93,6 @@ public class GameServiceImpl implements GameService {
         game.addPatient(patient);
         repository.save(game);
 
-        Instant currentTimeInstant = Instant.now();
-        Date currentDate = Date.from(currentTimeInstant);
-
         List<BCAssessmentQuestion> qnAForBCAssessment = qnAService.createQnAForBCAssessment(game.getId());
         List<MSQuestion> qnAForMSQ = qnAService.createMSQuestions(game.getId(), language);
         List<MSQuestion> anAForTrueFalseMSQ = qnAService.createTrueFalseMSQuestions(game.getId(), language);
@@ -109,7 +106,6 @@ public class GameServiceImpl implements GameService {
         delayedGameQueue.put(new DelayedGame(game, durationInMin, TimeUnit.MINUTES));
         log.info("Game session added to delay queue");
         delayedGameQueue.forEach(delayedGame -> System.out.println(delayedGame.getGame().getId()));
-        return GameMapper.mapToResponseDTO(game, currentDate, getSavedAnswersOfGame(userId, game.getId()));
     }
 
     @Override
