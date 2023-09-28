@@ -1,5 +1,7 @@
 package com.pja.bloodcount.service;
 
+import com.pja.bloodcount.constant.MailMessageConstants;
+import com.pja.bloodcount.constant.MailSubjectConstants;
 import com.pja.bloodcount.dto.request.InviteUserRequest;
 import com.pja.bloodcount.dto.response.UserResponse;
 import com.pja.bloodcount.exceptions.EmailValidationException;
@@ -8,6 +10,7 @@ import com.pja.bloodcount.mapper.UserMapper;
 import com.pja.bloodcount.model.Group;
 import com.pja.bloodcount.model.User;
 import com.pja.bloodcount.repository.UserRepository;
+import com.pja.bloodcount.service.contract.NotifierService;
 import com.pja.bloodcount.utils.PasswordGeneratorUtil;
 import com.pja.bloodcount.utils.CredentialValidationUtil;
 import com.pja.bloodcount.validation.GroupValidator;
@@ -28,7 +31,7 @@ public class AdminService {
     private final UserRepository userRepository;
     private final GroupValidator groupValidator;
     private final PasswordEncoder passwordEncoder;
-    private final MailService mailService;
+    private final NotifierService notifierService;
     private final UserValidator userValidator;
     @Value("${app.url}")
     private String url;
@@ -58,22 +61,10 @@ public class AdminService {
         group.addUser(user);
 
         final String profileUrl = url + "/profile";
-        final String subject = "Invitation letter";
-        final String message = "Dear new User\n\n"
-                + "You have been invited to join our application as a " + inviteRequest.getRole().toString().toLowerCase() + ".\n\n"
-                + "Here are your login credentials:\n"
-                + "Email: " + inviteRequest.getEmail() + "\n"
-                + "Temporary password: " + generatedPassword + "\n"
-                + "Assigned Group: " + group.getGroupNumber() + "\n"
-                + "Group Type: " + group.getGroupType() + "\n\n"
-                + "Profile page URL: " + profileUrl + "\n\n"
-                + "Please log in using these details. We strongly recommend that you change your password immediately after your first login for security purposes.\n\n"
-                + "If you have any issues, please feel free to contact us.\n\n"
-                + "(Please use the user icon in the top right corner)"
-                + "Best regards,\n"
-                + "The Application Team";
-
-        mailService.sendMail(inviteRequest.getEmail(), subject, message);
+        notifierService.notifyUser(
+                inviteRequest.getEmail(),
+                MailSubjectConstants.getInviteSubject(),
+                MailMessageConstants.getInviteMessage(inviteRequest, generatedPassword, group, profileUrl));
 
         userRepository.save(user);
         log.info("User {} {} is registered", user.getId(), user.getEmail());
@@ -84,30 +75,17 @@ public class AdminService {
         String message;
 
         User user = userValidator.validateIfExistsAndGet(id);
-        if(user.isActive()) {
+        if (user.isActive()) {
             user.setActive(false);
-            subject = "Your BloodCount App Account Has Been Suspended!";
-            message = "Dear Admin User\n\n"
-                    + "We hope this message finds you well. "
-                    + "\n"
-                    + "We regret to inform you that your account with "+ user.getEmail() +" has been temporarily suspended, effective immediately."
-                    + "\n"
-                    + "Best regards,\n"
-                    + "The Application Team";
-        }
-        else{
+            subject = MailSubjectConstants.getBanSubject();
+            message = MailMessageConstants.getBanMessage(user.getEmail());
+        } else {
             user.setActive(true);
-            subject = "Your BloodCount app Account Has Been Reinstated!";
-            message = "Dear Admin User\n\n"
-                    + "We are pleased to inform you that the suspension on your account has been lifted."
-                    + "\n"
-                    + "Your account is activated."
-                    + "\n"
-                    + "Best regards,\n"
-                    + "The Application Team";
+            subject = MailSubjectConstants.getUnbanSubject();
+            message = MailMessageConstants.getUnbanMessage(user.getEmail());
         }
 
-        mailService.sendMail(user.getEmail(), subject, message);
+        notifierService.notifyUser(user.getEmail(), subject, message);
 
         User savedUser = userRepository.save(user);
         return UserMapper.mapToResponseDTO(savedUser);

@@ -1,5 +1,7 @@
 package com.pja.bloodcount.service;
 
+import com.pja.bloodcount.constant.MailMessageConstants;
+import com.pja.bloodcount.constant.MailSubjectConstants;
 import com.pja.bloodcount.dto.request.*;
 import com.pja.bloodcount.dto.response.AuthenticationResponse;
 import com.pja.bloodcount.dto.response.SimpleGameResponse;
@@ -12,6 +14,7 @@ import com.pja.bloodcount.model.enums.Role;
 import com.pja.bloodcount.model.enums.Status;
 import com.pja.bloodcount.repository.*;
 import com.pja.bloodcount.service.auth.JwtService;
+import com.pja.bloodcount.service.contract.NotifierService;
 import com.pja.bloodcount.service.contract.UserService;
 import com.pja.bloodcount.utils.CredentialValidationUtil;
 import com.pja.bloodcount.validation.GroupValidator;
@@ -49,7 +52,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final ResetTokenService tokenService;
-    private final MailService mailService;
+    private final NotifierService notifierService;
 
     @Value("${app.url}")
     private String url;
@@ -79,9 +82,7 @@ public class UserServiceImpl implements UserService {
         User user = userValidator.validateIfExistsAndGet(id);
         Group group = user.getGroup();
         userAnswerRepository.deleteUserAnswerByUser(user);
-        user.getGames().forEach(game -> {
-            patientRepository.delete(game.getPatient());
-        });
+        user.getGames().forEach(game -> patientRepository.delete(game.getPatient()));
         group.removeUser(user);
         repository.deleteById(id);
     }
@@ -154,23 +155,8 @@ public class UserServiceImpl implements UserService {
         Token token = tokenService.createToken(request.getEmail());
 
         final String resetUrl = String.format("%s/reset-password/%s?email=%s", url, token.getToken(), request.getEmail());
-        final String subject = " Reset Your BloodCount App account password";
-        final String message = "Dear User,\n" +
-                "\n" +
-                "We received a request to reset your password for your BloodCount app account. " +
-                "If you didn't make this request, you can safely ignore this email. " +
-                "Your password won't be changed until you create a new one using the link below.\n" +
-                "\n" +
-                "To reset your password, please click the following link:\n" +
-                "\n" +
-                resetUrl +
-                "\n" +
-                "This link will expire in 3 hours. If you don't reset your password within this time frame, you'll need to submit a new request.\n" +
-                "\n" +
-                "Best regards,\n" +
-                "The Your BloodCount app Team";
 
-        mailService.sendMail(request.getEmail(), subject, message);
+        notifierService.notifyUser(request.getEmail(), MailSubjectConstants.getForgotPasswordSubject(), MailMessageConstants.getForgotPasswordMessage(resetUrl));
     }
 
     @Override
@@ -204,18 +190,8 @@ public class UserServiceImpl implements UserService {
         String formattedDateTime = now.format(formatter);
 
         final String loginUrl = String.format("%s/%s", url, "login");
-        final String subject = "Password has been reset";
-        final String message = "Dear User,\n" +
-                "\n" +
-                "You password has been reset at " + formattedDateTime + "\n" +
-                "and you can access the login page and enter to app with new credentials here ->" +
-                "\n" +
-                loginUrl +
-                "\n" +
-                "Best regards,\n" +
-                "The Your BloodCount app Team";
 
-        mailService.sendMail(request.getEmail(), subject, message);
+        notifierService.notifyUser(request.getEmail(), MailSubjectConstants.getResetPasswordSubject(), MailMessageConstants.getResetPasswordMessage(formattedDateTime, loginUrl));
 
         tokenRepository.delete(tokenEntity);
     }
@@ -263,7 +239,7 @@ public class UserServiceImpl implements UserService {
         }
         return GameMapper.mapToSimpleResponseDTO(usersGame);
     }
-    
+
     private User findById(UUID id) {
         return userValidator.validateIfExistsAndGet(id);
     }

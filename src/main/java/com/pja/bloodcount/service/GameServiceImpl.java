@@ -1,5 +1,7 @@
 package com.pja.bloodcount.service;
 
+import com.pja.bloodcount.constant.MailMessageConstants;
+import com.pja.bloodcount.constant.MailSubjectConstants;
 import com.pja.bloodcount.dto.request.AnswerRequest;
 import com.pja.bloodcount.dto.response.*;
 import com.pja.bloodcount.exceptions.*;
@@ -11,14 +13,17 @@ import com.pja.bloodcount.model.enums.Status;
 import com.pja.bloodcount.repository.*;
 import com.pja.bloodcount.service.completion.DelayedGame;
 import com.pja.bloodcount.service.contract.GameService;
+import com.pja.bloodcount.service.contract.NotifierService;
 import com.pja.bloodcount.service.contract.ScoreService;
 import com.pja.bloodcount.validation.CaseValidator;
 import com.pja.bloodcount.validation.UserValidator;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
 import org.hibernate.proxy.HibernateProxy;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.*;
@@ -28,7 +33,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class GameServiceImpl implements GameService {
 
     private final GameRepository repository;
@@ -43,6 +48,9 @@ public class GameServiceImpl implements GameService {
     private final AnswerRepository answerRepository;
     private final ScoreService scoreService;
     private final DelayQueue<DelayedGame> delayedGameQueue;
+    private final NotifierService notifierService;
+    @Value("${app.url}")
+    private String url;
 
     @Override
     public void startGameSession(Long caseId, UUID userId, Language language) {
@@ -61,34 +69,11 @@ public class GameServiceImpl implements GameService {
         int durationInSec = durationInMin * 60;
         Instant endTime = Instant.now().plusSeconds(durationInSec);
 
-        GameCaseDetails caseDetails = GameCaseDetails
-                .builder()
-                .anActualCaseId(caseId)
-                .anemiaType(aCase.getAnemiaType())
-                .diagnosis(aCase.getDiagnosis())
-                .hr(aCase.getHr())
-                .rr(aCase.getRr())
-                .description(aCase.getDescription())
-                .infoCom(aCase.getInfoCom())
-                .language(aCase.getLanguage())
-                .caseName(aCase.getCaseName())
-                .bmi(aCase.getBmi())
-                .height(aCase.getHeight())
-                .bodyMass(aCase.getBodyMass())
-                .build();
+        GameCaseDetails caseDetails = GameCaseDetails.builder().anActualCaseId(caseId).anemiaType(aCase.getAnemiaType()).diagnosis(aCase.getDiagnosis()).hr(aCase.getHr()).rr(aCase.getRr()).description(aCase.getDescription()).infoCom(aCase.getInfoCom()).language(aCase.getLanguage()).caseName(aCase.getCaseName()).bmi(aCase.getBmi()).height(aCase.getHeight()).bodyMass(aCase.getBodyMass()).build();
 
         caseDetailsRepository.save(caseDetails);
 
-        Game game = Game
-                .builder()
-                .endTime(null)
-                .language(language)
-                .estimatedEndTime(Date.from(endTime))
-                .status(Status.IN_PROGRESS)
-                .currentPage(Pages.ONE)
-                .testDuration(durationInMin)
-                .caseDetails(caseDetails)
-                .build();
+        Game game = Game.builder().endTime(null).language(language).estimatedEndTime(Date.from(endTime)).status(Status.IN_PROGRESS).currentPage(Pages.ONE).testDuration(durationInMin).caseDetails(caseDetails).build();
 
         game.addPatient(patient);
         repository.save(game);
@@ -131,12 +116,14 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
+    @Transactional
     public void queueCompleteGame(Long gameId) {
         Optional<Game> optionalGame = repository.findById(gameId);
         if (optionalGame.isEmpty()) {
             throw new GameNotFoundException(gameId);
         }
         Game game = optionalGame.get();
+        String userEmail = game.getUser().getEmail();
         if (game.getStatus().equals(Status.COMPLETED)) {
             delayedGameQueue.removeIf(delayedGame -> delayedGame.getGame().getId().equals(gameId));
             throw new GameCompleteException("Game is already submitted");
@@ -149,6 +136,8 @@ public class GameServiceImpl implements GameService {
             game.setEndTime(Date.from(completedTime));
         }
         repository.save(game);
+        String historyPagePath = url + "/history";
+        notifierService.notifyUser(userEmail, MailSubjectConstants.getGameCompleteSubject(), MailMessageConstants.getGameCompleteMessage(historyPagePath));
     }
 
     @Override
@@ -162,49 +151,41 @@ public class GameServiceImpl implements GameService {
             throw new GameCompleteException("Game is already submitted");
         }
         List<UserAnswer> userAnswers = new ArrayList<>();
-        answerRequestList.forEach(
-                answerRequest -> {
-                    Optional<Question> optionalQuestion = questionRepository.findById(answerRequest.getQuestionId());
-                    if (optionalQuestion.isEmpty()) {
-                        throw new QuestionNotFoundException(answerRequest.getAnswerId());
-                    }
-                    Question question = optionalQuestion.get();
-                    if (!Objects.equals(question.getGame().getId(), gameId)) {
-                        throw new QuestionNotPartException("Question is not part game: " + gameId);
-                    }
-                    Optional<Answer> optionalAnswer = answerRepository.findById(answerRequest.getAnswerId());
-                    if (optionalAnswer.isEmpty()) {
-                        throw new AnswerNotFoundException(answerRequest.getAnswerId());
-                    }
-                    Answer answer = optionalAnswer.get();
-                    log.info("Answer's question id: {}", answer.getQuestion().getId());
-                    log.info("question id from request: {}", answerRequest.getQuestionId());
-                    if (!Objects.equals(answer.getQuestion().getId(), answerRequest.getQuestionId())) {
-                        throw new AnswerNotPartException("Answer is not part of answers set of question: " + answerRequest.getQuestionId());
-                    }
+        answerRequestList.forEach(answerRequest -> {
+            Optional<Question> optionalQuestion = questionRepository.findById(answerRequest.getQuestionId());
+            if (optionalQuestion.isEmpty()) {
+                throw new QuestionNotFoundException(answerRequest.getAnswerId());
+            }
+            Question question = optionalQuestion.get();
+            if (!Objects.equals(question.getGame().getId(), gameId)) {
+                throw new QuestionNotPartException("Question is not part game: " + gameId);
+            }
+            Optional<Answer> optionalAnswer = answerRepository.findById(answerRequest.getAnswerId());
+            if (optionalAnswer.isEmpty()) {
+                throw new AnswerNotFoundException(answerRequest.getAnswerId());
+            }
+            Answer answer = optionalAnswer.get();
+            log.info("Answer's question id: {}", answer.getQuestion().getId());
+            log.info("question id from request: {}", answerRequest.getQuestionId());
+            if (!Objects.equals(answer.getQuestion().getId(), answerRequest.getQuestionId())) {
+                throw new AnswerNotPartException("Answer is not part of answers set of question: " + answerRequest.getQuestionId());
+            }
 
-                    // Look for existing UserAnswer for the question
-                    Optional<UserAnswer> existingUserAnswer = userAnswerRepository.findByQuestionAndGame(question, game);
+            // Look for existing UserAnswer for the question
+            Optional<UserAnswer> existingUserAnswer = userAnswerRepository.findByQuestionAndGame(question, game);
 
-                    if (existingUserAnswer.isPresent()) {
-                        // Update the existing answer with the new one
-                        UserAnswer userAnswerToUpdate = existingUserAnswer.get();
-                        userAnswerToUpdate.setAnswer(answer);
-                        userAnswers.add(userAnswerToUpdate);
-                    } else {
-                        // Create a new UserAnswer
-                        UserAnswer userAnswer = UserAnswer
-                                .builder()
-                                .game(question.getGame())
-                                .user(question.getGame().getUser())
-                                .answer(answer)
-                                .question(question)
-                                .build();
+            if (existingUserAnswer.isPresent()) {
+                // Update the existing answer with the new one
+                UserAnswer userAnswerToUpdate = existingUserAnswer.get();
+                userAnswerToUpdate.setAnswer(answer);
+                userAnswers.add(userAnswerToUpdate);
+            } else {
+                // Create a new UserAnswer
+                UserAnswer userAnswer = UserAnswer.builder().game(question.getGame()).user(question.getGame().getUser()).answer(answer).question(question).build();
 
-                        userAnswers.add(userAnswer);
-                    }
-                }
-        );
+                userAnswers.add(userAnswer);
+            }
+        });
         userAnswerRepository.saveAll(userAnswers);
     }
 
@@ -224,14 +205,7 @@ public class GameServiceImpl implements GameService {
         game.setCurrentPage(currentPage);
         repository.save(game);
 
-        return GameCurrentSessionState
-                .builder()
-                .gameId(gameId)
-                .estimatedEndTime(game.getEstimatedEndTime())
-                .status(game.getStatus())
-                .currentPage(game.getCurrentPage())
-                .savedUserAnswers(getSavedAnswersOfGame(userId, gameId))
-                .build();
+        return GameCurrentSessionState.builder().gameId(gameId).estimatedEndTime(game.getEstimatedEndTime()).status(game.getStatus()).currentPage(game.getCurrentPage()).savedUserAnswers(getSavedAnswersOfGame(userId, gameId)).build();
     }
 
     private Pages next(Pages currentPage) {
@@ -247,10 +221,7 @@ public class GameServiceImpl implements GameService {
     public List<SimpleGameResponse> getAllCompletedGamesOfUser(UUID userId) {
         userValidator.validateIfExistsAndGet(userId);
         List<Game> games = repository.findByUser_Id(userId);
-        return GameMapper.mapToSimpleResponseListDTO(
-                games.stream()
-                        .filter(game -> game.getStatus().equals(Status.COMPLETED))
-                        .toList());
+        return GameMapper.mapToSimpleResponseListDTO(games.stream().filter(game -> game.getStatus().equals(Status.COMPLETED)).toList());
     }
 
     private List<SavedUserAnswerResponse> getSavedAnswersOfGame(UUID userId, Long gameId) {
@@ -262,11 +233,7 @@ public class GameServiceImpl implements GameService {
         }
         List<UserAnswer> selectedAnswers = userAnswerRepository.findByUser_IdAndGame_Id(userId, gameId);
         selectedAnswers.forEach(savedUserAnswer -> {
-            SavedUserAnswerResponse savedUserAnswerResponse = SavedUserAnswerResponse
-                    .builder()
-                    .answerId(savedUserAnswer.getAnswer().getId())
-                    .questionId(savedUserAnswer.getQuestion().getId())
-                    .build();
+            SavedUserAnswerResponse savedUserAnswerResponse = SavedUserAnswerResponse.builder().answerId(savedUserAnswer.getAnswer().getId()).questionId(savedUserAnswer.getQuestion().getId()).build();
 
             savedUserAnswers.add(savedUserAnswerResponse);
         });
@@ -294,17 +261,11 @@ public class GameServiceImpl implements GameService {
             }
             Question question = optionalQuestion.get();
             Question unproxiedQuestion = initializeAndUnproxy(question);
-            UserSelectedAnswerResponse selectedAnswerResponse = UserSelectedAnswerResponse
-                    .builder()
-                    .id(selectedAnswer.getId())
-                    .build();
+            UserSelectedAnswerResponse selectedAnswerResponse = UserSelectedAnswerResponse.builder().id(selectedAnswer.getId()).build();
             if (unproxiedQuestion instanceof MSQuestion msQuestion) {
                 selectedAnswerResponse.setQuestionText(msQuestion.getText());
             } else if (unproxiedQuestion instanceof BCAssessmentQuestion bcAssessmentQuestion) {
-                selectedAnswerResponse.setQuestionText(
-                        bcAssessmentQuestion.getParameter() + "(" +
-                                bcAssessmentQuestion.getUnit() + ") - value: " +
-                                bcAssessmentQuestion.getValue());
+                selectedAnswerResponse.setQuestionText(bcAssessmentQuestion.getParameter() + "(" + bcAssessmentQuestion.getUnit() + ") - value: " + bcAssessmentQuestion.getValue());
             }
             selectedAnswerResponse.setAnswer(selectedAnswer.getAnswer().getText());
             selectedAnswerResponses.add(selectedAnswerResponse);
@@ -354,8 +315,7 @@ public class GameServiceImpl implements GameService {
 
         Hibernate.initialize(entity);
         if (entity instanceof HibernateProxy) {
-            entity = (T) ((HibernateProxy) entity).getHibernateLazyInitializer()
-                    .getImplementation();
+            entity = (T) ((HibernateProxy) entity).getHibernateLazyInitializer().getImplementation();
         }
         return entity;
     }
