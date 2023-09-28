@@ -17,4 +17,12 @@ public class MailSubjectConstants {
     public static String getGameCompleteSubject() {
         return "Your game has been closed";
     }
+
+    public static String getForgotPasswordSubject() {
+        return "Reset Your BloodCount App account password";
+    }
+
+    public static String getResetPasswordSubject() {
+        return "Password has been reset";
+    }
 }

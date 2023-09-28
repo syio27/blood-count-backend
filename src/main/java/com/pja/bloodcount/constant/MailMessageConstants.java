@@ -49,5 +49,34 @@ public class MailMessageConstants {
                 + "Best regards,\n"
                 + "The Application Team";
     }
+
+    public static String getForgotPasswordMessage(String resetUrl) {
+        return "Dear User,\n" +
+                "\n" +
+                "We received a request to reset your password for your BloodCount app account. " +
+                "If you didn't make this request, you can safely ignore this email. " +
+                "Your password won't be changed until you create a new one using the link below.\n" +
+                "\n" +
+                "To reset your password, please click the following link:\n" +
+                "\n" +
+                resetUrl +
+                "\n" +
+                "This link will expire in 3 hours. If you don't reset your password within this time frame, you'll need to submit a new request.\n" +
+                "\n" +
+                "Best regards,\n" +
+                "The Your BloodCount app Team";
+    }
+
+    public static String getResetPasswordMessage(String formattedDateTime, String loginUrl) {
+        return "Dear User,\n" +
+                "\n" +
+                "You password has been reset at " + formattedDateTime + "\n" +
+                "and you can access the login page and enter to app with new credentials here ->" +
+                "\n" +
+                loginUrl +
+                "\n" +
+                "Best regards,\n" +
+                "The Your BloodCount app Team";
+    }
 }
 
