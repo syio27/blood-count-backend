@@ -17,7 +17,7 @@ import java.util.List;
 @Builder
 @Data
 @Table(name = "erythrocyte_question_base")
-public class ErythrocyteQuestion {
+public class ErythrocyteQuestion implements QuestionBase<ErythrocyteQuestionTranslation> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

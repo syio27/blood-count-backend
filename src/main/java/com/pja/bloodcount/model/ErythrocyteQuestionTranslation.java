@@ -14,7 +14,7 @@ import javax.persistence.*;
 @Builder
 @Data
 @Table(name = "erythrocyte_question_translation")
-public class ErythrocyteQuestionTranslation {
+public class ErythrocyteQuestionTranslation implements QuestionTranslationBase {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

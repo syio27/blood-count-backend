@@ -1,9 +1,6 @@
 package com.pja.bloodcount.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.pja.bloodcount.model.enums.Language;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,7 +14,7 @@ import javax.persistence.*;
 @Builder
 @Data
 @Table(name = "various_question_translation")
-public class VariousQuestionTranslation {
+public class VariousQuestionTranslation implements QuestionTranslationBase {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
