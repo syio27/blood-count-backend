@@ -1,25 +1,25 @@
 package com.pja.bloodcount.service;
 
-import com.pja.bloodcount.dto.request.AnswerRequest;
 import com.pja.bloodcount.exceptions.*;
 import com.pja.bloodcount.model.*;
 import com.pja.bloodcount.model.enums.Language;
 import com.pja.bloodcount.repository.*;
+import com.pja.bloodcount.service.contract.QnAService;
 import com.pja.bloodcount.validation.PatientValidator;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
 @Slf4j
 @AllArgsConstructor
-public class QnAService {
+public class QnAServiceImpl implements QnAService {
 
     private final BCAssessmentQuestionRepository bcaQuestionRepository;
     private final MSQuestionRepository msQuestionRepository;
@@ -29,6 +29,7 @@ public class QnAService {
     private final VariousQBRepository variousQBRepository;
     private final PatientValidator patientValidator;
 
+    @Override
     public List<BCAssessmentQuestion> createQnAForBCAssessment(Long gameId) {
         Optional<Game> optionalGame = gameRepository.findById(gameId);
         if (optionalGame.isEmpty()) {
@@ -76,6 +77,7 @@ public class QnAService {
         return questionList;
     }
 
+    @Override
     public List<MSQuestion> createMSQuestions(Long gameId, Language language) {
         Optional<Game> optionalGame = gameRepository.findById(gameId);
         if (optionalGame.isEmpty()) {
@@ -96,7 +98,6 @@ public class QnAService {
         List<Answer> answersMSQ1 = msQuestion1.getAnswers();
         String anemiaType = game.getCaseDetails().getAnemiaType();
         answersMSQ1.forEach(answer -> {
-            log.info("Answer of msq 1 {}: ", answer);
             if (answer.getText().equals(anemiaType)) {
                 msQuestion1.setCorrectAnswerId(answer.getId());
             } else {
@@ -104,12 +105,14 @@ public class QnAService {
             }
         });
         List<Answer> answersMSQ2 = msQuestion2.getAnswers();
-        double hgbValue = game.getPatient().getBloodCounts().stream().filter(bloodCount -> "HGB".equals(bloodCount.getParameter())).findFirst().get().getValue();
+        double hgbValue = game.getPatient().getBloodCounts().stream()
+                .filter(bloodCount -> "HGB".equals(bloodCount.getParameter()))
+                .findFirst()
+                .orElseThrow(() -> new NoSuchElementException("No HGB parameter found"))
+                .getValue();
 
         answersMSQ2.forEach(answer -> {
-            log.info("Answer of msq 2 {}: ", answer);
             String range = getRangeInString(answer.getText());
-            log.info("Range of answer's text: {}", range);
             assert range != null;
             if (isInRange(range, hgbValue)) {
                 msQuestion2.setCorrectAnswerId(answer.getId());
@@ -120,78 +123,40 @@ public class QnAService {
         return new ArrayList<>(List.of(msQuestion1, msQuestion2));
     }
 
+    @Override
     public List<MSQuestion> createTrueFalseMSQuestions(Long gameId, Language language) {
         Optional<Game> optionalGame = gameRepository.findById(gameId);
         if (optionalGame.isEmpty()) {
             throw new GameNotFoundException(gameId);
         }
-        Game game = optionalGame.get();
         List<MSQuestion> msQuestions = new ArrayList<>();
 
-        ErythrocyteQuestion erythrocyteQuestionStorage = erythrocyteQBRepository.findAll()
+        msQuestions.addAll(createMSQuestions(erythrocyteQBRepository, language, 3));
+        msQuestions.addAll(createMSQuestions(leukocyteQBRepository, language, 3));
+        msQuestions.addAll(createMSQuestions(variousQBRepository, language, 4));
+        return msQuestions;
+    }
+
+    private <Q extends QuestionBase<T>, T extends QuestionTranslationBase> List<MSQuestion> createMSQuestions(JpaRepository<Q, Long> repository, Language language, int numberOfQuestions) {
+        List<MSQuestion> msQuestions = new ArrayList<>();
+
+        Q questionStorage = repository.findAll()
                 .stream()
                 .filter(q -> q.getLanguage().equals(language))
                 .findFirst()
-                .orElseThrow(() -> new NoSuchElementException("Erythrocyte question storage for language " + language + " doesnt exist"));
-        List<ErythrocyteQuestionTranslation> randomErythrocyteQuestions = randomlyPickQuestions(erythrocyteQuestionStorage.getTranslations(), 3);
-        randomErythrocyteQuestions.forEach(erythrocyteQuestion -> {
+                .orElseThrow(() -> new NoSuchElementException("Question storage for language " + language + " doesn't exist"));
+        List<T> randomQuestions = randomlyPickQuestions(questionStorage.getTranslations(), numberOfQuestions);
+
+        randomQuestions.forEach(question -> {
             MSQuestion msQuestion = MSQuestion
                     .builder()
-                    .text(erythrocyteQuestion.getText())
+                    .text(question.getText())
                     .build();
             buildTrueFalseAnswers(msQuestion, language);
             msQuestionRepository.save(msQuestion);
             List<Answer> answers = msQuestion.getAnswers();
             answers.forEach(answer -> {
-                if (answer.getText().equals(erythrocyteQuestion.getAnswer())) {
-                    msQuestion.setCorrectAnswerId(answer.getId());
-                }
-            });
-            msQuestions.add(msQuestion);
-            msQuestionRepository.save(msQuestion);
-        });
-
-        LeukocyteQuestion leukocyteQuestionStorage = leukocyteQBRepository.findAll()
-                .stream()
-                .filter(q -> q.getLanguage().equals(language))
-                .findFirst()
-                .orElseThrow(() -> new NoSuchElementException("Leukocyte question storage for language " + language + " doesnt exist"));
-        List<LeukocyteQuestionTranslation> randomLeukocyteQuestions = randomlyPickQuestions(leukocyteQuestionStorage.getTranslations(), 3);
-
-        randomLeukocyteQuestions.forEach(leukocyteQuestion -> {
-            MSQuestion msQuestion = MSQuestion
-                    .builder()
-                    .text(leukocyteQuestion.getText())
-                    .build();
-            buildTrueFalseAnswers(msQuestion, language);
-            msQuestionRepository.save(msQuestion);
-            List<Answer> answers = msQuestion.getAnswers();
-            answers.forEach(answer -> {
-                if (answer.getText().equals(leukocyteQuestion.getAnswer())) {
-                    msQuestion.setCorrectAnswerId(answer.getId());
-                }
-            });
-            msQuestions.add(msQuestion);
-            msQuestionRepository.save(msQuestion);
-        });
-
-        VariousQuestion variousQuestionStorage = variousQBRepository.findAll()
-                .stream()
-                .filter(q -> q.getLanguage().equals(language))
-                .findFirst()
-                .orElseThrow(() -> new NoSuchElementException("Various question storage for language " + language + " doesnt exist"));
-        List<VariousQuestionTranslation> randomVariousQuestions = randomlyPickQuestions(variousQuestionStorage.getTranslations(), 4);
-
-        randomVariousQuestions.forEach(variousQuestion -> {
-            MSQuestion msQuestion = MSQuestion
-                    .builder()
-                    .text(variousQuestion.getText())
-                    .build();
-            buildTrueFalseAnswers(msQuestion, language);
-            msQuestionRepository.save(msQuestion);
-            List<Answer> answers = msQuestion.getAnswers();
-            answers.forEach(answer -> {
-                if (answer.getText().equals(variousQuestion.getAnswer())) {
+                if (answer.getText().equals(question.getAnswer())) {
                     msQuestion.setCorrectAnswerId(answer.getId());
                 }
             });
@@ -245,18 +210,15 @@ public class QnAService {
         List<String> ranges = new ArrayList<>(List.of(range.split(" ")));
         if (ranges.contains(">=")) {
             min = Double.parseDouble(ranges.get(1).replace(',', '.'));
-            log.info("min: {}", min);
             return value >= min;
         }
         if (ranges.contains("<")) {
             max = Double.parseDouble(ranges.get(1).replace(',', '.'));
-            log.info("min: {}", max);
             return value < max;
         }
         if (ranges.contains("–")) {
             min = Double.parseDouble(ranges.get(0).replace(',', '.'));
             max = Double.parseDouble(ranges.get(2).replace(',', '.'));
-            log.info("min: {}, and max: {}", min, max);
             return value > min && value < max;
         }
         return false;

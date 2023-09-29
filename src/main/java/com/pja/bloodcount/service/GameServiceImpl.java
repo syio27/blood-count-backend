@@ -14,6 +14,7 @@ import com.pja.bloodcount.repository.*;
 import com.pja.bloodcount.service.completion.DelayedGame;
 import com.pja.bloodcount.service.contract.GameService;
 import com.pja.bloodcount.service.contract.NotifierService;
+import com.pja.bloodcount.service.contract.QnAService;
 import com.pja.bloodcount.service.contract.ScoreService;
 import com.pja.bloodcount.validation.CaseValidator;
 import com.pja.bloodcount.validation.UserValidator;
