@@ -17,6 +17,7 @@ import com.pja.bloodcount.service.contract.NotifierService;
 import com.pja.bloodcount.service.contract.QnAService;
 import com.pja.bloodcount.service.contract.ScoreService;
 import com.pja.bloodcount.validation.CaseValidator;
+import com.pja.bloodcount.validation.GameValidator;
 import com.pja.bloodcount.validation.UserValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +51,7 @@ public class GameServiceImpl implements GameService {
     private final ScoreService scoreService;
     private final DelayQueue<DelayedGame> delayedGameQueue;
     private final NotifierService notifierService;
+    private final GameValidator gameValidator;
     @Value("${app.url}")
     private String url;
 
@@ -96,11 +98,7 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public SimpleGameResponse completeGame(Long gameId) {
-        Optional<Game> optionalGame = repository.findById(gameId);
-        if (optionalGame.isEmpty()) {
-            throw new GameNotFoundException(gameId);
-        }
-        Game game = optionalGame.get();
+        Game game = gameValidator.validateIfExistsAndGet(gameId);
         if (game.getStatus().equals(Status.COMPLETED)) {
             throw new GameCompleteException("Game is already submitted");
         }
@@ -119,11 +117,7 @@ public class GameServiceImpl implements GameService {
     @Override
     @Transactional
     public void queueCompleteGame(Long gameId) {
-        Optional<Game> optionalGame = repository.findById(gameId);
-        if (optionalGame.isEmpty()) {
-            throw new GameNotFoundException(gameId);
-        }
-        Game game = optionalGame.get();
+        Game game = gameValidator.validateIfExistsAndGet(gameId);
         String userEmail = game.getUser().getEmail();
         if (game.getStatus().equals(Status.COMPLETED)) {
             delayedGameQueue.removeIf(delayedGame -> delayedGame.getGame().getId().equals(gameId));
@@ -143,11 +137,7 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public void saveSelectedAnswers(Long gameId, List<AnswerRequest> answerRequestList) {
-        Optional<Game> optionalGame = repository.findById(gameId);
-        if (optionalGame.isEmpty()) {
-            throw new GameNotFoundException(gameId);
-        }
-        Game game = optionalGame.get();
+        Game game = gameValidator.validateIfExistsAndGet(gameId);
         if (game.getStatus().equals(Status.COMPLETED)) {
             throw new GameCompleteException("Game is already submitted");
         }
@@ -192,11 +182,7 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public GameCurrentSessionState next(UUID userId, Long gameId, List<AnswerRequest> answerRequestList) {
-        Optional<Game> optionalGame = repository.findById(gameId);
-        if (optionalGame.isEmpty()) {
-            throw new GameNotFoundException(gameId);
-        }
-        Game game = optionalGame.get();
+        Game game = gameValidator.validateIfExistsAndGet(gameId);;
         if (game.getStatus().equals(Status.COMPLETED)) {
             throw new GameCompleteException("Game is already submitted");
         }
@@ -228,10 +214,7 @@ public class GameServiceImpl implements GameService {
     private List<SavedUserAnswerResponse> getSavedAnswersOfGame(UUID userId, Long gameId) {
         List<SavedUserAnswerResponse> savedUserAnswers = new ArrayList<>();
         userValidator.validateIfExistsAndGet(userId);
-        Optional<Game> optionalGame = repository.findById(gameId);
-        if (optionalGame.isEmpty()) {
-            throw new GameNotFoundException(gameId);
-        }
+        gameValidator.validateIfExistsAndGet(gameId);
         List<UserAnswer> selectedAnswers = userAnswerRepository.findByUser_IdAndGame_Id(userId, gameId);
         selectedAnswers.forEach(savedUserAnswer -> {
             SavedUserAnswerResponse savedUserAnswerResponse = SavedUserAnswerResponse.builder().answerId(savedUserAnswer.getAnswer().getId()).questionId(savedUserAnswer.getQuestion().getId()).build();
@@ -247,11 +230,7 @@ public class GameServiceImpl implements GameService {
     public List<UserSelectedAnswerResponse> getSelectedAnswersOfGame(UUID userId, Long gameId) {
         List<UserSelectedAnswerResponse> selectedAnswerResponses = new ArrayList<>();
         userValidator.validateIfExistsAndGet(userId);
-        Optional<Game> optionalGame = repository.findById(gameId);
-        if (optionalGame.isEmpty()) {
-            throw new GameNotFoundException(gameId);
-        }
-        Game game = optionalGame.get();
+        Game game = gameValidator.validateIfExistsAndGet(gameId);
         List<UserAnswer> selectedAnswers = userAnswerRepository.findByUser_IdAndGame_Id(userId, gameId);
         List<Question> questions = game.getQuestions();
         selectedAnswers.forEach(selectedAnswer -> {
@@ -277,11 +256,7 @@ public class GameServiceImpl implements GameService {
     @Override
     public GameResponse getInProgressGame(Long gameId, UUID userId) {
         userValidator.validateIfExistsAndGet(userId);
-        Optional<Game> optionalGame = repository.findById(gameId);
-        if (optionalGame.isEmpty()) {
-            throw new GameNotFoundException(gameId);
-        }
-        Game game = optionalGame.get();
+        Game game = gameValidator.validateIfExistsAndGet(gameId);
         if (game.getStatus().equals(Status.COMPLETED)) {
             throw new GameCompleteException("Game with id - " + game.getId() + " already completed");
         }
