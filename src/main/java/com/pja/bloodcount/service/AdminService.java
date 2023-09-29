@@ -82,7 +82,7 @@ public class AdminService {
         } else {
             user.setActive(true);
             subject = MailSubjectConstants.getUnbanSubject();
-            message = MailMessageConstants.getUnbanMessage(user.getEmail());
+            message = MailMessageConstants.getUnbanMessage();
         }
 
         notifierService.notifyUser(user.getEmail(), subject, message);

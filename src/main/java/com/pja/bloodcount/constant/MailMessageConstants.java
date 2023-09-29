@@ -5,78 +5,88 @@ import com.pja.bloodcount.model.Group;
 
 public class MailMessageConstants {
     public static String getInviteMessage(InviteUserRequest inviteRequest, String generatedPassword, Group group, String profileUrl) {
-        return "Dear new User\n\n"
-                + "You have been invited to join our application as a " + inviteRequest.getRole().toString().toLowerCase() + ".\n\n"
-                + "Here are your login credentials:\n"
-                + "Email: " + inviteRequest.getEmail() + "\n"
-                + "Temporary password: " + generatedPassword + "\n"
-                + "Assigned Group: " + group.getGroupNumber() + "\n"
-                + "Group Type: " + group.getGroupType() + "\n\n"
-                + "Profile page URL: " + profileUrl + "\n\n"
-                + "Please log in using these details. We strongly recommend that you change your password immediately after your first login for security purposes.\n\n"
-                + "If you have any issues, please feel free to contact us.\n\n"
-                + "(Please use the user icon in the top right corner)"
-                + "Best regards,\n"
-                + "The Application Team";
+        return """
+                Dear new User
+
+                You have been invited to join our application as a %s.
+
+                Here are your login credentials:
+                Email: %s
+                Temporary password: %s
+                Assigned Group: %s
+                Group Type: %s
+
+                Profile page URL: %s
+
+                Please log in using these details. We strongly recommend that you change your password immediately after your first login for security purposes.
+                If you have any issues, please feel free to contact us.
+                (Please use the user icon in the top right corner)
+                Best regards,
+                The Application Team""".formatted(inviteRequest.getRole().toString().toLowerCase(), inviteRequest.getEmail(), generatedPassword, group.getGroupNumber(), group.getGroupType(), profileUrl);
     }
 
     public static String getBanMessage(String email) {
-        return "Dear Admin User\n\n"
-                + "We hope this message finds you well. "
-                + "\n"
-                + "We regret to inform you that your account with " + email + " has been temporarily suspended, effective immediately."
-                + "\n"
-                + "Best regards,\n"
-                + "The Application Team";
+        return """
+                Dear Admin User
+
+                We hope this message finds you well.
+                We regret to inform you that your account with %s has been temporarily suspended, effective immediately.
+
+                Best regards
+                The Application Team""".formatted(email);
     }
 
 
-    public static String getUnbanMessage(String email) {
-        return "Dear Admin User\n\n"
-                + "We are pleased to inform you that the suspension on your account has been lifted."
-                + "\n"
-                + "Your account is activated."
-                + "\n"
-                + "Best regards,\n"
-                + "The Application Team";
+    public static String getUnbanMessage() {
+        return """
+                Dear Admin User
+
+                We are pleased to inform you that the suspension on your account has been lifted.
+                Your account is activated.
+                Best regards,
+                The Application Team""";
     }
 
     public static String getGameCompleteMessage(String gameHistoryUrl) {
-        return "Dear User\n\n"
-                + "Your game has been auto complete, and scored\n"
-                + "You can view you game result by below link\n"
-                + "Games History page: " + gameHistoryUrl + "\n\n"
-                + "Best regards,\n"
-                + "The Application Team";
+        return """
+                Dear User
+
+                Your game has been auto complete, and scored
+                You can view you game result by below link
+                Games History page: %s
+
+                Best regards,
+                The Application Team""".formatted(gameHistoryUrl);
     }
 
     public static String getForgotPasswordMessage(String resetUrl) {
-        return "Dear User,\n" +
-                "\n" +
-                "We received a request to reset your password for your BloodCount app account. " +
-                "If you didn't make this request, you can safely ignore this email. " +
-                "Your password won't be changed until you create a new one using the link below.\n" +
-                "\n" +
-                "To reset your password, please click the following link:\n" +
-                "\n" +
-                resetUrl +
-                "\n" +
-                "This link will expire in 3 hours. If you don't reset your password within this time frame, you'll need to submit a new request.\n" +
-                "\n" +
-                "Best regards,\n" +
-                "The Your BloodCount app Team";
+        return """
+                Dear User,
+
+                We received a request to reset your password for your BloodCount app account
+                If you didn't make this request, you can safely ignore this email
+                Your password won't be changed until you create a new one using the link below.
+
+                To reset your password, please click the following link:
+                %s
+                
+                This link will expire in 3 hours. If you don't reset your password within this time frame, you'll need to submit a new request.
+
+                Best regards,
+                The Your BloodCount app Team""".formatted(resetUrl);
     }
 
     public static String getResetPasswordMessage(String formattedDateTime, String loginUrl) {
-        return "Dear User,\n" +
-                "\n" +
-                "You password has been reset at " + formattedDateTime + "\n" +
-                "and you can access the login page and enter to app with new credentials here ->" +
-                "\n" +
-                loginUrl +
-                "\n" +
-                "Best regards,\n" +
-                "The Your BloodCount app Team";
+        return """
+                Dear User,
+
+                You password has been reset at %s
+                and you can access the login page and enter to app with new credentials here ->
+                
+                %s
+                
+                Best regards,
+                The Your BloodCount app Team""".formatted(formattedDateTime, loginUrl);
     }
 }
 
