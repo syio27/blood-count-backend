@@ -124,11 +124,7 @@ public class QnAServiceImpl implements QnAService {
     }
 
     @Override
-    public List<MSQuestion> createTrueFalseMSQuestions(Long gameId, Language language) {
-        Optional<Game> optionalGame = gameRepository.findById(gameId);
-        if (optionalGame.isEmpty()) {
-            throw new GameNotFoundException(gameId);
-        }
+    public List<MSQuestion> createTrueFalseMSQuestions(Language language) {
         List<MSQuestion> msQuestions = new ArrayList<>();
 
         msQuestions.addAll(createMSQuestions(erythrocyteQBRepository, language, 3));

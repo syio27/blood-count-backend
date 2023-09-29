@@ -83,7 +83,7 @@ public class GameServiceImpl implements GameService {
 
         List<BCAssessmentQuestion> qnAForBCAssessment = qnAService.createQnAForBCAssessment(game.getId());
         List<MSQuestion> qnAForMSQ = qnAService.createMSQuestions(game.getId(), language);
-        List<MSQuestion> anAForTrueFalseMSQ = qnAService.createTrueFalseMSQuestions(game.getId(), language);
+        List<MSQuestion> anAForTrueFalseMSQ = qnAService.createTrueFalseMSQuestions(language);
         qnAForBCAssessment.forEach(game::addQuestion);
         qnAForMSQ.forEach(game::addQuestion);
         anAForTrueFalseMSQ.forEach(game::addQuestion);

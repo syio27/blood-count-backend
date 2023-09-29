@@ -9,5 +9,5 @@ import java.util.List;
 public interface QnAService {
     List<BCAssessmentQuestion> createQnAForBCAssessment(Long gameId);
     List<MSQuestion> createMSQuestions(Long gameId, Language language);
-    List<MSQuestion> createTrueFalseMSQuestions(Long gameId, Language language);
+    List<MSQuestion> createTrueFalseMSQuestions(Language language);
 }
