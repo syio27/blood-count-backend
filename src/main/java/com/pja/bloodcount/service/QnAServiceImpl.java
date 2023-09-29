@@ -133,7 +133,9 @@ public class QnAServiceImpl implements QnAService {
         return msQuestions;
     }
 
-    private <Q extends QuestionBase<T>, T extends QuestionTranslationBase> List<MSQuestion> createMSQuestions(JpaRepository<Q, Long> repository, Language language, int numberOfQuestions) {
+    private <Q extends QuestionBase<T>, T extends QuestionTranslationBase> List<MSQuestion> createMSQuestions(JpaRepository<Q, Long> repository,
+                                                                                                              Language language,
+                                                                                                              int numberOfQuestions) {
         List<MSQuestion> msQuestions = new ArrayList<>();
 
         Q questionStorage = repository.findAll()
