@@ -4,25 +4,23 @@ import com.pja.bloodcount.dto.request.InviteUserRequest;
 import com.pja.bloodcount.model.Group;
 
 public class MailMessageConstants {
-    public static String getInviteMessage(InviteUserRequest inviteRequest, String generatedPassword, Group group, String profileUrl) {
+    public static String getInviteMessage(InviteUserRequest inviteRequest, String generatedPassword, Group group) {
         return """
-                Dear new User
+                Dear new User<br><br>
 
-                You have been invited to join our application as a %s.
+                You have been invited to join our application as a %s.<br><br>
 
-                Here are your login credentials:
-                Email: %s
-                Temporary password: %s
-                Assigned Group: %s
-                Group Type: %s
+                Here are your login credentials:<br>
+                Email: %s<br>
+                Temporary password: %s<br>
+                Assigned Group: %s<br>
+                Group Type: %s<br><br>
 
-                Profile page URL: %s
-
-                Please log in using these details. We strongly recommend that you change your password immediately after your first login for security purposes.
-                If you have any issues, please feel free to contact us.
-                (Please use the user icon in the top right corner)
-                Best regards,
-                The Application Team""".formatted(inviteRequest.getRole().toString().toLowerCase(), inviteRequest.getEmail(), generatedPassword, group.getGroupNumber(), group.getGroupType(), profileUrl);
+                Please log in using these details. We strongly recommend that you change your password immediately after your first login for security purposes.<br>
+                If you have any issues, please feel free to contact us.<br>
+                (*Please use the user icon in the top right corner)<br><br>
+                Best regards,<br>
+                The Application Team""".formatted(inviteRequest.getRole().toString().toLowerCase(), inviteRequest.getEmail(), generatedPassword, group.getGroupNumber(), group.getGroupType());
     }
 
     public static String getBanMessage(String email) {
