@@ -5,6 +5,7 @@ import com.pja.bloodcount.constant.MailSubjectConstants;
 import com.pja.bloodcount.dto.request.AnswerRequest;
 import com.pja.bloodcount.dto.response.*;
 import com.pja.bloodcount.exceptions.*;
+import com.pja.bloodcount.htmlcontent.MailHtmlContent;
 import com.pja.bloodcount.mapper.GameMapper;
 import com.pja.bloodcount.model.*;
 import com.pja.bloodcount.model.enums.Language;
@@ -131,8 +132,14 @@ public class GameServiceImpl implements GameService {
             game.setEndTime(Date.from(completedTime));
         }
         repository.save(game);
-        String historyPagePath = url + "/history";
-        notifierService.notifyUser(userEmail, MailSubjectConstants.getGameCompleteSubject(), MailMessageConstants.getGameCompleteMessage(historyPagePath));
+        final String historyPagePath = url + "/history";
+        final String buttonLabel = "Check History";
+        notifierService.notifyUser(userEmail, MailSubjectConstants.getGameCompleteSubject(),
+                MailHtmlContent.getHtmlMessage(
+                        MailMessageConstants.getGameCompleteMessage(),
+                        historyPagePath,
+                        buttonLabel,
+                        true));
     }
 
     @Override

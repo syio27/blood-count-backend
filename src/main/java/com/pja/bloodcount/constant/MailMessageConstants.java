@@ -45,46 +45,40 @@ public class MailMessageConstants {
                 The Application Team""";
     }
 
-    public static String getGameCompleteMessage(String gameHistoryUrl) {
+    public static String getGameCompleteMessage() {
         return """
-                Dear User
+                Dear User<br><br>
 
-                Your game has been auto complete, and scored
-                You can view you game result by below link
-                Games History page: %s
+                Your game has been auto complete, and scored<br>
+                You can view you game result by clicking the button<br><br>
 
-                Best regards,
-                The Application Team""".formatted(gameHistoryUrl);
+                Best regards,<br>
+                The Application Team""";
     }
 
-    public static String getForgotPasswordMessage(String resetUrl) {
+    public static String getForgotPasswordMessage() {
         return """
-                Dear User,
+                Dear User,<br><br>
 
-                We received a request to reset your password for your BloodCount app account
-                If you didn't make this request, you can safely ignore this email
-                Your password won't be changed until you create a new one using the link below.
-
-                To reset your password, please click the following link:
-                %s
+                We received a request to reset your password for your BloodCount app account<br>
+                If you didn't make this request, you can safely ignore this email<br>
+                Your password won't be changed until you create a new one by clicking the button.<br><br>
                 
-                This link will expire in 3 hours. If you don't reset your password within this time frame, you'll need to submit a new request.
+                The link will expire in 3 hours. If you don't reset your password within this time frame, you'll need to submit a new request.<br><br>
 
-                Best regards,
-                The Your BloodCount app Team""".formatted(resetUrl);
+                Best regards,<br>
+                The Your BloodCount app Team""";
     }
 
-    public static String getResetPasswordMessage(String formattedDateTime, String loginUrl) {
+    public static String getResetPasswordMessage(String formattedDateTime) {
         return """
-                Dear User,
+                Dear User,<br><br>
 
-                You password has been reset at %s
-                and you can access the login page and enter to app with new credentials here ->
+                You password has been reset at %s<br>
+                and you can access the login page and enter to app with new credentials<br><br>
                 
-                %s
-                
-                Best regards,
-                The Your BloodCount app Team""".formatted(formattedDateTime, loginUrl);
+                Best regards,<br>
+                The Your BloodCount app Team""".formatted(formattedDateTime);
     }
 }
 

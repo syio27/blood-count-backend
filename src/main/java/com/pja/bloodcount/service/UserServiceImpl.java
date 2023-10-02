@@ -7,6 +7,7 @@ import com.pja.bloodcount.dto.response.AuthenticationResponse;
 import com.pja.bloodcount.dto.response.SimpleGameResponse;
 import com.pja.bloodcount.dto.response.UserResponse;
 import com.pja.bloodcount.exceptions.*;
+import com.pja.bloodcount.htmlcontent.MailHtmlContent;
 import com.pja.bloodcount.mapper.GameMapper;
 import com.pja.bloodcount.mapper.UserMapper;
 import com.pja.bloodcount.model.*;
@@ -155,8 +156,13 @@ public class UserServiceImpl implements UserService {
         Token token = tokenService.createToken(request.getEmail());
 
         final String resetUrl = String.format("%s/reset-password/%s?email=%s", url, token.getToken(), request.getEmail());
-
-        notifierService.notifyUser(request.getEmail(), MailSubjectConstants.getForgotPasswordSubject(), MailMessageConstants.getForgotPasswordMessage(resetUrl));
+        final String buttonLabel = "Reset Password";
+        notifierService.notifyUser(request.getEmail(), MailSubjectConstants.getForgotPasswordSubject(),
+                MailHtmlContent.getHtmlMessage(
+                        MailMessageConstants.getForgotPasswordMessage(),
+                        resetUrl,
+                        buttonLabel,
+                        true));
     }
 
     @Override
@@ -190,8 +196,13 @@ public class UserServiceImpl implements UserService {
         String formattedDateTime = now.format(formatter);
 
         final String loginUrl = String.format("%s/%s", url, "login");
-
-        notifierService.notifyUser(request.getEmail(), MailSubjectConstants.getResetPasswordSubject(), MailMessageConstants.getResetPasswordMessage(formattedDateTime, loginUrl));
+        final String buttonLabel = "Login";
+        notifierService.notifyUser(request.getEmail(), MailSubjectConstants.getResetPasswordSubject(),
+                MailHtmlContent.getHtmlMessage(
+                        MailMessageConstants.getResetPasswordMessage(formattedDateTime),
+                        loginUrl,
+                        buttonLabel,
+                        true));
 
         tokenRepository.delete(tokenEntity);
     }
