@@ -1,11 +1,20 @@
 package com.pja.bloodcount.htmlcontent;
 
-import com.pja.bloodcount.dto.request.InviteUserRequest;
-import com.pja.bloodcount.model.Group;
-
 public class MailHtmlContent {
 
-    public static String getInviteMessage(String text, String profileUrl) {
+    public static String getHtmlMessage(String text, String url, String buttonLabel, boolean showButton) {
+        String button = "";
+
+        if (showButton) {
+            button = """
+                    <tr>
+                        <td align="center" style="padding:20px 20px 50px 20px;">
+                            <a href="%s" style="display: inline-block; background-color: #31CB4B; border-radius: 30px; font-size: 18px; color: #FFFFFF; text-decoration: none; padding: 10px 40px;">%s</a>
+                        </td>
+                    </tr>
+                    """.formatted(url, buttonLabel);
+        }
+
         return """
                 <body data-new-gr-c-s-loaded="14.1129.0" style="width:100%%; font-family:arial, 'helvetica neue', helvetica, sans-serif; background-color:#F6F6F6;">
                     <div class="es-wrapper-color" style="width:100%%; height:100%%; background-color:#F6F6F6;">
@@ -28,11 +37,7 @@ public class MailHtmlContent {
                                                         </p>
                                                         </td>
                                                     </tr>
-                                                    <tr>
-                                                        <td align="center" style="padding:20px 20px 50px 20px;">
-                                                            <a href="%s" style="display: inline-block; background-color: #31CB4B; border-radius: 30px; font-size: 18px; color: #FFFFFF; text-decoration: none; padding: 10px 40px;">Login</a>
-                                                        </td>
-                                                    </tr>
+                                                    %s
                                                 </table>
                                             </td>
                                         </tr>
@@ -42,6 +47,6 @@ public class MailHtmlContent {
                         </table>
                     </div>
                 </body>
-                """.formatted(text, profileUrl);
+                """.formatted(text, button);
     }
 }

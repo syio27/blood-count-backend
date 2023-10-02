@@ -62,10 +62,11 @@ public class AdminService {
         group.addUser(user);
 
         final String profileUrl = url + "/profile";
+        final String buttonLabel = "Login";
         notifierService.notifyUser(
                 inviteRequest.getEmail(),
                 MailSubjectConstants.getInviteSubject(),
-                MailHtmlContent.getInviteMessage(MailMessageConstants.getInviteMessage(inviteRequest, generatedPassword, group), profileUrl));
+                MailHtmlContent.getHtmlMessage(MailMessageConstants.getInviteMessage(inviteRequest, generatedPassword, group), profileUrl, buttonLabel, true));
 
         userRepository.save(user);
         log.info("User {} {} is registered", user.getId(), user.getEmail());
@@ -74,16 +75,18 @@ public class AdminService {
     public UserResponse banUser(UUID id) {
         String subject;
         String message;
+        final String profileUrl = url + "/profile";
+        final String buttonLabel = "Login";
 
         User user = userValidator.validateIfExistsAndGet(id);
         if (user.isActive()) {
             user.setActive(false);
             subject = MailSubjectConstants.getBanSubject();
-            message = MailMessageConstants.getBanMessage(user.getEmail());
+            message = MailHtmlContent.getHtmlMessage(MailMessageConstants.getBanMessage(user.getEmail()), null, null, false);
         } else {
             user.setActive(true);
             subject = MailSubjectConstants.getUnbanSubject();
-            message = MailMessageConstants.getUnbanMessage();
+            message = MailHtmlContent.getHtmlMessage(MailMessageConstants.getUnbanMessage(), profileUrl, buttonLabel, true);
         }
 
         notifierService.notifyUser(user.getEmail(), subject, message);

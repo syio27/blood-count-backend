@@ -25,23 +25,23 @@ public class MailMessageConstants {
 
     public static String getBanMessage(String email) {
         return """
-                Dear Admin User
+                Dear Admin User<br><br>
 
-                We hope this message finds you well.
-                We regret to inform you that your account with %s has been temporarily suspended, effective immediately.
+                We hope this message finds you well.<br>
+                We regret to inform you that your account with %s has been temporarily suspended, effective immediately.<br>
 
-                Best regards
+                Best regards<br>
                 The Application Team""".formatted(email);
     }
 
 
     public static String getUnbanMessage() {
         return """
-                Dear Admin User
+                Dear Admin User<br><br>
 
-                We are pleased to inform you that the suspension on your account has been lifted.
-                Your account is activated.
-                Best regards,
+                We are pleased to inform you that the suspension on your account has been lifted.<br>
+                Your account is activated.<br>
+                Best regards,<br>
                 The Application Team""";
     }
 
