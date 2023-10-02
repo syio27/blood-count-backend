@@ -6,6 +6,7 @@ import com.pja.bloodcount.dto.request.InviteUserRequest;
 import com.pja.bloodcount.dto.response.UserResponse;
 import com.pja.bloodcount.exceptions.EmailValidationException;
 import com.pja.bloodcount.exceptions.UserConflictException;
+import com.pja.bloodcount.htmlcontent.MailHtmlContent;
 import com.pja.bloodcount.mapper.UserMapper;
 import com.pja.bloodcount.model.Group;
 import com.pja.bloodcount.model.User;
@@ -64,7 +65,7 @@ public class AdminService {
         notifierService.notifyUser(
                 inviteRequest.getEmail(),
                 MailSubjectConstants.getInviteSubject(),
-                MailMessageConstants.getInviteMessage(inviteRequest, generatedPassword, group, profileUrl));
+                MailHtmlContent.getInviteMessage(MailMessageConstants.getInviteMessage(inviteRequest, generatedPassword, group), profileUrl));
 
         userRepository.save(user);
         log.info("User {} {} is registered", user.getId(), user.getEmail());
