@@ -1,7 +1,18 @@
 package com.pja.bloodcount.htmlcontent;
 
+/**
+ * Constant Mail Message with HTML content
+ */
 public class MailHtmlContent {
 
+    /**
+     * Base HTML letter template
+     * @param text -> use MailMessageConstant inside the html content
+     * @param url -> path to page, pass null if showButton false
+     * @param buttonLabel -> label of button, pass null if showButton false
+     * @param showButton -> true if want to show the footer button, false otherwise
+     * @return HTML content
+     */
     public static String getHtmlMessage(String text, String url, String buttonLabel, boolean showButton) {
         String button = "";
 
