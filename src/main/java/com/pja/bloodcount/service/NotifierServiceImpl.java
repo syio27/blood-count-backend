@@ -14,7 +14,7 @@ public class NotifierServiceImpl implements NotifierService {
     @Override
     public void notifyUser(String email, String subject, String message) {
         log.info("Notifying user by sending an email to: {}", email);
-        mailService.sendMail(email, subject, message);
+        mailService.sendHtmlEmail(email, subject, message);
         log.info("User has been notified, email sent");
     }
 }
