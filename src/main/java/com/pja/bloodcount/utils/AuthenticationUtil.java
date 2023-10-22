@@ -12,6 +12,10 @@ import java.util.UUID;
 @Slf4j
 public class AuthenticationUtil {
 
+    private AuthenticationUtil() {
+        // private contractor
+    }
+
     public static void isRequestFromSameUser(Authentication authentication, UUID id) {
         User userDetails = (User) authentication.getPrincipal();
         log.info("request coming from user with email-> {}", userDetails.getEmail());
