@@ -12,18 +12,17 @@ import java.util.UUID;
 @Slf4j
 public class AuthenticationUtil {
 
+    public static final String PAYLOAD_MESSAGE = "Access restricted, user with email: %s not allowed to this url";
+
     private AuthenticationUtil() {
         // private contractor
     }
 
     public static void isRequestFromSameUser(Authentication authentication, UUID id) {
         User userDetails = (User) authentication.getPrincipal();
-        log.info("request coming from user with email-> {}", userDetails.getEmail());
         if (!userDetails.getId().equals(id)) {
             throw new UserNotAllowedException(
-                    "Access restricted, user with email: " +
-                            userDetails.getEmail() +
-                            " not allowed to this url");
+                    PAYLOAD_MESSAGE.formatted(userDetails.getEmail()));
         }
     }
 }
