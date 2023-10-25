@@ -246,7 +246,7 @@ public class UserServiceImpl implements UserService {
         }
         Game usersGame = optionalGame.get();
         if (usersGame.getStatus().equals(Status.IN_PROGRESS)) {
-            throw new GameCompleteException("Game " + usersGame.getId() + " is still in progress");
+            throw new GameCompleteException("Game %d is still in progress".formatted(usersGame.getId()));
         }
         return GameMapper.mapToSimpleResponseDTO(usersGame);
     }
