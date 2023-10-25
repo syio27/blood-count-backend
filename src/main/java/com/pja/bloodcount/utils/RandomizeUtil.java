@@ -8,33 +8,39 @@ import com.pja.bloodcount.model.enums.Gender;
 
 import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * util class for generating fields values of BloodCount entity
+ */
 public class RandomizeUtil {
+
+    private static final String BC_PARAMETER = "RDW_CV";
+    private static final String BC_UNIT = "%";
 
     private RandomizeUtil() {
         // private constructor
     }
 
     public static Double randomizeValue(String parameter, String unit, Double min, Double max) {
-        if ("RDW_CV".equals(parameter)) {
-            return ThreadLocalRandom.current().nextDouble(min, max);
+        if (BC_PARAMETER.equals(parameter)) {
+            return randomizeDouble(min, max);
         }
-        if ("%".equals(unit)) {
+        if (BC_UNIT.equals(unit)) {
             int intMin = min.intValue();
             int intMax = max.intValue();
-            return (double) ThreadLocalRandom.current().nextInt(intMin, intMax + 1);
+            return (double) randomizeInt(intMin, intMax + 1);
         }
-        return ThreadLocalRandom.current().nextDouble(min, max);
+        return randomizeDouble(min, max);
     }
 
     public static int randomizeAge(int minAge, int maxAge) {
-        return ThreadLocalRandom.current().nextInt(minAge, maxAge + 1);
+        return randomizeInt(minAge, maxAge + 1);
     }
 
     public static int randomizeAge(int firstMinAge, int firstMaxAge,
                              int secondMinAge, int secondMaxAge) {
-        int ageFromFirstRange = ThreadLocalRandom.current().nextInt(firstMinAge, firstMaxAge + 1);
-        int ageFromSecondRange = ThreadLocalRandom.current().nextInt(secondMinAge, secondMaxAge + 1);
-        return ThreadLocalRandom.current().nextBoolean() ? ageFromFirstRange : ageFromSecondRange;
+        int ageFromFirstRange = randomizeInt(firstMinAge, firstMaxAge + 1);
+        int ageFromSecondRange = randomizeInt(secondMinAge, secondMaxAge + 1);
+        return randomizeBoolean() ? ageFromFirstRange : ageFromSecondRange;
     }
 
     public static Gender randomizeGender(AffectedGender affectedGender) {
@@ -48,15 +54,27 @@ public class RandomizeUtil {
             return Gender.MALE;
         }
         if (affectedGender.equals(AffectedGender.BOTH)) {
-            return ThreadLocalRandom.current().nextBoolean() ? Gender.MALE : Gender.FEMALE;
+            return randomizeBoolean() ? Gender.MALE : Gender.FEMALE;
         }
         return null;
     }
 
     public static double randomizeValueBasedOnGender(BloodCountReference reference, Patient patient) {
         if (patient.getGender().equals(Gender.FEMALE)) {
-            return RandomizeUtil.randomizeValue(reference.getParameter(), reference.getUnit(), reference.getMinFemale(), reference.getMaxFemale());
+            return randomizeValue(reference.getParameter(), reference.getUnit(), reference.getMinFemale(), reference.getMaxFemale());
         }
-        return RandomizeUtil.randomizeValue(reference.getParameter(), reference.getUnit(), reference.getMinMale(), reference.getMaxMale());
+        return randomizeValue(reference.getParameter(), reference.getUnit(), reference.getMinMale(), reference.getMaxMale());
+    }
+    
+    private static int randomizeInt(int origin, int bound) {
+        return  ThreadLocalRandom.current().nextInt(origin, bound + 1);
+    }
+
+    private static double randomizeDouble(Double origin, Double bound) {
+        return  ThreadLocalRandom.current().nextDouble(origin, bound + 1);
+    }
+
+    private static boolean randomizeBoolean() {
+        return  ThreadLocalRandom.current().nextBoolean();
     }
 }
