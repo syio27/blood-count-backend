@@ -88,6 +88,10 @@ public class User implements Serializable, UserDetails {
         return isActive;
     }
 
+    public boolean isStudent() {
+        return this.getRole().equals(Role.STUDENT);
+    }
+
     @Override
     public String toString() {
         return "User{" +

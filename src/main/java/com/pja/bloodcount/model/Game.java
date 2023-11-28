@@ -92,4 +92,12 @@ public class Game {
                 .map(q -> (MSQuestion) q)
                 .collect(Collectors.toList());
     }
+
+    public boolean isCompleted() {
+        return this.getStatus().equals(Status.COMPLETED);
+    }
+
+    public boolean isInProgress() {
+        return this.getStatus().equals(Status.IN_PROGRESS);
+    }
 }

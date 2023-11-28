@@ -59,7 +59,7 @@ public class GameServiceImpl implements GameService {
         User user = userValidator.validateIfExistsAndGet(userId);
         List<Game> gamesOfUser = repository.findByUser_Id(userId);
         gamesOfUser.forEach(game -> {
-            if (game.getStatus().equals(Status.IN_PROGRESS)) {
+            if (game.isInProgress()) {
                 throw new GameStartException("You already have running game session, please complete it before starting new");
             }
         });
@@ -71,11 +71,34 @@ public class GameServiceImpl implements GameService {
         int durationInSec = durationInMin * 60;
         Instant endTime = Instant.now().plusSeconds(durationInSec);
 
-        GameCaseDetails caseDetails = GameCaseDetails.builder().anActualCaseId(caseId).anemiaType(aCase.getAnemiaType()).diagnosis(aCase.getDiagnosis()).hr(aCase.getHr()).rr(aCase.getRr()).description(aCase.getDescription()).infoCom(aCase.getInfoCom()).language(aCase.getLanguage()).caseName(aCase.getCaseName()).bmi(aCase.getBmi()).height(aCase.getHeight()).bodyMass(aCase.getBodyMass()).build();
+        GameCaseDetails caseDetails = GameCaseDetails
+                .builder()
+                .anActualCaseId(caseId)
+                .anemiaType(aCase.getAnemiaType())
+                .diagnosis(aCase.getDiagnosis())
+                .hr(aCase.getHr())
+                .rr(aCase.getRr())
+                .description(aCase.getDescription())
+                .infoCom(aCase.getInfoCom())
+                .language(aCase.getLanguage())
+                .caseName(aCase.getCaseName())
+                .bmi(aCase.getBmi())
+                .height(aCase.getHeight())
+                .bodyMass(aCase.getBodyMass())
+                .build();
 
         caseDetailsRepository.save(caseDetails);
 
-        Game game = Game.builder().endTime(null).language(language).estimatedEndTime(Date.from(endTime)).status(Status.IN_PROGRESS).currentPage(Pages.ONE).testDuration(durationInMin).caseDetails(caseDetails).build();
+        Game game = Game
+                .builder()
+                .endTime(null)
+                .language(language)
+                .estimatedEndTime(Date.from(endTime))
+                .status(Status.IN_PROGRESS)
+                .currentPage(Pages.ONE)
+                .testDuration(durationInMin)
+                .caseDetails(caseDetails)
+                .build();
 
         game.addPatient(patient);
         repository.save(game);
@@ -98,16 +121,14 @@ public class GameServiceImpl implements GameService {
     @Override
     public SimpleGameResponse completeGame(Long gameId) {
         Game game = gameValidator.validateIfExistsAndGet(gameId);
-        if (game.getStatus().equals(Status.COMPLETED)) {
+        if (game.isCompleted()) {
             throw new GameCompleteException("Game is already submitted");
         }
         int score = scoreService.score(gameId);
         game.setStatus(Status.COMPLETED);
         game.setScore(score);
-        if (game.getStatus() == Status.COMPLETED) {
-            Instant completedTime = Instant.now();
-            game.setEndTime(Date.from(completedTime));
-        }
+        Instant completedTime = Instant.now();
+        game.setEndTime(Date.from(completedTime));
         repository.save(game);
         delayedGameQueue.removeIf(delayedGame -> delayedGame.getGame().getId().equals(gameId));
         return GameMapper.mapToSimpleResponseDTO(game);
@@ -118,17 +139,15 @@ public class GameServiceImpl implements GameService {
     public void queueCompleteGame(Long gameId) {
         Game game = gameValidator.validateIfExistsAndGet(gameId);
         String userEmail = game.getUser().getEmail();
-        if (game.getStatus().equals(Status.COMPLETED)) {
+        if (game.isCompleted()) {
             delayedGameQueue.removeIf(delayedGame -> delayedGame.getGame().getId().equals(gameId));
             throw new GameCompleteException("Game is already submitted");
         }
         int score = scoreService.score(gameId);
         game.setStatus(Status.COMPLETED);
         game.setScore(score);
-        if (game.getStatus() == Status.COMPLETED) {
-            Instant completedTime = Instant.now();
-            game.setEndTime(Date.from(completedTime));
-        }
+        Instant completedTime = Instant.now();
+        game.setEndTime(Date.from(completedTime));
         repository.save(game);
         final String historyPagePath = url + "/history";
         final String buttonLabel = "Check History";
@@ -143,7 +162,7 @@ public class GameServiceImpl implements GameService {
     @Override
     public void saveSelectedAnswers(Long gameId, List<AnswerRequest> answerRequestList) {
         Game game = gameValidator.validateIfExistsAndGet(gameId);
-        if (game.getStatus().equals(Status.COMPLETED)) {
+        if (game.isCompleted()) {
             throw new GameCompleteException("Game is already submitted");
         }
         List<UserAnswer> userAnswers = new ArrayList<>();
@@ -177,8 +196,12 @@ public class GameServiceImpl implements GameService {
                 userAnswers.add(userAnswerToUpdate);
             } else {
                 // Create a new UserAnswer
-                UserAnswer userAnswer = UserAnswer.builder().game(question.getGame()).user(question.getGame().getUser()).answer(answer).question(question).build();
-
+                UserAnswer userAnswer = UserAnswer
+                        .builder()
+                        .game(question.getGame())
+                        .user(question.getGame().getUser())
+                        .answer(answer)
+                        .question(question).build();
                 userAnswers.add(userAnswer);
             }
         });
@@ -187,7 +210,7 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public GameCurrentSessionState next(UUID userId, Long gameId, List<AnswerRequest> answerRequestList) {
-        Game game = gameValidator.validateIfExistsAndGet(gameId);;
+        Game game = gameValidator.validateIfExistsAndGet(gameId);
         if (game.getStatus().equals(Status.COMPLETED)) {
             throw new GameCompleteException("Game is already submitted");
         }
@@ -197,7 +220,14 @@ public class GameServiceImpl implements GameService {
         game.setCurrentPage(currentPage);
         repository.save(game);
 
-        return GameCurrentSessionState.builder().gameId(gameId).estimatedEndTime(game.getEstimatedEndTime()).status(game.getStatus()).currentPage(game.getCurrentPage()).savedUserAnswers(getSavedAnswersOfGame(userId, gameId)).build();
+        return GameCurrentSessionState
+                .builder()
+                .gameId(gameId)
+                .estimatedEndTime(game.getEstimatedEndTime())
+                .status(game.getStatus())
+                .currentPage(game.getCurrentPage())
+                .savedUserAnswers(getSavedAnswersOfGame(userId, gameId))
+                .build();
     }
 
     private Pages next(Pages currentPage) {
@@ -213,7 +243,7 @@ public class GameServiceImpl implements GameService {
     public List<SimpleGameResponse> getAllCompletedGamesOfUser(UUID userId) {
         userValidator.validateIfExistsAndGet(userId);
         List<Game> games = repository.findByUser_Id(userId);
-        return GameMapper.mapToSimpleResponseListDTO(games.stream().filter(game -> game.getStatus().equals(Status.COMPLETED)).toList());
+        return GameMapper.mapToSimpleResponseListDTO(games.stream().filter(Game::isCompleted).toList());
     }
 
     private List<SavedUserAnswerResponse> getSavedAnswersOfGame(UUID userId, Long gameId) {
@@ -222,8 +252,11 @@ public class GameServiceImpl implements GameService {
         gameValidator.validateIfExistsAndGet(gameId);
         List<UserAnswer> selectedAnswers = userAnswerRepository.findByUser_IdAndGame_Id(userId, gameId);
         selectedAnswers.forEach(savedUserAnswer -> {
-            SavedUserAnswerResponse savedUserAnswerResponse = SavedUserAnswerResponse.builder().answerId(savedUserAnswer.getAnswer().getId()).questionId(savedUserAnswer.getQuestion().getId()).build();
-
+            SavedUserAnswerResponse savedUserAnswerResponse = SavedUserAnswerResponse
+                    .builder()
+                    .answerId(savedUserAnswer.getAnswer().getId())
+                    .questionId(savedUserAnswer.getQuestion().getId())
+                    .build();
             savedUserAnswers.add(savedUserAnswerResponse);
         });
 
@@ -234,10 +267,9 @@ public class GameServiceImpl implements GameService {
     public GameResponse getInProgressGame(Long gameId, UUID userId) {
         userValidator.validateIfExistsAndGet(userId);
         Game game = gameValidator.validateIfExistsAndGet(gameId);
-        if (game.getStatus().equals(Status.COMPLETED)) {
+        if (game.isCompleted()) {
             throw new GameCompleteException("Game with id - " + game.getId() + " already completed");
         }
-
         Instant currentTimeInstant = Instant.now();
         Date currentDate = Date.from(currentTimeInstant);
         log.info("BC question set size: {}", game.getBcAssessmentQuestions().size());
@@ -252,7 +284,7 @@ public class GameServiceImpl implements GameService {
         List<Game> games = user.getGames();
         AtomicBoolean hasGameInProgress = new AtomicBoolean(false);
         games.forEach(game -> {
-            if (game.getStatus().equals(Status.IN_PROGRESS)) {
+            if (game.isInProgress()) {
                 hasGameInProgress.set(true);
                 gameInProgress.setInProgress(hasGameInProgress.get());
                 gameInProgress.setGameId(game.getId());

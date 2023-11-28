@@ -12,7 +12,6 @@ import com.pja.bloodcount.mapper.GameMapper;
 import com.pja.bloodcount.mapper.UserMapper;
 import com.pja.bloodcount.model.*;
 import com.pja.bloodcount.model.enums.Role;
-import com.pja.bloodcount.model.enums.Status;
 import com.pja.bloodcount.repository.*;
 import com.pja.bloodcount.service.auth.JwtService;
 import com.pja.bloodcount.service.contract.NotifierService;
@@ -34,7 +33,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -44,6 +42,7 @@ import java.util.stream.Collectors;
 @Transactional
 public class UserServiceImpl implements UserService {
 
+    private static final String URL_PATH = "%s/reset-password/%s?email=%s";
     private final UserRepository repository;
     private final UserAnswerRepository userAnswerRepository;
     private final PatientRepository patientRepository;
@@ -155,7 +154,7 @@ public class UserServiceImpl implements UserService {
         }
         Token token = tokenService.createToken(request.getEmail());
 
-        final String resetUrl = String.format("%s/reset-password/%s?email=%s", url, token.getToken(), request.getEmail());
+        final String resetUrl = String.format(URL_PATH, url, token.getToken(), request.getEmail());
         final String buttonLabel = "Reset Password";
         notifierService.notifyUser(request.getEmail(), MailSubjectConstants.getForgotPasswordSubject(),
                 MailHtmlContent.getHtmlMessage(
@@ -240,12 +239,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public SimpleGameResponse getUserGameById(UUID userId, Long gameId) {
         User user = userValidator.validateIfExistsAndGet(userId);
-        Optional<Game> optionalGame = user.getGames().stream().filter(g -> Objects.equals(g.getId(), gameId)).findFirst();
-        if (optionalGame.isEmpty()) {
-            throw new GameNotFoundException(gameId);
-        }
-        Game usersGame = optionalGame.get();
-        if (usersGame.getStatus().equals(Status.IN_PROGRESS)) {
+        Game usersGame = user.getGames().stream()
+                .filter(g -> Objects.equals(g.getId(), gameId))
+                .findFirst()
+                .orElseThrow(() -> new GameNotFoundException(gameId));
+        if (usersGame.isInProgress()) {
             throw new GameCompleteException("Game %d is still in progress".formatted(usersGame.getId()));
         }
         return GameMapper.mapToSimpleResponseDTO(usersGame);

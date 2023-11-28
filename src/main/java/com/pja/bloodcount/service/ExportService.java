@@ -26,7 +26,9 @@ public class ExportService {
     public byte[] exportData() throws IOException {
 
         List<Game> allGames = gameRepository.findAll();
-        List<Game> completedGames = allGames.stream().filter(game -> game.getStatus().equals(Status.COMPLETED) && game.getUser().getRole().equals(Role.STUDENT)).toList();
+        List<Game> completedGames = allGames.stream()
+                .filter(game -> game.isCompleted() && game.getUser().isStudent())
+                .toList();
 
         List<GameToExport> gamesToExport = new ArrayList<>();
         completedGames.forEach(game -> {
