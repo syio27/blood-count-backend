@@ -22,8 +22,6 @@ import com.pja.bloodcount.validation.GameValidator;
 import com.pja.bloodcount.validation.UserValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.Hibernate;
-import org.hibernate.proxy.HibernateProxy;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -232,34 +230,6 @@ public class GameServiceImpl implements GameService {
         return savedUserAnswers;
     }
 
-    @Deprecated
-    @Override
-    public List<UserSelectedAnswerResponse> getSelectedAnswersOfGame(UUID userId, Long gameId) {
-        List<UserSelectedAnswerResponse> selectedAnswerResponses = new ArrayList<>();
-        userValidator.validateIfExistsAndGet(userId);
-        Game game = gameValidator.validateIfExistsAndGet(gameId);
-        List<UserAnswer> selectedAnswers = userAnswerRepository.findByUser_IdAndGame_Id(userId, gameId);
-        List<Question> questions = game.getQuestions();
-        selectedAnswers.forEach(selectedAnswer -> {
-
-            Optional<Question> optionalQuestion = questions.stream().filter(q -> Objects.equals(q.getId(), selectedAnswer.getQuestion().getId())).findFirst();
-            if (optionalQuestion.isEmpty()) {
-                throw new RuntimeException("bad error");
-            }
-            Question question = optionalQuestion.get();
-            Question unproxiedQuestion = initializeAndUnproxy(question);
-            UserSelectedAnswerResponse selectedAnswerResponse = UserSelectedAnswerResponse.builder().id(selectedAnswer.getId()).build();
-            if (unproxiedQuestion instanceof MSQuestion msQuestion) {
-                selectedAnswerResponse.setQuestionText(msQuestion.getText());
-            } else if (unproxiedQuestion instanceof BCAssessmentQuestion bcAssessmentQuestion) {
-                selectedAnswerResponse.setQuestionText(bcAssessmentQuestion.getParameter() + "(" + bcAssessmentQuestion.getUnit() + ") - value: " + bcAssessmentQuestion.getValue());
-            }
-            selectedAnswerResponse.setAnswer(selectedAnswer.getAnswer().getText());
-            selectedAnswerResponses.add(selectedAnswerResponse);
-        });
-        return selectedAnswerResponses;
-    }
-
     @Override
     public GameResponse getInProgressGame(Long gameId, UUID userId) {
         userValidator.validateIfExistsAndGet(userId);
@@ -290,17 +260,4 @@ public class GameServiceImpl implements GameService {
         });
         return gameInProgress;
     }
-
-    private static <T> T initializeAndUnproxy(T entity) {
-        if (entity == null) {
-            return null;
-        }
-
-        Hibernate.initialize(entity);
-        if (entity instanceof HibernateProxy) {
-            entity = (T) ((HibernateProxy) entity).getHibernateLazyInitializer().getImplementation();
-        }
-        return entity;
-    }
-
 }

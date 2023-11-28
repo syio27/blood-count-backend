@@ -120,13 +120,6 @@ public class UserController {
         return ResponseEntity.ok(gameService.getAllCompletedGamesOfUser(userId));
     }
 
-    @PreAuthorize("hasRole('ADMIN') or hasRole('ROOT') or hasRole('SUPERVISOR') or hasRole('STUDENT')")
-    @GetMapping(value = "/{userId}/games/{gameId}")
-    public ResponseEntity<List<UserSelectedAnswerResponse>> getSelectedAnswersOfStudent(@PathVariable UUID userId,
-                                                                                          @PathVariable Long gameId){
-        return ResponseEntity.ok(gameService.getSelectedAnswersOfGame(userId, gameId));
-    }
-
     @PreAuthorize("hasRole('ROOT')")
     @PostMapping("/{userId}/ban")
     public ResponseEntity<UserResponse> ban(@PathVariable UUID userId){

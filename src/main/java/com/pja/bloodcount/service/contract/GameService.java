@@ -15,7 +15,6 @@ public interface GameService {
     void saveSelectedAnswers(Long gameId, List<AnswerRequest> answerRequestList);
     GameCurrentSessionState next(UUID userId, Long gameId, List<AnswerRequest> answerRequestList);
     List<SimpleGameResponse> getAllCompletedGamesOfUser(UUID userId);
-    List<UserSelectedAnswerResponse> getSelectedAnswersOfGame(UUID userId, Long gameId);
     GameResponse getInProgressGame(Long gameId, UUID userId);
     GameInProgress hasGameInProgress(UUID userId);
 }
