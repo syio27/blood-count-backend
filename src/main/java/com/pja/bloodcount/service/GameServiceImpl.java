@@ -105,17 +105,15 @@ public class GameServiceImpl implements GameService {
 
         List<BCAssessmentQuestion> qnAForBCAssessment = qnAService.createQnAForBCAssessment(game.getId());
         List<MSQuestion> qnAForMSQ = qnAService.createMSQuestions(game.getId(), language);
-        List<MSQuestion> anAForTrueFalseMSQ = qnAService.createTrueFalseMSQuestions(language);
+        List<MSQuestion> qnAForTrueFalseMSQ = qnAService.createTrueFalseMSQuestions(language);
         qnAForBCAssessment.forEach(game::addQuestion);
         qnAForMSQ.forEach(game::addQuestion);
-        anAForTrueFalseMSQ.forEach(game::addQuestion);
+        qnAForTrueFalseMSQ.forEach(game::addQuestion);
         repository.save(game);
         user.addGame(game);
         userRepository.save(user);
         log.info("Game session is being started");
         delayedGameQueue.put(new DelayedGame(game, durationInMin, TimeUnit.MINUTES));
-        log.info("Game session added to delay queue");
-        delayedGameQueue.forEach(delayedGame -> System.out.println(delayedGame.getGame().getId()));
     }
 
     @Override
