@@ -108,15 +108,20 @@ public class GameServiceImpl implements GameService {
         List<BCAssessmentQuestion> qnAForBCAssessment = qnAService.createQnAForBCAssessment(game.getId());
         List<MSQuestion> qnAForMSQ = qnAService.createMSQuestions(game.getId(), language);
         List<MSQuestion> qnAForTrueFalseMSQ = qnAService.createTrueFalseMSQuestions(language);
-        List<Question> allQuestions = Stream.of(qnAForBCAssessment, qnAForMSQ, qnAForTrueFalseMSQ)
-                .flatMap(List::stream)
-                .collect(Collectors.toList());
+        List<Question> allQuestions = mergeQuestions(qnAForBCAssessment, qnAForMSQ, qnAForTrueFalseMSQ);
         game.addAllQuestions(allQuestions);
         repository.save(game);
         user.addGame(game);
         userRepository.save(user);
         log.info("Game session is being started");
         delayedGameQueue.put(new DelayedGame(game, durationInMin, TimeUnit.MINUTES));
+    }
+
+    @SafeVarargs
+    private static List<Question> mergeQuestions(List<? extends Question>... questionLists) {
+        return Stream.of(questionLists)
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
     }
 
     @Override
