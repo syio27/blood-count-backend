@@ -31,6 +31,8 @@ import java.util.*;
 import java.util.concurrent.DelayQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Slf4j
@@ -106,9 +108,10 @@ public class GameServiceImpl implements GameService {
         List<BCAssessmentQuestion> qnAForBCAssessment = qnAService.createQnAForBCAssessment(game.getId());
         List<MSQuestion> qnAForMSQ = qnAService.createMSQuestions(game.getId(), language);
         List<MSQuestion> qnAForTrueFalseMSQ = qnAService.createTrueFalseMSQuestions(language);
-        qnAForBCAssessment.forEach(game::addQuestion);
-        qnAForMSQ.forEach(game::addQuestion);
-        qnAForTrueFalseMSQ.forEach(game::addQuestion);
+        List<Question> allQuestions = Stream.of(qnAForBCAssessment, qnAForMSQ, qnAForTrueFalseMSQ)
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
+        game.addAllQuestions(allQuestions);
         repository.save(game);
         user.addGame(game);
         userRepository.save(user);

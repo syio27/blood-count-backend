@@ -3,6 +3,7 @@ package com.pja.bloodcount.service;
 import com.pja.bloodcount.exceptions.*;
 import com.pja.bloodcount.model.*;
 import com.pja.bloodcount.model.enums.Language;
+import com.pja.bloodcount.model.enums.LevelType;
 import com.pja.bloodcount.repository.*;
 import com.pja.bloodcount.service.contract.QnAService;
 import com.pja.bloodcount.validation.PatientValidator;
@@ -43,15 +44,15 @@ public class QnAServiceImpl implements QnAService {
             if (isForAssessment(bloodCount.getParameter(), bloodCount.getUnit())) {
                 Answer answer1 = Answer
                         .builder()
-                        .text("INCREASED")
+                        .text(LevelType.INCREASED.name())
                         .build();
                 Answer answer2 = Answer
                         .builder()
-                        .text("NORMAL")
+                        .text(LevelType.NORMAL.name())
                         .build();
                 Answer answer3 = Answer
                         .builder()
-                        .text("DECREASED")
+                        .text(LevelType.DECREASED.name())
                         .build();
 
                 BCAssessmentQuestion question = BCAssessmentQuestion
@@ -60,9 +61,7 @@ public class QnAServiceImpl implements QnAService {
                         .unit(bloodCount.getUnit())
                         .value(bloodCount.getValue())
                         .build();
-                question.addAnswer(answer1);
-                question.addAnswer(answer2);
-                question.addAnswer(answer3);
+                question.addAllAnswers(List.of(answer1, answer2, answer3));
                 bcaQuestionRepository.save(question);
                 List<Answer> answers = question.getAnswers();
                 answers.forEach(answer -> {

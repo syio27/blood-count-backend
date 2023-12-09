@@ -52,7 +52,7 @@ public class Game {
 
     public void addPatient(Patient patient){
         if(patient == null){
-            throw new RuntimeException("null patient");
+            throw new RuntimeException("null patient passed");
         }
         setPatient(patient);
         patient.setGame(this);
@@ -60,22 +60,26 @@ public class Game {
 
     public void removePatient(Patient patient){
         if(patient == null){
-            throw new RuntimeException("null patient");
+            throw new RuntimeException("null patient passed");
         }
         setPatient(null);
         patient.setGame(null);
     }
 
     public void addQuestion(Question question) {
-        if (this.questions == null) {
-            this.questions = new ArrayList<>();
-        }
+        validateAndCreate();
         questions.add(question);
         question.setGame(this);
     }
 
+    public void addAllQuestions(List<? extends Question> questions) {
+        validateAndCreate();
+        this.questions.addAll(questions);
+        questions.forEach(question -> question.setGame(this));
+    }
+
     public void removeQuestion(Question question) {
-        questions.remove(question);
+        this.questions.remove(question);
         question.setGame(null);
     }
 
@@ -99,5 +103,11 @@ public class Game {
 
     public boolean isInProgress() {
         return this.getStatus().equals(Status.IN_PROGRESS);
+    }
+
+    private void validateAndCreate() {
+        if (this.questions == null) {
+            this.questions = new ArrayList<>();
+        }
     }
 }

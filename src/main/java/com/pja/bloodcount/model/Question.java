@@ -8,6 +8,7 @@ import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @SuperBuilder(toBuilder = true)
@@ -34,15 +35,36 @@ public class Question {
     private List<Answer> answers = new ArrayList<>();
 
     public void addAnswer(Answer answer) {
-        if (this.answers == null) {
-            this.answers = new ArrayList<>();
-        }
-        answers.add(answer);
+        validateAndCreate();
+        this.answers.add(answer);
         answer.setQuestion(this);
     }
 
+    public void addAllAnswers(List<Answer> answers) {
+        validateAndCreate();
+        this.answers.addAll(answers);
+        answers.forEach(answer -> answer.setQuestion(this));
+    }
+
+    public void addAllAnswers(Answer... answers) {
+        validateAndCreate();
+        this.answers.addAll(Arrays.asList(answers));
+        Arrays.asList(answers).forEach(answer -> answer.setQuestion(this));
+    }
+
     public void removeAnswer(Answer answer) {
-        answers.remove(answer);
+        this.answers.remove(answer);
         answer.setQuestion(null);
+    }
+
+    public void removeAllAnswers() {
+        this.answers.forEach(answer -> answer.setQuestion(null));
+        this.answers.clear();
+    }
+
+    private void validateAndCreate() {
+        if (this.answers == null) {
+            this.answers = new ArrayList<>();
+        }
     }
 }

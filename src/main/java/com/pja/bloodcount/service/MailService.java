@@ -20,31 +20,42 @@ import java.io.File;
 @RequiredArgsConstructor
 public class MailService {
 
+    private static final String CLASSPATH_STATIC_IMAGES_LOGOBC_PNG = "classpath:static/images/logobc.PNG";
+    private static final String CONTENT_TYPE = "image/png";
+    private static final String CONTENT_ID = "image";
     private final JavaMailSender javaMailSender;
     private final ResourceLoader resourceLoader;
 
     public void sendMail(String toEmail, String subject, String message) {
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setTo(toEmail);
-        mailMessage.setSubject(subject);
-        mailMessage.setText(message);
-
+        SimpleMailMessage mailMessage = getSimpleMailMessage(toEmail, subject, message);
         javaMailSender.send(mailMessage);
     }
 
     public void sendHtmlEmail(String toEmail, String subject, String htmlContent) {
         try {
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
-
-            helper.setTo(toEmail);
-            helper.setSubject(subject);
-            helper.setText(htmlContent, true);
-            Resource resource = resourceLoader.getResource("classpath:static/images/logobc.PNG");
-            helper.addInline("image", resource, "image/png");
+            MimeMessageHelper helper = getMimeMessageHelper(toEmail, subject, htmlContent, mimeMessage);
+            Resource resource = resourceLoader.getResource(CLASSPATH_STATIC_IMAGES_LOGOBC_PNG);
+            helper.addInline(CONTENT_ID, resource, CONTENT_TYPE);
             javaMailSender.send(mimeMessage);
         } catch (MessagingException e) {
             e.printStackTrace();
         }
+    }
+
+    private static SimpleMailMessage getSimpleMailMessage(String toEmail, String subject, String message) {
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setTo(toEmail);
+        mailMessage.setSubject(subject);
+        mailMessage.setText(message);
+        return mailMessage;
+    }
+
+    private static MimeMessageHelper getMimeMessageHelper(String toEmail, String subject, String htmlContent, MimeMessage mimeMessage) throws MessagingException {
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+        helper.setTo(toEmail);
+        helper.setSubject(subject);
+        helper.setText(htmlContent, true);
+        return helper;
     }
 }
