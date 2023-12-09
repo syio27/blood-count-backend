@@ -4,6 +4,8 @@ import com.pja.bloodcount.exceptions.*;
 import com.pja.bloodcount.model.*;
 import com.pja.bloodcount.model.enums.Language;
 import com.pja.bloodcount.model.enums.LevelType;
+import com.pja.bloodcount.model.enums.Parameter;
+import com.pja.bloodcount.model.enums.Unit;
 import com.pja.bloodcount.repository.*;
 import com.pja.bloodcount.service.contract.QnAService;
 import com.pja.bloodcount.validation.PatientValidator;
@@ -181,14 +183,14 @@ public class QnAServiceImpl implements QnAService {
 
     private boolean isForAssessment(String parameter, String unit) {
         HashMap<String, String> bloodCountMap = new HashMap<>();
-        bloodCountMap.put("WBC", "10^9/L");
-        bloodCountMap.put("RBC", "10^12/L");
-        bloodCountMap.put("HGB", "g/dl");
-        bloodCountMap.put("HCT", "%");
-        bloodCountMap.put("MCV", "fl");
-        bloodCountMap.put("MCH", "pg");
-        bloodCountMap.put("MCHC", "g/dl");
-        bloodCountMap.put("PLT", "10^9/L");
+        bloodCountMap.put(Parameter.WBC.name(), Unit.GIGALITER.symbol());
+        bloodCountMap.put(Parameter.RBC.name(), Unit.TERALITER.symbol());
+        bloodCountMap.put(Parameter.HGB.name(), Unit.GRAMS_PER_DECILITER.symbol());
+        bloodCountMap.put(Parameter.HCT.name(), Unit.PERCENTAGE.symbol());
+        bloodCountMap.put(Parameter.MCV.name(), Unit.FEMTOLITERS.symbol());
+        bloodCountMap.put(Parameter.MCH.name(), Unit.PICOGRAMS.symbol());
+        bloodCountMap.put(Parameter.MCHC.name(), Unit.GRAMS_PER_DECILITER.symbol());
+        bloodCountMap.put(Parameter.PLT.name(), Unit.GIGALITER.symbol());
 
         return bloodCountMap.containsKey(parameter) && bloodCountMap.containsValue(unit);
     }

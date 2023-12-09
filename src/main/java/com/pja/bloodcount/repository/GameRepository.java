@@ -5,6 +5,7 @@ import com.pja.bloodcount.model.User;
 import com.pja.bloodcount.model.enums.Status;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.lang.NonNullApi;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;

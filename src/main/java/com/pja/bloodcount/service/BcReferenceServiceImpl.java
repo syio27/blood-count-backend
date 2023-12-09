@@ -2,6 +2,8 @@ package com.pja.bloodcount.service;
 
 import com.pja.bloodcount.exceptions.ReferenceTableException;
 import com.pja.bloodcount.model.BloodCountReference;
+import com.pja.bloodcount.model.enums.Parameter;
+import com.pja.bloodcount.model.enums.Unit;
 import com.pja.bloodcount.repository.BCReferenceRepository;
 import com.pja.bloodcount.service.contract.BCReferenceService;
 import lombok.RequiredArgsConstructor;
@@ -37,8 +39,8 @@ public class BcReferenceServiceImpl implements BCReferenceService {
     private List<BloodCountReference> getAllReferenceElements() {
         final BloodCountReference WBC = BloodCountReference
                 .builder()
-                .parameter("WBC")
-                .unit("10^9/L")
+                .parameter(Parameter.WBC.name())
+                .unit(Unit.GIGALITER.symbol())
                 .minFemale(4.0)
                 .maxFemale(11.0)
                 .minMale(4.0)
@@ -47,8 +49,8 @@ public class BcReferenceServiceImpl implements BCReferenceService {
 
         final BloodCountReference RBC = BloodCountReference
                 .builder()
-                .parameter("RBC")
-                .unit("10^12/L")
+                .parameter(Parameter.RBC.name())
+                .unit(Unit.TERALITER.symbol())
                 .minFemale(4.0)
                 .maxFemale(5.2)
                 .minMale(4.6)
@@ -57,8 +59,8 @@ public class BcReferenceServiceImpl implements BCReferenceService {
 
         final BloodCountReference HGB = BloodCountReference
                 .builder()
-                .parameter("HGB")
-                .unit("g/dl")
+                .parameter(Parameter.HGB.name())
+                .unit(Unit.GRAMS_PER_DECILITER.symbol())
                 .minFemale(11.5)
                 .maxFemale(16.4)
                 .minMale(13.5)
@@ -67,8 +69,8 @@ public class BcReferenceServiceImpl implements BCReferenceService {
 
         final BloodCountReference HCT = BloodCountReference
                 .builder()
-                .parameter("HCT")
-                .unit("%")
+                .parameter(Parameter.HCT.name())
+                .unit(Unit.PERCENTAGE.symbol())
                 .minFemale(37.0)
                 .maxFemale(47.0)
                 .minMale(42.0)
@@ -77,8 +79,8 @@ public class BcReferenceServiceImpl implements BCReferenceService {
 
         final BloodCountReference MCV = BloodCountReference
                 .builder()
-                .parameter("MCV")
-                .unit("fl")
+                .parameter(Parameter.MCV.name())
+                .unit(Unit.FEMTOLITERS.symbol())
                 .minFemale(81d)
                 .maxFemale(99d)
                 .minMale(80d)
@@ -87,8 +89,8 @@ public class BcReferenceServiceImpl implements BCReferenceService {
 
         final BloodCountReference MCH = BloodCountReference
                 .builder()
-                .parameter("MCH")
-                .unit("pg")
+                .parameter(Parameter.MCH.name())
+                .unit(Unit.PICOGRAMS.symbol())
                 .minFemale(27d)
                 .maxFemale(31d)
                 .minMale(27d)
@@ -97,8 +99,8 @@ public class BcReferenceServiceImpl implements BCReferenceService {
 
         final BloodCountReference MCHC = BloodCountReference
                 .builder()
-                .parameter("MCHC")
-                .unit("g/dl")
+                .parameter(Parameter.MCHC.name())
+                .unit(Unit.GRAMS_PER_DECILITER.symbol())
                 .minFemale(33d)
                 .maxFemale(47d)
                 .minMale(33d)
@@ -107,8 +109,8 @@ public class BcReferenceServiceImpl implements BCReferenceService {
 
         final BloodCountReference PLT = BloodCountReference
                 .builder()
-                .parameter("PLT")
-                .unit("10^9/L")
+                .parameter(Parameter.PLT.name())
+                .unit(Unit.GIGALITER.symbol())
                 .minFemale(130.0)
                 .maxFemale(450.0)
                 .minMale(130.0)
@@ -117,8 +119,8 @@ public class BcReferenceServiceImpl implements BCReferenceService {
 
         final BloodCountReference RDW_CV = BloodCountReference
                 .builder()
-                .parameter("RDW_CV")
-                .unit("%")
+                .parameter(Parameter.RDW_CV.name())
+                .unit(Unit.PERCENTAGE.symbol())
                 .minFemale(11.6)
                 .maxFemale(14.4)
                 .minMale(11.6)
@@ -127,8 +129,8 @@ public class BcReferenceServiceImpl implements BCReferenceService {
 
         final BloodCountReference RDW_SD = BloodCountReference
                 .builder()
-                .parameter("RDW_SD")
-                .unit("fl")
+                .parameter(Parameter.RDW_SD.name())
+                .unit(Unit.FEMTOLITERS.symbol())
                 .minFemale(35.1)
                 .maxFemale(43.9)
                 .minMale(35.1)
@@ -137,8 +139,8 @@ public class BcReferenceServiceImpl implements BCReferenceService {
 
         final BloodCountReference NEU = BloodCountReference
                 .builder()
-                .parameter("NEU")
-                .unit("10^9/L")
+                .parameter(Parameter.NEU.name())
+                .unit(Unit.GIGALITER.symbol())
                 .minFemale(2d)
                 .maxFemale(7d)
                 .minMale(2d)
@@ -147,8 +149,8 @@ public class BcReferenceServiceImpl implements BCReferenceService {
 
         final BloodCountReference LYM = BloodCountReference
                 .builder()
-                .parameter("LYM")
-                .unit("10^9/L")
+                .parameter(Parameter.LYM.name())
+                .unit(Unit.GIGALITER.symbol())
                 .minFemale(1d)
                 .maxFemale(4.5)
                 .minMale(1d)
@@ -157,8 +159,8 @@ public class BcReferenceServiceImpl implements BCReferenceService {
 
         final BloodCountReference MONO = BloodCountReference
                 .builder()
-                .parameter("MONO")
-                .unit("10^9/L")
+                .parameter(Parameter.MONO.name())
+                .unit(Unit.GIGALITER.symbol())
                 .minFemale(0.19)
                 .maxFemale(0.77)
                 .minMale(0.19)
@@ -167,8 +169,8 @@ public class BcReferenceServiceImpl implements BCReferenceService {
 
         final BloodCountReference EOS = BloodCountReference
                 .builder()
-                .parameter("EOS")
-                .unit("10^9/L")
+                .parameter(Parameter.EOS.name())
+                .unit(Unit.GIGALITER.symbol())
                 .minFemale(0.02)
                 .maxFemale(0.5)
                 .minMale(0.02)
@@ -177,8 +179,8 @@ public class BcReferenceServiceImpl implements BCReferenceService {
 
         final BloodCountReference BASO = BloodCountReference
                 .builder()
-                .parameter("BASO")
-                .unit("10^9/L")
+                .parameter(Parameter.BASO.name())
+                .unit(Unit.GIGALITER.symbol())
                 .minFemale(0.02)
                 .maxFemale(0.1)
                 .minMale(0.02)
@@ -187,8 +189,8 @@ public class BcReferenceServiceImpl implements BCReferenceService {
 
         final BloodCountReference NEU_p = BloodCountReference
                 .builder()
-                .parameter("NEU")
-                .unit("%")
+                .parameter(Parameter.NEU.name())
+                .unit(Unit.PERCENTAGE.symbol())
                 .minFemale(40d)
                 .maxFemale(80d)
                 .minMale(40d)
@@ -197,8 +199,8 @@ public class BcReferenceServiceImpl implements BCReferenceService {
 
         final BloodCountReference LYM_p = BloodCountReference
                 .builder()
-                .parameter("LYM")
-                .unit("%")
+                .parameter(Parameter.LYM.name())
+                .unit(Unit.PERCENTAGE.symbol())
                 .minFemale(20d)
                 .maxFemale(40d)
                 .minMale(20d)
@@ -207,8 +209,8 @@ public class BcReferenceServiceImpl implements BCReferenceService {
 
         final BloodCountReference MONO_p = BloodCountReference
                 .builder()
-                .parameter("MONO")
-                .unit("%")
+                .parameter(Parameter.MONO.name())
+                .unit(Unit.PERCENTAGE.symbol())
                 .minFemale(2d)
                 .maxFemale(10d)
                 .minMale(2d)
@@ -217,8 +219,8 @@ public class BcReferenceServiceImpl implements BCReferenceService {
 
         final BloodCountReference EOS_p = BloodCountReference
                 .builder()
-                .parameter("EOS")
-                .unit("%")
+                .parameter(Parameter.EOS.name())
+                .unit(Unit.PERCENTAGE.symbol())
                 .minFemale(1d)
                 .maxFemale(6d)
                 .minMale(1d)
@@ -227,8 +229,8 @@ public class BcReferenceServiceImpl implements BCReferenceService {
 
         final BloodCountReference BASO_p = BloodCountReference
                 .builder()
-                .parameter("BASO")
-                .unit("%")
+                .parameter(Parameter.BASO.name())
+                .unit(Unit.PERCENTAGE.symbol())
                 .minFemale(0d)
                 .maxFemale(2d)
                 .minMale(0d)

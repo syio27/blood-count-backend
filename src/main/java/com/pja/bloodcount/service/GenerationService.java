@@ -8,6 +8,8 @@ import com.pja.bloodcount.model.BloodCountReference;
 import com.pja.bloodcount.model.Patient;
 import com.pja.bloodcount.model.enums.Gender;
 import com.pja.bloodcount.model.enums.LevelType;
+import com.pja.bloodcount.model.enums.Parameter;
+import com.pja.bloodcount.model.enums.Unit;
 import com.pja.bloodcount.repository.BloodCountRepository;
 import com.pja.bloodcount.repository.PatientRepository;
 import com.pja.bloodcount.service.contract.BCReferenceService;
@@ -59,7 +61,7 @@ public class GenerationService {
         List<BloodCountReference> referenceTable = referenceService.fullTableOfBCReference();
 
 
-        if (bloodCountRepository.findByParameterAndUnitAndPatient("WBC", "10^9/L", patient) != null) {
+        if (bloodCountRepository.findByParameterAndUnitAndPatient(Parameter.WBC.name(), Unit.GIGALITER.symbol(), patient) != null) {
             throw new PatientBloodCountConflictException(patientId);
         }
 
@@ -166,14 +168,14 @@ public class GenerationService {
 
     private double doCalculation(String parameter, Patient patient) {
         double value = switch (parameter) {
-            case "RBC" -> calculateBCUtil.calculateRBC("HGB", "g/dl", "MCH", "pg", patient);
-            case "HCT" -> calculateBCUtil.calculateHCT("MCV", "fl", "RBC", "10^12/L", patient);
-            case "MCHC" -> calculateBCUtil.calculateMCHC("HGB", "g/dl", "HCT", "%", patient);
-            case "NEU" -> calculateBCUtil.calculateCommon("NEU", "%", "WBC", "10^9/L", patient);
-            case "LYM" -> calculateBCUtil.calculateCommon("LYM", "%", "WBC", "10^9/L", patient);
-            case "MONO" -> calculateBCUtil.calculateCommon("MONO", "%", "WBC", "10^9/L", patient);
-            case "EOS" -> calculateBCUtil.calculateCommon("EOS", "%", "WBC", "10^9/L", patient);
-            case "BASO" -> calculateBCUtil.calculateCommon("BASO", "%", "WBC", "10^9/L", patient);
+            case "RBC" -> calculateBCUtil.calculateRBC("HGB", Unit.GRAMS_PER_DECILITER.symbol(), "MCH", Unit.PICOGRAMS.symbol(), patient);
+            case "HCT" -> calculateBCUtil.calculateHCT("MCV", Unit.FEMTOLITERS.symbol(), "RBC", Unit.TERALITER.symbol(), patient);
+            case "MCHC" -> calculateBCUtil.calculateMCHC("HGB", Unit.GRAMS_PER_DECILITER.symbol(), "HCT", Unit.PERCENTAGE.symbol(), patient);
+            case "NEU" -> calculateBCUtil.calculateCommon("NEU", Unit.PERCENTAGE.symbol(), "WBC", Unit.GIGALITER.symbol(), patient);
+            case "LYM" -> calculateBCUtil.calculateCommon("LYM", Unit.PERCENTAGE.symbol(), "WBC", Unit.GIGALITER.symbol(), patient);
+            case "MONO" -> calculateBCUtil.calculateCommon("MONO", Unit.PERCENTAGE.symbol(), "WBC", Unit.GIGALITER.symbol(), patient);
+            case "EOS" -> calculateBCUtil.calculateCommon("EOS", Unit.PERCENTAGE.symbol(), "WBC", Unit.GIGALITER.symbol(), patient);
+            case "BASO" -> calculateBCUtil.calculateCommon("BASO", Unit.PERCENTAGE.symbol(), "WBC", Unit.GIGALITER.symbol(), patient);
             default -> 0d;
         };
         return FormatUtil.roundFormat(value);
