@@ -29,13 +29,16 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AdminService {
 
+    @Value("${app.url}")
+    private static String url;
+    private static final String PROFILE_URL = url + "/profile";
+    private static final String BUTTON_LABEL = "Login";
+
     private final UserRepository userRepository;
     private final GroupValidator groupValidator;
     private final PasswordEncoder passwordEncoder;
     private final NotifierService notifierService;
     private final UserValidator userValidator;
-    @Value("${app.url}")
-    private String url;
 
     public void invite(InviteUserRequest inviteRequest) {
         if (!CredentialValidationUtil.validateEmail(inviteRequest.getEmail())) {
@@ -50,8 +53,6 @@ public class AdminService {
 
         String generatedPassword = PasswordGeneratorUtil.generateRandomPassword();
 
-        log.info("User's password generated {}", generatedPassword);
-
         User user = User.builder()
                 .email(inviteRequest.getEmail())
                 .password(passwordEncoder.encode(generatedPassword))
@@ -61,22 +62,18 @@ public class AdminService {
 
         group.addUser(user);
 
-        final String profileUrl = url + "/profile";
-        final String buttonLabel = "Login";
         notifierService.notifyUser(
                 inviteRequest.getEmail(),
                 MailSubjectConstants.getInviteSubject(),
-                MailHtmlContent.getHtmlMessage(MailMessageConstants.getInviteMessage(inviteRequest, generatedPassword, group), profileUrl, buttonLabel, true));
+                MailHtmlContent.getHtmlMessage(MailMessageConstants.getInviteMessage(inviteRequest, generatedPassword, group), PROFILE_URL, BUTTON_LABEL, true));
 
         userRepository.save(user);
         log.info("User {} {} is registered", user.getId(), user.getEmail());
     }
 
-    public UserResponse banUser(UUID id) {
+    public UserResponse toggleBanUser(UUID id) {
         String subject;
         String message;
-        final String profileUrl = url + "/profile";
-        final String buttonLabel = "Login";
 
         User user = userValidator.validateIfExistsAndGet(id);
         if (user.isActive()) {
@@ -86,7 +83,7 @@ public class AdminService {
         } else {
             user.setActive(true);
             subject = MailSubjectConstants.getUnbanSubject();
-            message = MailHtmlContent.getHtmlMessage(MailMessageConstants.getUnbanMessage(), profileUrl, buttonLabel, true);
+            message = MailHtmlContent.getHtmlMessage(MailMessageConstants.getUnbanMessage(), PROFILE_URL, BUTTON_LABEL, true);
         }
 
         notifierService.notifyUser(user.getEmail(), subject, message);

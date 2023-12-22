@@ -36,7 +36,7 @@ public class BcReferenceServiceImpl implements BCReferenceService {
         return referenceTable;
     }
 
-    private List<BloodCountReference> getAllReferenceElements() {
+    private static List<BloodCountReference> getAllReferenceElements() {
         final BloodCountReference WBC = BloodCountReference
                 .builder()
                 .parameter(Parameter.WBC.name())

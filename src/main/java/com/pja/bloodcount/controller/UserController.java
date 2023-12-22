@@ -4,7 +4,6 @@ import com.pja.bloodcount.dto.request.*;
 import com.pja.bloodcount.dto.response.AuthenticationResponse;
 import com.pja.bloodcount.dto.response.SimpleGameResponse;
 import com.pja.bloodcount.dto.response.UserResponse;
-import com.pja.bloodcount.dto.response.UserSelectedAnswerResponse;
 import com.pja.bloodcount.model.enums.Role;
 import com.pja.bloodcount.service.AdminService;
 import com.pja.bloodcount.service.contract.GameService;
@@ -122,8 +121,8 @@ public class UserController {
 
     @PreAuthorize("hasRole('ROOT')")
     @PostMapping("/{userId}/ban")
-    public ResponseEntity<UserResponse> ban(@PathVariable UUID userId){
-        return ResponseEntity.ok(adminService.banUser(userId));
+    public ResponseEntity<UserResponse> toggleBanUser(@PathVariable UUID userId){
+        return ResponseEntity.ok(adminService.toggleBanUser(userId));
     }
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('ROOT') or hasRole('SUPERVISOR') or hasRole('STUDENT')")
