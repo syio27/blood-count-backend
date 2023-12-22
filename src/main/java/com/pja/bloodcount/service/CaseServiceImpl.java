@@ -4,23 +4,18 @@ import com.pja.bloodcount.dto.request.CreateAbnormalityRequest;
 import com.pja.bloodcount.dto.request.CreateCaseRequest;
 import com.pja.bloodcount.dto.response.CaseResponse;
 import com.pja.bloodcount.exceptions.CaseNotFoundException;
-import com.pja.bloodcount.exceptions.RangeArgumentException;
 import com.pja.bloodcount.mapper.CaseMapper;
 import com.pja.bloodcount.model.BloodCountAbnormality;
 import com.pja.bloodcount.model.Case;
-import com.pja.bloodcount.model.enums.AffectedGender;
-import com.pja.bloodcount.model.enums.Gender;
-import com.pja.bloodcount.model.enums.Language;
-import com.pja.bloodcount.model.enums.LevelType;
 import com.pja.bloodcount.repository.CaseRepository;
 import com.pja.bloodcount.service.contract.CaseService;
+import com.pja.bloodcount.utils.RangeValidationUtils;
 import com.pja.bloodcount.validation.CaseValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,7 +30,7 @@ public class CaseServiceImpl implements CaseService {
     public CaseResponse createCase(CreateCaseRequest request) {
 
         if (request.getSecondMinAge() != 0 && request.getSecondMaxAge() != 0) {
-            validateRanges(
+            RangeValidationUtils.validateRanges(
                     request.getFirstMinAge(),
                     request.getFirstMaxAge(),
                     request.getSecondMinAge(),
@@ -46,7 +41,7 @@ public class CaseServiceImpl implements CaseService {
             throw new IllegalArgumentException("Language cannot be null");
         }
 
-        validateRanges(
+        RangeValidationUtils.validateRanges(
                 request.getFirstMinAge(),
                 request.getFirstMaxAge());
 
@@ -102,59 +97,23 @@ public class CaseServiceImpl implements CaseService {
 
     @Override
     public CaseResponse getCaseWithAbnormalities(Long id) {
-        Optional<Case> aCase = repository.findCaseWithAbnormalities(id);
-        if (aCase.isEmpty()) {
-            throw new CaseNotFoundException(id);
-        }
-        return CaseMapper.mapToResponseDTO(aCase.get());
+        return repository.findCaseWithAbnormalities(id)
+                .map(CaseMapper::mapToResponseDTO)
+                .orElseThrow(() -> new CaseNotFoundException(id));
     }
 
     @Override
     public List<CaseResponse> getAllCasesWithAbnormalities() {
-        List<Case> cases = repository.findAllCasesWithAbnormalities()
+        return repository.findAllCasesWithAbnormalities()
                 .stream()
                 .distinct()
+                .map(CaseMapper::mapToResponseDTO)
                 .collect(Collectors.toList());
-        return CaseMapper.mapToResponseListDTO(cases);
     }
 
     @Override
     public void deleteCase(Long id) {
         Case aCase = validator.validateIfExistsAndGet(id);
         repository.delete(aCase);
-    }
-
-    private void validateRanges(int firstMinAge, int firstMaxAge,
-                                int secondMinAge, int secondMaxAge) throws RangeArgumentException {
-        if (firstMinAge < 18 || firstMinAge >= firstMaxAge) {
-            throw new RangeArgumentException("First min age should be higher than or equal to 18");
-        }
-        if (firstMaxAge > 75) {
-            throw new RangeArgumentException("First max age should be less than or equal to 75");
-        }
-        if (secondMinAge < 18 || secondMinAge >= secondMaxAge) {
-            throw new RangeArgumentException("Second min age should be higher than or equal to 18");
-        }
-        if (secondMaxAge > 75) {
-            throw new RangeArgumentException("Second max age should be less than or equal to 75");
-        }
-        if (firstMinAge > secondMinAge) {
-            throw new RangeArgumentException("First min age cannot be higher than second min age");
-        }
-        if (firstMaxAge > secondMaxAge) {
-            throw new RangeArgumentException("First max age cannot be higher than second max age");
-        }
-        if (firstMaxAge > secondMinAge) {
-            throw new RangeArgumentException("First max age should be less than Second min age");
-        }
-    }
-
-    private void validateRanges(int firstMinAge, int firstMaxAge) throws RangeArgumentException {
-        if (firstMinAge < 18 || firstMinAge >= firstMaxAge) {
-            throw new RangeArgumentException("Bad min age");
-        }
-        if (firstMaxAge > 75) {
-            throw new RangeArgumentException("Bad max age");
-        }
     }
 }

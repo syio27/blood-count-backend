@@ -17,8 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @Slf4j
@@ -31,26 +29,27 @@ public class GameScoreService implements ScoreService {
 
     @Override
     public int score(Long gameId) {
-        AtomicInteger score = new AtomicInteger(0);
         List<UserAnswer> userAnswers = userAnswerRepository.findByGame_Id(gameId);
 
-        userAnswers.forEach(answerRequest -> {
-            Question question = questionRepository.findById(answerRequest.getQuestion().getId())
-                    .orElseThrow(() -> new QuestionNotFoundException(answerRequest.getQuestion().getId()));
-            if (!Objects.equals(question.getGame().getId(), gameId)) {
-                throw new QuestionNotPartException("Question is not part game: " + gameId);
-            }
-            Answer answer = answerRepository.findById(answerRequest.getAnswer().getId())
-                    .orElseThrow(() -> new AnswerNotFoundException(answerRequest.getAnswer().getId()));
-            if (!Objects.equals(answer.getQuestion().getId(), answerRequest.getQuestion().getId())) {
-                throw new AnswerNotPartException("Answer is not part of answers set of question: " + answerRequest.getQuestion().getId());
-            }
+        return (int) userAnswers.stream()
+                .map(answerRequest -> {
+                    Question question = questionRepository.findById(answerRequest.getQuestion().getId())
+                            .orElseThrow(() -> new QuestionNotFoundException(answerRequest.getQuestion().getId()));
 
-            if (Objects.equals(question.getCorrectAnswerId(), answerRequest.getAnswer().getId())) {
-                score.getAndIncrement();
-            }
-        });
+                    if (!Objects.equals(question.getGame().getId(), gameId)) {
+                        throw new QuestionNotPartException("Question is not part of game: " + gameId);
+                    }
 
-        return score.get();
+                    Answer answer = answerRepository.findById(answerRequest.getAnswer().getId())
+                            .orElseThrow(() -> new AnswerNotFoundException(answerRequest.getAnswer().getId()));
+
+                    if (!Objects.equals(answer.getQuestion().getId(), answerRequest.getQuestion().getId())) {
+                        throw new AnswerNotPartException("Answer is not part of answers set of question: " + answerRequest.getQuestion().getId());
+                    }
+
+                    return Objects.equals(question.getCorrectAnswerId(), answerRequest.getAnswer().getId());
+                })
+                .filter(Boolean::booleanValue) // Keep only correct answers
+                .count();
     }
 }
