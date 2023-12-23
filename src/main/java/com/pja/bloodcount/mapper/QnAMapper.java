@@ -3,9 +3,11 @@ package com.pja.bloodcount.mapper;
 import com.pja.bloodcount.dto.response.AnswerResponse;
 import com.pja.bloodcount.dto.response.BCAQuestionResponse;
 import com.pja.bloodcount.dto.response.MSQuestionResponse;
+import com.pja.bloodcount.dto.response.SavedUserAnswerResponse;
 import com.pja.bloodcount.model.Answer;
 import com.pja.bloodcount.model.BCAssessmentQuestion;
 import com.pja.bloodcount.model.MSQuestion;
+import com.pja.bloodcount.model.UserAnswer;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -55,7 +57,7 @@ public class QnAMapper {
                 .toList();
     }
 
-    public static MSQuestionResponse mapToMSQuestionResponseDTO(MSQuestion question){
+    public static MSQuestionResponse mapToMSQuestionResponseDTO(MSQuestion question) {
         return MSQuestionResponse
                 .builder()
                 .id(question.getId())
@@ -73,5 +75,13 @@ public class QnAMapper {
                         .answers(mapToAnswerResponseListDTO(question.getAnswers()))
                         .build())
                 .toList();
+    }
+
+    public static SavedUserAnswerResponse mapToSavedUserAnswerResponseDTO(UserAnswer userAnswer) {
+        return SavedUserAnswerResponse
+                .builder()
+                .answerId(userAnswer.getAnswer().getId())
+                .questionId(userAnswer.getQuestion().getId())
+                .build();
     }
 }

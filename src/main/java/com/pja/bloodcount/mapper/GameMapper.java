@@ -1,5 +1,6 @@
 package com.pja.bloodcount.mapper;
 
+import com.pja.bloodcount.dto.response.GameInProgress;
 import com.pja.bloodcount.dto.response.GameResponse;
 import com.pja.bloodcount.dto.response.SavedUserAnswerResponse;
 import com.pja.bloodcount.dto.response.SimpleGameResponse;
@@ -62,5 +63,12 @@ public class GameMapper {
                         .caseId(game.getCaseDetails().getAnActualCaseId())
                         .build())
                 .toList();
+    }
+
+    public static GameInProgress mapToGameInProgressDTO(Game game) {
+        return GameInProgress.builder()
+                .inProgress(true)
+                .gameId(game.getId())
+                .build();
     }
 }

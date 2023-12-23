@@ -27,10 +27,12 @@ public class Patient {
     private Gender gender;
     private int age;
     @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
     private List<BloodCount> bloodCounts = new ArrayList<>();
     @OneToOne(mappedBy = "patient",
             fetch = FetchType.LAZY)
     @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Game game;
 
     public void addBloodCount(BloodCount bloodCount) {

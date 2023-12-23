@@ -1,10 +1,7 @@
 package com.pja.bloodcount.model;
 
 import com.pja.bloodcount.model.enums.Role;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 import org.springframework.security.core.GrantedAuthority;
@@ -43,6 +40,7 @@ public class User implements Serializable, UserDetails {
     @JoinColumn(name="groupNumber")
     private Group group;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
     private List<Game> games = new ArrayList<>();
 
     public void addGame(Game game) {

@@ -7,10 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 @Data
 @Builder
 @AllArgsConstructor
@@ -18,8 +14,6 @@ import java.util.List;
 public class GameCurrentSessionState {
 
     private Long gameId;
-    private Date estimatedEndTime;
     private Status status;
     private Pages currentPage;
-    private List<SavedUserAnswerResponse> savedUserAnswers = new ArrayList<>();;
 }

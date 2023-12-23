@@ -7,6 +7,7 @@ import com.pja.bloodcount.dto.response.*;
 import com.pja.bloodcount.exceptions.*;
 import com.pja.bloodcount.htmlcontent.MailHtmlContent;
 import com.pja.bloodcount.mapper.GameMapper;
+import com.pja.bloodcount.mapper.QnAMapper;
 import com.pja.bloodcount.model.*;
 import com.pja.bloodcount.model.enums.Language;
 import com.pja.bloodcount.model.enums.Pages;
@@ -30,7 +31,6 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.DelayQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -126,35 +126,45 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public SimpleGameResponse completeGame(Long gameId) {
-        Game game = gameValidator.validateIfExistsAndGet(gameId);
-        if (game.isCompleted()) {
-            throw new GameCompleteException("Game is already submitted");
-        }
-        int score = scoreService.score(gameId);
-        game.setStatus(Status.COMPLETED);
-        game.setScore(score);
-        Instant completedTime = Instant.now();
-        game.setEndTime(Date.from(completedTime));
-        repository.save(game);
-        delayedGameQueue.removeIf(delayedGame -> delayedGame.getGame().getId().equals(gameId));
-        return GameMapper.mapToSimpleResponseDTO(game);
+        return repository.findById(gameId)
+                .map(game -> {
+                    checkIfGameCompleted(game);
+                    makeGameCompleted(game);
+                    repository.save(game);
+                    removeGameFromQueue(game.getId());
+                    return GameMapper.mapToSimpleResponseDTO(game);
+                })
+                .orElseThrow(() -> new GameNotFoundException(gameId));
     }
 
     @Override
     @Transactional
     public void queueCompleteGame(Long gameId) {
-        Game game = gameValidator.validateIfExistsAndGet(gameId);
-        String userEmail = game.getUser().getEmail();
-        if (game.isCompleted()) {
-            delayedGameQueue.removeIf(delayedGame -> delayedGame.getGame().getId().equals(gameId));
-            throw new GameCompleteException("Game is already submitted");
-        }
-        int score = scoreService.score(gameId);
+        repository.findById(gameId)
+                .ifPresentOrElse(game -> {
+                    checkIfGameCompleted(game);
+                    makeGameCompleted(game);
+                    repository.save(game);
+                    notifyUserViaEmail(game.getUser().getEmail());
+                }, () -> {
+                    removeGameFromQueue(gameId);
+                    throw new GameNotFoundException(gameId);
+                });
+    }
+
+    private void makeGameCompleted(Game game) {
+        int score = scoreService.score(game.getId());
         game.setStatus(Status.COMPLETED);
         game.setScore(score);
         Instant completedTime = Instant.now();
         game.setEndTime(Date.from(completedTime));
-        repository.save(game);
+    }
+
+    private void removeGameFromQueue(Long gameId) {
+        delayedGameQueue.removeIf(delayedGame -> delayedGame.getGame().getId().equals(gameId));
+    }
+
+    private void notifyUserViaEmail(String userEmail) {
         final String historyPagePath = url + "/history";
         final String buttonLabel = "Check History";
         notifierService.notifyUser(userEmail, MailSubjectConstants.getGameCompleteSubject(),
@@ -168,9 +178,7 @@ public class GameServiceImpl implements GameService {
     @Override
     public void saveSelectedAnswers(Long gameId, List<AnswerRequest> answerRequestList) {
         Game game = gameValidator.validateIfExistsAndGet(gameId);
-        if (game.isCompleted()) {
-            throw new GameCompleteException("Game is already submitted");
-        }
+        checkIfGameCompleted(game);
         List<UserAnswer> userAnswers = new ArrayList<>();
         answerRequestList.forEach(answerRequest -> {
             Optional<Question> optionalQuestion = questionRepository.findById(answerRequest.getQuestionId());
@@ -216,86 +224,87 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public GameCurrentSessionState next(UUID userId, Long gameId, List<AnswerRequest> answerRequestList) {
-        Game game = gameValidator.validateIfExistsAndGet(gameId);
-        if (game.getStatus().equals(Status.COMPLETED)) {
-            throw new GameCompleteException("Game is already submitted");
-        }
-        this.saveSelectedAnswers(gameId, answerRequestList);
-        Pages currentPage = game.getCurrentPage();
-        currentPage = this.next(currentPage);
-        game.setCurrentPage(currentPage);
-        repository.save(game);
+        User user = userValidator.validateIfExistsAndGet(userId);
 
+        return user.getGames().stream()
+                .filter(game -> Objects.equals(game.getId(), gameId))
+                .findFirst()
+                .map(game -> {
+                    checkIfGameCompleted(game);
+                    saveSelectedAnswers(gameId, answerRequestList);
+                    Pages currentPage = next(game.getCurrentPage());
+                    game.setCurrentPage(currentPage);
+                    repository.save(game);
+                    return makeGameCurrentSessionState(game);
+                })
+                .orElseThrow(() -> new GameNotFoundException(gameId));
+    }
+
+    private GameCurrentSessionState makeGameCurrentSessionState(Game game) {
         return GameCurrentSessionState
                 .builder()
-                .gameId(gameId)
-                .estimatedEndTime(game.getEstimatedEndTime())
+                .gameId(game.getId())
                 .status(game.getStatus())
                 .currentPage(game.getCurrentPage())
-                .savedUserAnswers(getSavedAnswersOfGame(userId, gameId))
                 .build();
     }
 
     private Pages next(Pages currentPage) {
-        if (currentPage != Pages.FOUR) {
-            currentPage = currentPage.getNextPage();
-        } else {
+        if (currentPage == Pages.FOUR) {
             log.warn("User is on last page of Game");
+            return currentPage;
         }
-        return currentPage;
+        return currentPage.getNextPage();
     }
 
     @Override
     public List<SimpleGameResponse> getAllCompletedGamesOfUser(UUID userId) {
-        userValidator.validateIfExistsAndGet(userId);
-        List<Game> games = repository.findByUser_Id(userId);
-        return GameMapper.mapToSimpleResponseListDTO(games.stream().filter(Game::isCompleted).toList());
+        User user = userValidator.validateIfExistsAndGet(userId);
+        return user.getGames().stream()
+                .filter(Game::isCompleted)
+                .map(GameMapper::mapToSimpleResponseDTO)
+                .toList();
     }
 
     private List<SavedUserAnswerResponse> getSavedAnswersOfGame(UUID userId, Long gameId) {
-        List<SavedUserAnswerResponse> savedUserAnswers = new ArrayList<>();
-        userValidator.validateIfExistsAndGet(userId);
-        gameValidator.validateIfExistsAndGet(gameId);
         List<UserAnswer> selectedAnswers = userAnswerRepository.findByUser_IdAndGame_Id(userId, gameId);
-        selectedAnswers.forEach(savedUserAnswer -> {
-            SavedUserAnswerResponse savedUserAnswerResponse = SavedUserAnswerResponse
-                    .builder()
-                    .answerId(savedUserAnswer.getAnswer().getId())
-                    .questionId(savedUserAnswer.getQuestion().getId())
-                    .build();
-            savedUserAnswers.add(savedUserAnswerResponse);
-        });
-
-        return savedUserAnswers;
+        return selectedAnswers.stream()
+                .map(QnAMapper::mapToSavedUserAnswerResponseDTO)
+                .toList();
     }
 
     @Override
+    @Transactional
     public GameResponse getInProgressGame(Long gameId, UUID userId) {
-        userValidator.validateIfExistsAndGet(userId);
-        Game game = gameValidator.validateIfExistsAndGet(gameId);
-        if (game.isCompleted()) {
-            throw new GameCompleteException("Game with id - " + game.getId() + " already completed");
-        }
-        Instant currentTimeInstant = Instant.now();
-        Date currentDate = Date.from(currentTimeInstant);
-        log.info("BC question set size: {}", game.getBcAssessmentQuestions().size());
-        log.info("MS question set size: {}", game.getMsQuestions().size());
-        return GameMapper.mapToResponseDTO(game, currentDate, getSavedAnswersOfGame(userId, gameId));
+        User user = userValidator.validateIfExistsAndGet(userId);
+        return user.getGames().stream()
+                .filter(game -> Objects.equals(game.getId(), gameId) && game.isInProgress())
+                .map(game -> {
+                    log.info("In Progress game: {}", game);
+                    return GameMapper.mapToResponseDTO(game, Date.from(Instant.now()), getSavedAnswersOfGame(user.getId(), game.getId()));
+                })
+                .findAny()
+                .orElseThrow(() -> new GameCompleteException("Game with id - " + gameId + " already completed"));
     }
 
     @Override
     public GameInProgress hasGameInProgress(UUID userId) {
-        GameInProgress gameInProgress = GameInProgress.builder().build();
         User user = userValidator.validateIfExistsAndGet(userId);
         List<Game> games = user.getGames();
-        AtomicBoolean hasGameInProgress = new AtomicBoolean(false);
-        games.forEach(game -> {
-            if (game.isInProgress()) {
-                hasGameInProgress.set(true);
-                gameInProgress.setInProgress(hasGameInProgress.get());
-                gameInProgress.setGameId(game.getId());
-            }
-        });
-        return gameInProgress;
+        return games.stream()
+                .filter(Game::isInProgress)
+                .map(GameMapper::mapToGameInProgressDTO)
+                .findFirst()
+                .orElseGet(
+                        () -> GameInProgress
+                                .builder()
+                                .build()
+                );
+    }
+
+    private static void checkIfGameCompleted(Game game) {
+        if (game.isCompleted()) {
+            throw new GameCompleteException("Game is already submitted");
+        }
     }
 }
