@@ -68,4 +68,16 @@ public class Case implements Serializable {
         abnormalities.remove(abnormality);
         abnormality.setACase(null);
     }
+
+    public void addAllAbnormalities(List<BloodCountAbnormality> abnormalities) {
+        validateAndCreate();
+        this.abnormalities.addAll(abnormalities);
+        abnormalities.forEach(abnormality -> abnormality.setACase(this));
+    }
+
+    private void validateAndCreate() {
+        if (this.abnormalities == null) {
+            this.abnormalities = new ArrayList<>();
+        }
+    }
 }

@@ -4,6 +4,7 @@ import com.pja.bloodcount.dto.request.CreateAbnormalityRequest;
 import com.pja.bloodcount.dto.request.CreateCaseRequest;
 import com.pja.bloodcount.dto.response.CaseResponse;
 import com.pja.bloodcount.exceptions.CaseNotFoundException;
+import com.pja.bloodcount.mapper.AbnormalityMapper;
 import com.pja.bloodcount.mapper.CaseMapper;
 import com.pja.bloodcount.model.BloodCountAbnormality;
 import com.pja.bloodcount.model.Case;
@@ -28,22 +29,21 @@ public class CaseServiceImpl implements CaseService {
 
     @Override
     public CaseResponse createCase(CreateCaseRequest request) {
-
-        if (request.getSecondMinAge() != 0 && request.getSecondMaxAge() != 0) {
+        if (isSecondRangeAdded(request)) {
             RangeValidationUtils.validateRanges(
                     request.getFirstMinAge(),
                     request.getFirstMaxAge(),
                     request.getSecondMinAge(),
                     request.getSecondMaxAge());
+        } else {
+            RangeValidationUtils.validateRanges(
+                    request.getFirstMinAge(),
+                    request.getFirstMaxAge());
         }
 
         if (request.getLanguage() == null) {
             throw new IllegalArgumentException("Language cannot be null");
         }
-
-        RangeValidationUtils.validateRanges(
-                request.getFirstMinAge(),
-                request.getFirstMaxAge());
 
         if (request.getHr().isBlank() || request.getDiagnosis().isBlank() || request.getAnemiaType().isBlank()
                 || request.getRr().isBlank() || request.getInfoCom().isBlank() || request.getHeight().isBlank()
@@ -52,46 +52,21 @@ public class CaseServiceImpl implements CaseService {
             throw new IllegalArgumentException("Cannot be blank string");
         }
 
-        Case newCase = Case
-                .builder()
-                .firstMinAge(request.getFirstMinAge())
-                .firstMaxAge(request.getFirstMaxAge())
-                .secondMinAge(request.getSecondMinAge())
-                .secondMaxAge(request.getSecondMaxAge())
-                .anemiaType(request.getAnemiaType())
-                .affectedGender(request.getAffectedGender())
-                .diagnosis(request.getDiagnosis())
-                .hr(request.getHr())
-                .rr(request.getRr())
-                .description(request.getDescription())
-                .infoCom(request.getInfoCom())
-                .language(request.getLanguage())
-                .caseName(request.getCaseName())
-                .bmi(request.getBmi())
-                .height(request.getHeight())
-                .bodyMass(request.getBodyMass())
-                .build();
-
+        Case newCase = CaseMapper.mapRequestToCase(request);
         return CaseMapper.mapToResponseDTO(repository.save(newCase));
+    }
+
+    private static boolean isSecondRangeAdded(CreateCaseRequest request) {
+        return request.getSecondMinAge() != 0 && request.getSecondMaxAge() != 0;
     }
 
     @Override
     public void createBCAbnormality(Long caseId, List<CreateAbnormalityRequest> createAbnormalityRequestList) {
         Case aCase = validator.validateIfExistsAndGet(caseId);
-
-        for (CreateAbnormalityRequest abnormalityRequest : createAbnormalityRequestList) {
-            BloodCountAbnormality abnormality = BloodCountAbnormality
-                    .builder()
-                    .parameter(abnormalityRequest.getParameter())
-                    .unit(abnormalityRequest.getUnit())
-                    .minValue(abnormalityRequest.getMinValue())
-                    .maxValue(abnormalityRequest.getMaxValue())
-                    .type(abnormalityRequest.getType())
-                    .build();
-
-            aCase.addAbnormality(abnormality);
-        }
-
+        List<BloodCountAbnormality> abnormalities = createAbnormalityRequestList.stream()
+                .map(AbnormalityMapper::mapToBloodCountAbnormality)
+                .toList();
+        aCase.addAllAbnormalities(abnormalities);
         repository.save(aCase);
     }
 
