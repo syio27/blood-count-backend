@@ -188,24 +188,28 @@ public class GameServiceImpl implements GameService {
         checkIfGameCompleted(game);
         List<UserAnswer> userAnswers = new ArrayList<>();
         answerRequestList.forEach(answerRequest -> {
-            Optional<Question> optionalQuestion = questionRepository.findById(answerRequest.getQuestionId());
-            if (optionalQuestion.isEmpty()) {
-                throw new QuestionNotFoundException(answerRequest.getAnswerId());
-            }
-            Question question = optionalQuestion.get();
-            if (!Objects.equals(question.getGame().getId(), gameId)) {
-                throw new QuestionNotPartException("Question is not part game: " + gameId);
-            }
-            Optional<Answer> optionalAnswer = answerRepository.findById(answerRequest.getAnswerId());
-            if (optionalAnswer.isEmpty()) {
-                throw new AnswerNotFoundException(answerRequest.getAnswerId());
-            }
-            Answer answer = optionalAnswer.get();
-            log.info("Answer's question id: {}", answer.getQuestion().getId());
-            log.info("question id from request: {}", answerRequest.getQuestionId());
-            if (!Objects.equals(answer.getQuestion().getId(), answerRequest.getQuestionId())) {
-                throw new AnswerNotPartException("Answer is not part of answers set of question: " + answerRequest.getQuestionId());
-            }
+            Question question = questionRepository.findById(answerRequest.getQuestionId())
+                    .orElseThrow(() -> new QuestionNotFoundException(answerRequest.getAnswerId()));
+            isPartOfOrThrow(gameId,
+                    question.getGame().getId(),
+                    new QuestionNotPartException("Question is not part game: " + gameId));
+            Answer answer = answerRepository.findById(answerRequest.getAnswerId())
+                    .orElseThrow(() -> new AnswerNotFoundException(answerRequest.getAnswerId()));
+            isPartOfOrThrow(answer.getQuestion().getId(),
+                    answerRequest.getQuestionId(),
+                    new AnswerNotPartException("Answer is not part of answers set of question: " + answerRequest.getQuestionId()));
+
+            // Look for existing UserAnswer for the question to update, or create new
+            updateOrCreateUserAnswer(question, game, answer, userAnswers);
+        });
+        userAnswerRepository.saveAll(userAnswers);
+    }
+
+    private static void isPartOfOrThrow(Long gameId, Long id, RuntimeException exception) {
+        if (!Objects.equals(id, gameId)) {
+            throw exception;
+        }
+    }
 
     private void updateOrCreateUserAnswer(Question question, Game game, Answer answer, List<UserAnswer> userAnswers) {
         userAnswerRepository.findByQuestionAndGame(question, game)
