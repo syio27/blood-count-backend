@@ -72,8 +72,29 @@ public class GameServiceImpl implements GameService {
         int durationInMin = 30;
         int durationInSec = durationInMin * 60;
         Instant endTime = Instant.now().plusSeconds(durationInSec);
+        GameCaseDetails caseDetails = makeGameCaseDetails(caseId, aCase);
+        caseDetailsRepository.save(caseDetails);
+        Game game = makeGame(language, endTime, durationInMin, caseDetails);
+        game.addPatient(patient);
+        repository.save(game);
+        List<Question> allQuestions = makeQuestionsWithAnswers(language, game);
+        game.addAllQuestions(allQuestions);
+        repository.save(game);
+        user.addGame(game);
+        userRepository.save(user);
+        log.info("Game session is being started");
+        delayedGameQueue.put(new DelayedGame(game, durationInMin, TimeUnit.MINUTES));
+    }
 
-        GameCaseDetails caseDetails = GameCaseDetails
+    private List<Question> makeQuestionsWithAnswers(Language language, Game game) {
+        List<BCAssessmentQuestion> qnAForBCAssessment = qnAService.createQnAForBCAssessment(game.getId());
+        List<MSQuestion> qnAForMSQ = qnAService.createMSQuestions(game.getId(), language);
+        List<MSQuestion> qnAForTrueFalseMSQ = qnAService.createTrueFalseMSQuestions(language);
+        return mergeQuestions(qnAForBCAssessment, qnAForMSQ, qnAForTrueFalseMSQ);
+    }
+
+    private static GameCaseDetails makeGameCaseDetails(Long caseId, Case aCase) {
+        return GameCaseDetails
                 .builder()
                 .anActualCaseId(caseId)
                 .anemiaType(aCase.getAnemiaType())
@@ -88,10 +109,10 @@ public class GameServiceImpl implements GameService {
                 .height(aCase.getHeight())
                 .bodyMass(aCase.getBodyMass())
                 .build();
+    }
 
-        caseDetailsRepository.save(caseDetails);
-
-        Game game = Game
+    private static Game makeGame(Language language, Instant endTime, int durationInMin, GameCaseDetails caseDetails) {
+        return Game
                 .builder()
                 .endTime(null)
                 .language(language)
@@ -101,20 +122,6 @@ public class GameServiceImpl implements GameService {
                 .testDuration(durationInMin)
                 .caseDetails(caseDetails)
                 .build();
-
-        game.addPatient(patient);
-        repository.save(game);
-
-        List<BCAssessmentQuestion> qnAForBCAssessment = qnAService.createQnAForBCAssessment(game.getId());
-        List<MSQuestion> qnAForMSQ = qnAService.createMSQuestions(game.getId(), language);
-        List<MSQuestion> qnAForTrueFalseMSQ = qnAService.createTrueFalseMSQuestions(language);
-        List<Question> allQuestions = mergeQuestions(qnAForBCAssessment, qnAForMSQ, qnAForTrueFalseMSQ);
-        game.addAllQuestions(allQuestions);
-        repository.save(game);
-        user.addGame(game);
-        userRepository.save(user);
-        log.info("Game session is being started");
-        delayedGameQueue.put(new DelayedGame(game, durationInMin, TimeUnit.MINUTES));
     }
 
     @SafeVarargs
@@ -181,45 +188,43 @@ public class GameServiceImpl implements GameService {
         checkIfGameCompleted(game);
         List<UserAnswer> userAnswers = new ArrayList<>();
         answerRequestList.forEach(answerRequest -> {
-            Optional<Question> optionalQuestion = questionRepository.findById(answerRequest.getQuestionId());
-            if (optionalQuestion.isEmpty()) {
-                throw new QuestionNotFoundException(answerRequest.getAnswerId());
-            }
-            Question question = optionalQuestion.get();
-            if (!Objects.equals(question.getGame().getId(), gameId)) {
-                throw new QuestionNotPartException("Question is not part game: " + gameId);
-            }
-            Optional<Answer> optionalAnswer = answerRepository.findById(answerRequest.getAnswerId());
-            if (optionalAnswer.isEmpty()) {
-                throw new AnswerNotFoundException(answerRequest.getAnswerId());
-            }
-            Answer answer = optionalAnswer.get();
-            log.info("Answer's question id: {}", answer.getQuestion().getId());
-            log.info("question id from request: {}", answerRequest.getQuestionId());
-            if (!Objects.equals(answer.getQuestion().getId(), answerRequest.getQuestionId())) {
-                throw new AnswerNotPartException("Answer is not part of answers set of question: " + answerRequest.getQuestionId());
-            }
+            Question question = questionRepository.findById(answerRequest.getQuestionId())
+                    .orElseThrow(() -> new QuestionNotFoundException(answerRequest.getAnswerId()));
+            isPartOfOrThrow(gameId,
+                    question.getGame().getId(),
+                    new QuestionNotPartException("Question is not part game: " + gameId));
+            Answer answer = answerRepository.findById(answerRequest.getAnswerId())
+                    .orElseThrow(() -> new AnswerNotFoundException(answerRequest.getAnswerId()));
+            isPartOfOrThrow(answer.getQuestion().getId(),
+                    answerRequest.getQuestionId(),
+                    new AnswerNotPartException("Answer is not part of answers set of question: " + answerRequest.getQuestionId()));
 
-            // Look for existing UserAnswer for the question
-            Optional<UserAnswer> existingUserAnswer = userAnswerRepository.findByQuestionAndGame(question, game);
-
-            if (existingUserAnswer.isPresent()) {
-                // Update the existing answer with the new one
-                UserAnswer userAnswerToUpdate = existingUserAnswer.get();
-                userAnswerToUpdate.setAnswer(answer);
-                userAnswers.add(userAnswerToUpdate);
-            } else {
-                // Create a new UserAnswer
-                UserAnswer userAnswer = UserAnswer
-                        .builder()
-                        .game(question.getGame())
-                        .user(question.getGame().getUser())
-                        .answer(answer)
-                        .question(question).build();
-                userAnswers.add(userAnswer);
-            }
+            // Look for existing UserAnswer for the question to update, or create new
+            updateOrCreateUserAnswer(question, game, answer, userAnswers);
         });
         userAnswerRepository.saveAll(userAnswers);
+    }
+
+    private static void isPartOfOrThrow(Long gameId, Long id, RuntimeException exception) {
+        if (!Objects.equals(id, gameId)) {
+            throw exception;
+        }
+    }
+
+    private void updateOrCreateUserAnswer(Question question, Game game, Answer answer, List<UserAnswer> userAnswers) {
+        userAnswerRepository.findByQuestionAndGame(question, game)
+                .ifPresentOrElse(existingUserAnswerToUpdate -> {
+                    existingUserAnswerToUpdate.setAnswer(answer);
+                    userAnswers.add(existingUserAnswerToUpdate);
+                }, () -> {
+                    UserAnswer userAnswer = UserAnswer
+                            .builder()
+                            .game(question.getGame())
+                            .user(question.getGame().getUser())
+                            .answer(answer)
+                            .question(question).build();
+                    userAnswers.add(userAnswer);
+                });
     }
 
     @Override
