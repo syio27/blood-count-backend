@@ -190,8 +190,8 @@ public class GameServiceImpl implements GameService {
         answerRequestList.forEach(answerRequest -> {
             Question question = questionRepository.findById(answerRequest.getQuestionId())
                     .orElseThrow(() -> new QuestionNotFoundException(answerRequest.getAnswerId()));
-            isPartOfOrThrow(gameId,
-                    question.getGame().getId(),
+            isPartOfOrThrow(question.getGame().getId(),
+                    gameId,
                     new QuestionNotPartException("Question is not part game: " + gameId));
             Answer answer = answerRepository.findById(answerRequest.getAnswerId())
                     .orElseThrow(() -> new AnswerNotFoundException(answerRequest.getAnswerId()));
@@ -205,8 +205,8 @@ public class GameServiceImpl implements GameService {
         userAnswerRepository.saveAll(userAnswers);
     }
 
-    private static void isPartOfOrThrow(Long gameId, Long id, RuntimeException exception) {
-        if (!Objects.equals(id, gameId)) {
+    private static void isPartOfOrThrow(Long idToCheck, Long id, RuntimeException exception) {
+        if (!Objects.equals(idToCheck, id)) {
             throw exception;
         }
     }
