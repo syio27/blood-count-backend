@@ -39,7 +39,7 @@ public class MailService {
             helper.addInline(CONTENT_ID, resource, CONTENT_TYPE);
             javaMailSender.send(mimeMessage);
         } catch (MessagingException e) {
-            e.printStackTrace();
+            log.info("Sending Email failed due to: ", e.getCause());
         }
     }
 
