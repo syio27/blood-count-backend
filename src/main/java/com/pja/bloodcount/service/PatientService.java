@@ -20,14 +20,15 @@ public class PatientService {
     private final PatientRepository repository;
 
     public PatientResponse getPatientWithBloodCounts(Long patientId){
-        return PatientMapper.mapToResponseDTO(repository.findById(patientId).orElseThrow(() -> new PatientNotFoundException(patientId)));
+        return PatientMapper.mapToResponseDTO(repository.findById(patientId)
+                .orElseThrow(() -> new PatientNotFoundException(patientId)));
     }
 
     public List<PatientResponse> getAllPatientsWithBloodCounts(){
-        List<Patient> patients = repository.findAll()
+        return repository.findAll()
                 .stream()
                 .distinct()
-                .collect(Collectors.toList());
-        return PatientMapper.mapToResponseListDTO(patients);
+                .map(PatientMapper::mapToResponseDTO)
+                .toList();
     }
 }
