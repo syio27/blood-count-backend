@@ -17,6 +17,7 @@ import com.pja.bloodcount.service.auth.JwtService;
 import com.pja.bloodcount.service.contract.NotifierService;
 import com.pja.bloodcount.service.contract.UserService;
 import com.pja.bloodcount.utils.CredentialValidationUtil;
+import com.pja.bloodcount.utils.PasswordValidationUtil;
 import com.pja.bloodcount.validation.GroupValidator;
 import com.pja.bloodcount.validation.UserValidator;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +33,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -53,6 +53,7 @@ public class UserServiceImpl implements UserService {
     private final JwtService jwtService;
     private final ResetTokenService tokenService;
     private final NotifierService notifierService;
+    private final GameRepository gameRepository;
 
     @Value("${app.url}")
     private String url;
@@ -117,22 +118,7 @@ public class UserServiceImpl implements UserService {
 
     public AuthenticationResponse changePassword(UUID id, PasswordChangeDTO passwordChangeDTO) {
         User user = findById(id);
-
-        if (!CredentialValidationUtil.validatePassword(passwordChangeDTO.getNewPassword())) {
-            throw new PasswordValidationException("Password is not valid, doesnt match regex rule");
-        }
-
-        if (!passwordEncoder.matches(passwordChangeDTO.getOldPassword(), user.getPassword())) {
-            throw new IncorrectOldPasswordException("Old password is incorrect");
-        }
-
-        if (passwordChangeDTO.getNewPassword().equals(passwordChangeDTO.getOldPassword())) {
-            throw new PasswordSameAsOldException("New password cannot be the same as old password");
-        }
-
-        if (!passwordChangeDTO.getNewPassword().equals(passwordChangeDTO.getNewPasswordRepeat())) {
-            throw new PasswordRepeatException("New password and new password confirmation are not the same");
-        }
+        PasswordValidationUtil.validatePasswordOrThrowExceptions(passwordChangeDTO, user.getPassword(), passwordEncoder);
         user.setPassword(passwordEncoder.encode(passwordChangeDTO.getNewPassword()));
         repository.save(user);
         var jwtToken = jwtService.generateToken(user, 0);
@@ -149,9 +135,7 @@ public class UserServiceImpl implements UserService {
             throw new EmailValidationException("Email is not valid, doesnt match regex rule");
         }
 
-        if (repository.findUserByEmail(request.getEmail()).isEmpty()) {
-            throw new UserWithEmailNotFoundException(request.getEmail());
-        }
+        userValidator.validateEmailAndGet(request.getEmail());
         Token token = tokenService.createToken(request.getEmail());
 
         final String resetUrl = String.format(URL_PATH, url, token.getToken(), request.getEmail());
@@ -217,11 +201,10 @@ public class UserServiceImpl implements UserService {
     public void assignGroupToUsers(UserGroupBatchAssignmentRequest request) {
         Group group = groupValidator.validateIfExistsAndGet(request.getGroupNumber());
 
-        for (UUID userId : request.getUserIds()) {
+        request.getUserIds().forEach(userId -> {
             User user = findById(userId);
-
             group.addUser(user);
-        }
+        });
 
         repository.saveAll(request.getUserIds().stream()
                 .map(userValidator::validateIfExistsAndGet)
@@ -236,15 +219,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public SimpleGameResponse getUserGameById(UUID userId, Long gameId) {
-        User user = userValidator.validateIfExistsAndGet(userId);
-        Game usersGame = user.getGames().stream()
-                .filter(g -> Objects.equals(g.getId(), gameId))
-                .findFirst()
+        userValidator.validateIfExistsAndGet(userId);
+        return gameRepository.findByIdAndUserId(gameId, userId)
+                .map(GameMapper::mapToSimpleResponseDTO)
                 .orElseThrow(() -> new GameNotFoundException(gameId));
-        if (usersGame.isInProgress()) {
-            throw new GameCompleteException("Game %d is still in progress".formatted(usersGame.getId()));
-        }
-        return GameMapper.mapToSimpleResponseDTO(usersGame);
     }
 
     private User findById(UUID id) {
