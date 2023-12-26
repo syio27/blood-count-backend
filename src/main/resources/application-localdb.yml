@@ -13,9 +13,16 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+    show-sql: true
     properties:
       hibernate:
         check_nullability: true
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: debug
 
 app:
   url: http://localhost:4200
