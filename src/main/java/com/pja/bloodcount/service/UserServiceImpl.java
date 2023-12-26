@@ -174,9 +174,7 @@ public class UserServiceImpl implements UserService {
                 .email(request.getEmail())
                 .build();
 
-        if (!tokenService.validateToken(tokenValidationRequest)) {
-            throw new ResetTokenInvalidException("Invalid or expired token");
-        }
+        tokenService.validateTokenAndThrowErrors(tokenValidationRequest);
 
         if (!CredentialValidationUtil.validatePassword(request.getNewPassword())) {
             throw new PasswordValidationException("Password is not valid, doesnt match regex rule");

@@ -42,27 +42,22 @@ public class ResetTokenService {
     }
 
     public void validateTokenAndThrowErrors(TokenValidationRequest request) {
-        if(!this.validateToken(request)){
-            throw new ResetTokenInvalidException("token invalid");
+        Token tokenEntity = repository.findByToken(request.getToken());
+        if(!this.isTokenValid(tokenEntity, request.getEmail())){
+            throw new ResetTokenInvalidException("Invalid or expired token");
         }
     }
 
-    public boolean validateToken(TokenValidationRequest request) {
-        Token tokenEntity = repository.findByToken(request.getToken());
-
-        if (tokenEntity == null) {
+    public boolean isTokenValid(Token token, String emailFromRequest) {
+        if (token == null) {
             return false;
         }
 
-        if (!request.getEmail().equals(tokenEntity.getEmail())) {
+        if (!emailFromRequest.equals(token.getEmail())) {
             return false;
         }
 
-        if (LocalDateTime.now().isAfter(tokenEntity.getExpirationTime())) {
-            return false;
-        }
-
-        return true;
+        return !LocalDateTime.now().isAfter(token.getExpirationTime());
     }
 }
 
