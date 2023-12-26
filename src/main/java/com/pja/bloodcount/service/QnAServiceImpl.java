@@ -34,11 +34,8 @@ public class QnAServiceImpl implements QnAService {
 
     @Override
     public List<BCAssessmentQuestion> createQnAForBCAssessment(Long gameId) {
-        Optional<Game> optionalGame = gameRepository.findById(gameId);
-        if (optionalGame.isEmpty()) {
-            throw new GameNotFoundException(gameId);
-        }
-        Game game = optionalGame.get();
+        Game game = gameRepository.findById(gameId)
+                .orElseThrow(() -> new GameNotFoundException(gameId));
         Patient patient = patientValidator.validateIfExistsAndGet(game.getPatient().getId());
         List<BloodCount> bloodCountList = patient.getBloodCounts();
         List<BCAssessmentQuestion> questionList = new ArrayList<>();
@@ -74,17 +71,14 @@ public class QnAServiceImpl implements QnAService {
                 questionList.add(question);
             }
         });
-        bcaQuestionRepository.saveAll(questionList);
-        return questionList;
+        return bcaQuestionRepository.saveAll(questionList);
     }
 
     @Override
     public List<MSQuestion> createMSQuestions(Long gameId, Language language) {
-        Optional<Game> optionalGame = gameRepository.findById(gameId);
-        if (optionalGame.isEmpty()) {
-            throw new GameNotFoundException(gameId);
-        }
-        Game game = optionalGame.get();
+        Game game = gameRepository.findById(gameId)
+                .orElseThrow(() -> new GameNotFoundException(gameId));
+
         MSQuestion msQuestion1 = MSQuestion
                 .builder()
                 .build();
@@ -93,7 +87,7 @@ public class QnAServiceImpl implements QnAService {
                 .builder()
                 .build();
 
-        buildMSAnswersAndQuestion(msQuestion1, msQuestion2, language);
+        makeMSAnswersAndQuestion(msQuestion1, msQuestion2, language);
 
         msQuestionRepository.saveAll(List.of(msQuestion1, msQuestion2));
         List<Answer> answersMSQ1 = msQuestion1.getAnswers();
@@ -120,8 +114,7 @@ public class QnAServiceImpl implements QnAService {
             }
         });
 
-        msQuestionRepository.saveAll(List.of(msQuestion1, msQuestion2));
-        return new ArrayList<>(List.of(msQuestion1, msQuestion2));
+        return msQuestionRepository.saveAll(List.of(msQuestion1, msQuestion2));
     }
 
     @Override
@@ -151,7 +144,7 @@ public class QnAServiceImpl implements QnAService {
                     .builder()
                     .text(question.getText())
                     .build();
-            buildTrueFalseAnswers(msQuestion, language);
+            makeTrueFalseAnswers(msQuestion, language);
             msQuestionRepository.save(msQuestion);
             List<Answer> answers = msQuestion.getAnswers();
             answers.forEach(answer -> {
@@ -160,22 +153,24 @@ public class QnAServiceImpl implements QnAService {
                 }
             });
             msQuestions.add(msQuestion);
-            msQuestionRepository.save(msQuestion);
         });
-
+        msQuestionRepository.saveAll(msQuestions);
         return msQuestions;
     }
 
-    private void buildTrueFalseAnswers(MSQuestion msQuestion, Language language) {
+    private void makeTrueFalseAnswers(MSQuestion msQuestion, Language language) {
         Answer answerTrue = Answer.builder().build();
         Answer answerFalse = Answer.builder().build();
-        if (language.equals(Language.EN)) {
-            answerTrue.setText("True");
-            answerFalse.setText("False");
-        }
-        if (language.equals(Language.PL)) {
-            answerTrue.setText("Prawda");
-            answerFalse.setText("Fałsz");
+        switch (language) {
+            case EN -> {
+                answerTrue.setText("True");
+                answerFalse.setText("False");
+            }
+            case PL -> {
+                answerTrue.setText("Prawda");
+                answerFalse.setText("Fałsz");
+            }
+            default -> throw new LanguageNotSupportedException("Language: %s currently not supported".formatted(language));
         }
         msQuestion.addAnswer(answerTrue);
         msQuestion.addAnswer(answerFalse);
@@ -232,7 +227,7 @@ public class QnAServiceImpl implements QnAService {
         return questions;
     }
 
-    private void buildMSAnswersAndQuestion(MSQuestion msQuestion1, MSQuestion msQuestion2, Language language) {
+    private void makeMSAnswersAndQuestion(MSQuestion msQuestion1, MSQuestion msQuestion2, Language language) {
         Answer answer1Q1 = Answer
                 .builder()
                 .build();
