@@ -1,5 +1,6 @@
 package com.pja.bloodcount.mapper;
 
+import com.pja.bloodcount.dto.request.GroupRequest;
 import com.pja.bloodcount.dto.response.GroupResponse;
 import com.pja.bloodcount.model.Group;
 import org.springframework.stereotype.Component;
@@ -26,5 +27,13 @@ public class GroupMapper {
                         .totalParticipants(group.getUsers().size())
                         .build())
                 .toList();
+    }
+
+    public static Group mapRequestToEntity(GroupRequest request) {
+        return Group
+                .builder()
+                .groupNumber(request.getGroupNumber())
+                .groupType(request.getGroupType())
+                .build();
     }
 }

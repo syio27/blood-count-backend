@@ -79,6 +79,7 @@ public class GenerationService {
             List<BloodCount> adjustedByAbnoBCList = patient.getBloodCounts();
             recalculateAdjustedBCValues(adjustedByAbnoBCList, patient);
         }
+
         Instant endTime = Instant.now();
         Duration duration = Duration.between(startTime, endTime);
         log.info("Generated blood-count table values in {} milliseconds", duration.toMillis());

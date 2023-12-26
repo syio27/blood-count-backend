@@ -79,7 +79,7 @@ public class CaseMapper {
                 .build();
     }
 
-    public static Case mapRequestToCase(CreateCaseRequest request) {
+    public static Case mapRequestToEntity(CreateCaseRequest request) {
         return Case
                 .builder()
                 .firstMinAge(request.getFirstMinAge())

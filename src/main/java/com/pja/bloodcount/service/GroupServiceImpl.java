@@ -43,12 +43,7 @@ public class GroupServiceImpl implements GroupService {
         if (existingGroup.isPresent()) {
             throw new GroupConflictException("Group with number " + request.getGroupNumber() + " already exists.");
         }
-        Group newGroup = Group
-                .builder()
-                .groupNumber(request.getGroupNumber())
-                .groupType(request.getGroupType())
-                .build();
-
+        Group newGroup = GroupMapper.mapRequestToEntity(request);
         newGroup.addUser(null);
         return GroupMapper.mapToResponseDTO(repository.save(newGroup));
     }
@@ -70,7 +65,6 @@ public class GroupServiceImpl implements GroupService {
         List<User> usersInGroup = userRepository.findByGroup_GroupNumber(groupNumber);
         Group defaultNoGroup = validator.validateIfExistsAndGet("NO_GR");
         usersInGroup.forEach(user -> user.setGroup(defaultNoGroup));
-        log.info("Group: {} has been successfully cleared", groupNumber);
         userRepository.saveAll(usersInGroup);
     }
 
@@ -89,13 +83,12 @@ public class GroupServiceImpl implements GroupService {
         validator.validateIfExistsAndGet(groupNumber);
         Group defaultNoGroup = validator.validateIfExistsAndGet("NO_GR");
         List<User> usersInGroup = userRepository.findByGroup_GroupNumber(groupNumber);
-        Optional<User> optionalUser = usersInGroup.stream().filter(user -> user.getId().equals(userId)).findFirst();
-        if(optionalUser.isEmpty()){
-            throw new UserNotFoundException(userId);
-        }
-        User user = optionalUser.get();
-        user.setGroup(defaultNoGroup);
-        userRepository.save(user);
+        User userInGroup = usersInGroup.stream()
+                .filter(user -> user.getId().equals(userId))
+                .findFirst()
+                .orElseThrow(() -> new UserNotFoundException(userId));
+        userInGroup.setGroup(defaultNoGroup);
+        userRepository.save(userInGroup);
     }
 
     @Override

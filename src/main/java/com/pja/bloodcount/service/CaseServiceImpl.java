@@ -52,7 +52,7 @@ public class CaseServiceImpl implements CaseService {
             throw new IllegalArgumentException("Cannot be blank string");
         }
 
-        Case newCase = CaseMapper.mapRequestToCase(request);
+        Case newCase = CaseMapper.mapRequestToEntity(request);
         return CaseMapper.mapToResponseDTO(repository.save(newCase));
     }
 
