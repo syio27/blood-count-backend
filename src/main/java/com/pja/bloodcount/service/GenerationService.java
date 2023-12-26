@@ -20,9 +20,12 @@ import com.pja.bloodcount.utils.RandomizeUtil;
 import com.pja.bloodcount.validation.PatientValidator;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 
 @Service
@@ -39,10 +42,7 @@ public class GenerationService {
 
     public Patient generatePatient(Long caseId) {
         CaseResponse aCase = caseService.getCaseWithAbnormalities(caseId);
-        int age = aCase.getSecondMinAge() == 0 && aCase.getSecondMaxAge() == 0 ?
-                RandomizeUtil.randomizeAge(aCase.getFirstMinAge(), aCase.getFirstMaxAge()) :
-                RandomizeUtil.randomizeAge(aCase.getFirstMinAge(), aCase.getFirstMaxAge(),
-                        aCase.getSecondMinAge(), aCase.getSecondMaxAge());
+        int age = generateAge(aCase);
 
         Gender gender = RandomizeUtil.randomizeGender(aCase.getAffectedGender());
         return patientRepository.save(
@@ -55,19 +55,89 @@ public class GenerationService {
     }
 
     public void generateBloodCount(Long caseId, Long patientId) {
+        log.info("Started generation of blood-count values");
+        Instant startTime = Instant.now();
         CaseResponse aCase = caseService.getCaseWithAbnormalities(caseId);
         Patient patient = patientValidator.validateIfExistsAndGet(patientId);
         List<AbnormalityResponse> caseAbnormalities = aCase.getAbnormalities();
         List<BloodCountReference> referenceTable = referenceService.fullTableOfBCReference();
 
-
-        if (bloodCountRepository.findByParameterAndUnitAndPatient(Parameter.WBC.name(), Unit.GIGALITER.symbol(), patient) != null) {
+        if (isBloodCountTableAttached(patient)) {
             throw new PatientBloodCountConflictException(patientId);
         }
 
         List<BloodCount> bloodCounts = new ArrayList<>();
+        generateNormalBloodCount(referenceTable, patient, bloodCounts);
+        calculateBCValues(bloodCounts, patient, referenceTable);
 
-        for (BloodCountReference reference : referenceTable) {
+        patientRepository.save(patient);
+
+        List<BloodCount> generatedNormalValueBloodCount = patient.getBloodCounts();
+
+        if (!caseAbnormalities.isEmpty()) {
+            adjustBloodCountWithAbnormalities(generatedNormalValueBloodCount, caseAbnormalities);
+            List<BloodCount> adjustedByAbnoBCList = patient.getBloodCounts();
+            recalculateAdjustedBCValues(adjustedByAbnoBCList, patient);
+        }
+        Instant endTime = Instant.now();
+        Duration duration = Duration.between(startTime, endTime);
+        log.info("Generated blood-count table values in {} milliseconds", duration.toMillis());
+    }
+
+    private void recalculateAdjustedBCValues(List<BloodCount> adjustedByAbnoBCList, Patient patient) {
+        List<BloodCount> bloodCountsToUpdate = new ArrayList<>();
+        adjustedByAbnoBCList.stream()
+                .filter(bloodCount -> needsToBeCalculated(bloodCount.getParameter(), bloodCount.getUnit()))
+                .forEach(bloodCount -> {
+                    double roundedValue = doCalculation(bloodCount.getParameter(), patient);
+                    bloodCount.setValue(roundedValue);
+                    String[] referenceRange = bloodCount.getReferenceValueRange().split(" - ");
+                    double minValue = Double.parseDouble(referenceRange[0]);
+                    double maxValue = Double.parseDouble(referenceRange[1]);
+                    setLevelType(bloodCount, roundedValue, minValue, maxValue);
+                    bloodCountsToUpdate.add(bloodCount);
+                });
+        bloodCountRepository.saveAll(bloodCountsToUpdate);
+    }
+
+    private void adjustBloodCountWithAbnormalities(List<BloodCount> generatedNormalValueBloodCount, List<AbnormalityResponse> caseAbnormalities) {
+        List<BloodCount> bloodCountsToAdjust = new ArrayList<>();
+        generatedNormalValueBloodCount.forEach(bloodCount -> {
+            caseAbnormalities.stream()
+                    .filter(abnormalityResponse -> abnormalityResponse.getParameter().equals(bloodCount.getParameter()) && abnormalityResponse.getUnit().equals(bloodCount.getUnit()))
+                    .findFirst()
+                    .ifPresent(matchingAbnormality -> {
+                        log.info("Blood Count - {} with unit - {} needs to be adjusted by abnormality", bloodCount.getParameter(), bloodCount.getUnit());
+                        double value = RandomizeUtil.randomizeValue(bloodCount.getParameter(), bloodCount.getUnit(), matchingAbnormality.getMinValue(), matchingAbnormality.getMaxValue());
+                        double roundedValue = FormatUtil.roundFormat(value);
+                        log.info("Adjusted value is -> {}", roundedValue);
+                        bloodCount.setValue(roundedValue);
+                        String[] referenceRange = bloodCount.getReferenceValueRange().split(" - ");
+                        double minValue = Double.parseDouble(referenceRange[0]);
+                        double maxValue = Double.parseDouble(referenceRange[1]);
+                        setLevelType(bloodCount, roundedValue, minValue, maxValue);
+                        bloodCountsToAdjust.add(bloodCount);
+                    });
+        });
+        bloodCountRepository.saveAll(bloodCountsToAdjust);
+    }
+
+    private void calculateBCValues(List<BloodCount> bloodCounts, Patient patient, List<BloodCountReference> referenceTable) {
+        List<BloodCount> bloodCountsToUpdate = new ArrayList<>();
+        bloodCounts.stream()
+                .filter(bloodCount -> needsToBeCalculated(bloodCount.getParameter(), bloodCount.getUnit()))
+                .forEach(bloodCount -> {
+                    double recalculatedValue = doCalculation(bloodCount.getParameter(), patient);
+                    bloodCount.setValue(recalculatedValue);
+                    BloodCountReference reference = findReferenceByParameterAndUnit(bloodCount.getParameter(), bloodCount.getUnit(), referenceTable).orElseThrow(EntityNotFoundException::new);
+                    bloodCount.setLevelType(determineLevelType(recalculatedValue, reference, patient.getGender()));
+                    bloodCountsToUpdate.add(bloodCount);
+                });
+        bloodCountRepository.saveAll(bloodCountsToUpdate);
+    }
+
+    private void generateNormalBloodCount(List<BloodCountReference> referenceTable, Patient patient, List<BloodCount> bloodCounts) {
+        referenceTable.forEach(reference -> {
             double value = RandomizeUtil.randomizeValueBasedOnGender(reference, patient);
             double roundedValue = FormatUtil.roundFormat(value);
             String referenceValueRange = getReferenceValueRange(reference, patient.getGender());
@@ -84,71 +154,22 @@ public class GenerationService {
             bloodCounts.add(bloodCount);
             patient.addBloodCount(bloodCount);
             log.info("Randomized value of blood-count - {} is: {}", reference.getParameter(), value);
-        }
+        });
 
         bloodCountRepository.saveAll(bloodCounts);
+    }
 
-        for (BloodCount bloodCount : bloodCounts) {
-            if (needsToBeCalculated(bloodCount.getParameter(), bloodCount.getUnit())) {
-                double recalculatedValue = doCalculation(bloodCount.getParameter(), patient);
-                bloodCount.setValue(recalculatedValue);
-                BloodCountReference reference = findReferenceByParameterAndUnit(bloodCount.getParameter(), bloodCount.getUnit(), referenceTable).orElseThrow(EntityNotFoundException::new);
-                bloodCount.setLevelType(determineLevelType(recalculatedValue, reference, patient.getGender()));
-            }
+    private boolean isBloodCountTableAttached(Patient patient) {
+        return bloodCountRepository.findByParameterAndUnitAndPatient(Parameter.WBC.name(), Unit.GIGALITER.symbol(), patient) != null;
+    }
+
+    private static void setLevelType(BloodCount bloodCount, double roundedValue, double minValue, double maxValue) {
+        if (roundedValue < minValue) {
+            bloodCount.setLevelType(LevelType.DECREASED);
+        } else if (roundedValue > maxValue) {
+            bloodCount.setLevelType(LevelType.INCREASED);
         }
-
-        bloodCountRepository.saveAll(bloodCounts);
-        patientRepository.save(patient);
-
-        log.info("Patients blood count normal value generation end");
-
-        List<BloodCount> generatedNormalValueBloodCount = patient.getBloodCounts();
-        log.info("abnormality size: {}", caseAbnormalities.size());
-        for (BloodCount bloodCount : generatedNormalValueBloodCount) {
-
-            Optional<AbnormalityResponse> matchingAbnormality = caseAbnormalities.stream()
-                    .filter(abnormalityResponse -> abnormalityResponse.getParameter().equals(bloodCount.getParameter()) && abnormalityResponse.getUnit().equals(bloodCount.getUnit()))
-                    .findFirst();
-            if (matchingAbnormality.isPresent()) {
-                log.info("Blood Count - {} with unit - {} needs to be adjusted by abnormality", bloodCount.getParameter(), bloodCount.getUnit());
-                double value = RandomizeUtil.randomizeValue(bloodCount.getParameter(), bloodCount.getUnit(), matchingAbnormality.get().getMinValue(), matchingAbnormality.get().getMaxValue());
-                double roundedValue = FormatUtil.roundFormat(value);
-                log.info("Adjusted value is -> {}", roundedValue);
-                bloodCount.setValue(roundedValue);
-                String[] referenceRange = bloodCount.getReferenceValueRange().split(" - ");
-                double minValue = Double.parseDouble(referenceRange[0]);
-                double maxValue = Double.parseDouble(referenceRange[1]);
-                LevelType levelType = LevelType.NORMAL;
-                if (roundedValue < minValue) {
-                    levelType = LevelType.DECREASED;
-                } else if (roundedValue > maxValue) {
-                    levelType = LevelType.INCREASED;
-                }
-                bloodCount.setLevelType(levelType);
-                bloodCountRepository.save(bloodCount);
-            }
-        }
-        log.info("Recalculating BC");
-        List<BloodCount> adjustedByAbnoBCList = patient.getBloodCounts();
-        for (BloodCount bloodCount : adjustedByAbnoBCList) {
-            double roundedValue;
-
-            if (needsToBeCalculated(bloodCount.getParameter(), bloodCount.getUnit())) {
-                roundedValue = doCalculation(bloodCount.getParameter(), patient);
-                bloodCount.setValue(roundedValue);
-                String[] referenceRange = bloodCount.getReferenceValueRange().split(" - ");
-                double minValue = Double.parseDouble(referenceRange[0]);
-                double maxValue = Double.parseDouble(referenceRange[1]);
-                LevelType levelType = LevelType.NORMAL;
-                if (roundedValue < minValue) {
-                    levelType = LevelType.DECREASED;
-                } else if (roundedValue > maxValue) {
-                    levelType = LevelType.INCREASED;
-                }
-                bloodCount.setLevelType(levelType);
-                bloodCountRepository.save(bloodCount);
-            }
-        }
+        bloodCount.setLevelType(LevelType.NORMAL);
     }
 
     private boolean needsToBeCalculated(String parameter, String unit) {
@@ -203,5 +224,16 @@ public class GenerationService {
             }
         }
         return Optional.empty();
+    }
+
+    private static int generateAge(CaseResponse aCase) {
+        return BooleanUtils.negate(isSecondRangeAdded(aCase)) ?
+                RandomizeUtil.randomizeAge(aCase.getFirstMinAge(), aCase.getFirstMaxAge()) :
+                RandomizeUtil.randomizeAge(aCase.getFirstMinAge(), aCase.getFirstMaxAge(),
+                        aCase.getSecondMinAge(), aCase.getSecondMaxAge());
+    }
+
+    private static boolean isSecondRangeAdded(CaseResponse aCase) {
+        return aCase.getSecondMinAge() == 0 && aCase.getSecondMaxAge() == 0;
     }
 }
