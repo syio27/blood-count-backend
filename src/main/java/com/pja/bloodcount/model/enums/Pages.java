@@ -1,5 +1,8 @@
 package com.pja.bloodcount.model.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum Pages {
     ONE(1, "One"),
     TWO(2, "Two"),
@@ -14,16 +17,15 @@ public enum Pages {
         this.stringValue = stringValue;
     }
 
-    public int getNumericValue() {
-        return numericValue;
-    }
-
-    public String getStringValue() {
-        return stringValue;
-    }
-
     public Pages getNextPage() {
         int nextOrdinal = (this.ordinal() + 1) % values().length;
         return values()[nextOrdinal];
+    }
+
+    public static Pages next(Pages currentPage) {
+        if (currentPage == FOUR) {
+            return currentPage;
+        }
+        return currentPage.getNextPage();
     }
 }

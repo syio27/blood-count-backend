@@ -39,6 +39,10 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class GameServiceImpl implements GameService {
 
+    private static final String QUESTION_NOT_PART_EX_MESSAGE = "Question is not part game: %s";
+    private static final String ANSWER_NOT_PART_EX_MESSAGE = "Answer is not part of answers set of question: %s";
+    private static final String GAME_START_EX_MESSAGE = "You already have running game session, please complete it before starting new";
+    private static final String GAME_SUBMITTED_EX_MESSAGE = "Game with id - %s already completed";
     private final GameRepository repository;
     private final UserRepository userRepository;
     private final GameCaseDetailsRepository caseDetailsRepository;
@@ -60,12 +64,7 @@ public class GameServiceImpl implements GameService {
     public void startGameSession(Long caseId, UUID userId, Language language) {
         User user = userValidator.validateIfExistsAndGet(userId);
         List<Game> gamesOfUser = repository.findByUser_Id(userId);
-        gamesOfUser.forEach(game -> {
-            if (game.isInProgress()) {
-                throw new GameStartException("You already have running game session, please complete it before starting new");
-            }
-        });
-
+        gamesOfUser.forEach(game -> game.ifInProgressThenThrow(() -> new GameStartException(GAME_START_EX_MESSAGE)));
         Patient patient = generationService.generatePatient(caseId);
         Case aCase = caseValidator.validateIfExistsAndGet(caseId);
         generationService.generateBloodCount(caseId, patient.getId());
@@ -189,26 +188,18 @@ public class GameServiceImpl implements GameService {
         List<UserAnswer> userAnswers = new ArrayList<>();
         answerRequestList.forEach(answerRequest -> {
             Question question = questionRepository.findById(answerRequest.getQuestionId())
-                    .orElseThrow(() -> new QuestionNotFoundException(answerRequest.getAnswerId()));
-            isPartOfOrThrow(question.getGame().getId(),
-                    gameId,
-                    new QuestionNotPartException("Question is not part game: " + gameId));
+                    .orElseThrow(() -> new QuestionNotFoundException(answerRequest.getAnswerId()))
+                    .isPartOfGameOrThrow(gameId, () -> new QuestionNotPartException(QUESTION_NOT_PART_EX_MESSAGE.formatted(gameId)));
+
             Answer answer = answerRepository.findById(answerRequest.getAnswerId())
-                    .orElseThrow(() -> new AnswerNotFoundException(answerRequest.getAnswerId()));
-            isPartOfOrThrow(answer.getQuestion().getId(),
-                    answerRequest.getQuestionId(),
-                    new AnswerNotPartException("Answer is not part of answers set of question: " + answerRequest.getQuestionId()));
+                    .orElseThrow(() -> new AnswerNotFoundException(answerRequest.getAnswerId()))
+                    .isPartOfQuestionOrThrow(answerRequest.getQuestionId(),
+                            () -> new AnswerNotPartException(ANSWER_NOT_PART_EX_MESSAGE.formatted(answerRequest.getQuestionId())));
 
             // Look for existing UserAnswer for the question to update, or create new
             updateOrCreateUserAnswer(question, game, answer, userAnswers);
         });
         userAnswerRepository.saveAll(userAnswers);
-    }
-
-    private static void isPartOfOrThrow(Long idToCheck, Long id, RuntimeException exception) {
-        if (!Objects.equals(idToCheck, id)) {
-            throw exception;
-        }
     }
 
     private void updateOrCreateUserAnswer(Question question, Game game, Answer answer, List<UserAnswer> userAnswers) {
@@ -227,6 +218,9 @@ public class GameServiceImpl implements GameService {
                 });
     }
 
+    /**
+     * Move the Game to the next page
+     */
     @Override
     public GameCurrentSessionState next(UUID userId, Long gameId, List<AnswerRequest> answerRequestList) {
         User user = userValidator.validateIfExistsAndGet(userId);
@@ -237,7 +231,7 @@ public class GameServiceImpl implements GameService {
                 .map(game -> {
                     checkIfGameCompleted(game);
                     saveSelectedAnswers(gameId, answerRequestList);
-                    Pages currentPage = next(game.getCurrentPage());
+                    Pages currentPage = Pages.next(game.getCurrentPage());
                     game.setCurrentPage(currentPage);
                     repository.save(game);
                     return makeGameCurrentSessionState(game);
@@ -252,14 +246,6 @@ public class GameServiceImpl implements GameService {
                 .status(game.getStatus())
                 .currentPage(game.getCurrentPage())
                 .build();
-    }
-
-    private Pages next(Pages currentPage) {
-        if (currentPage == Pages.FOUR) {
-            log.warn("User is on last page of Game");
-            return currentPage;
-        }
-        return currentPage.getNextPage();
     }
 
     @Override
@@ -288,8 +274,8 @@ public class GameServiceImpl implements GameService {
                     log.info("In Progress game: {}", game);
                     return GameMapper.mapToResponseDTO(game, Date.from(Instant.now()), getSavedAnswersOfGame(user.getId(), game.getId()));
                 })
-                .findAny()
-                .orElseThrow(() -> new GameCompleteException("Game with id - " + gameId + " already completed"));
+                .findFirst()
+                .orElseThrow(() -> new GameCompleteException(GAME_SUBMITTED_EX_MESSAGE.formatted(gameId)));
     }
 
     @Override
@@ -308,8 +294,6 @@ public class GameServiceImpl implements GameService {
     }
 
     private static void checkIfGameCompleted(Game game) {
-        if (game.isCompleted()) {
-            throw new GameCompleteException("Game is already submitted");
-        }
+        game.ifCompletedThenThrow(() -> new GameCompleteException(GAME_SUBMITTED_EX_MESSAGE.formatted(game.getId())));
     }
 }

@@ -7,6 +7,8 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Supplier;
 
 @SuperBuilder(toBuilder = true)
 @Entity
@@ -63,6 +65,15 @@ public class Question {
     private void validateAndCreate() {
         if (this.answers == null) {
             this.answers = new ArrayList<>();
+        }
+    }
+
+    public Question isPartOfGameOrThrow(Long partOf, Supplier<? extends RuntimeException> exceptionSupplier) {
+        if (Objects.equals(this.game.getId(), partOf)) {
+            return this;
+        }
+        else {
+            throw exceptionSupplier.get();
         }
     }
 }

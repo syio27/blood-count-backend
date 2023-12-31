@@ -13,6 +13,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Entity
@@ -103,6 +104,18 @@ public class Game {
 
     public boolean isInProgress() {
         return this.getStatus().equals(Status.IN_PROGRESS);
+    }
+
+    public void ifCompletedThenThrow(Supplier<? extends RuntimeException> exceptionSupplier) {
+        if(isCompleted()) {
+            throw exceptionSupplier.get();
+        }
+    }
+
+    public void ifInProgressThenThrow(Supplier<? extends RuntimeException> exceptionSupplier) {
+        if(isInProgress()) {
+            throw exceptionSupplier.get();
+        }
     }
 
     private void validateAndCreate() {
