@@ -40,17 +40,17 @@ public class GameScoreService implements ScoreService {
     }
 
     private Function<UserAnswer, Boolean> getUserAnswerBooleanFunction(Long gameId) {
-        return answerRequest -> {
-            Question question = questionRepository.findById(answerRequest.getQuestion().getId())
-                    .orElseThrow(() -> new QuestionNotFoundException(answerRequest.getQuestion().getId()))
+        return userAnswer -> {
+            Question question = questionRepository.findById(userAnswer.getQuestion().getId())
+                    .orElseThrow(() -> new QuestionNotFoundException(userAnswer.getQuestion().getId()))
                     .isPartOfGameOrThrow(gameId, () -> new QuestionNotPartException(QUESTION_NOT_PART_EX_MESSAGE.formatted(gameId)));
 
-            answerRepository.findById(answerRequest.getAnswer().getId())
-                    .orElseThrow(() -> new AnswerNotFoundException(answerRequest.getAnswer().getId()))
-                    .isPartOfQuestionOrThrow(answerRequest.getQuestion().getId(),
-                            () -> new AnswerNotPartException(ANSWER_NOT_PART_EX_MESSAGE.formatted(answerRequest.getQuestion().getId())));
+            answerRepository.findById(userAnswer.getAnswer().getId())
+                    .orElseThrow(() -> new AnswerNotFoundException(userAnswer.getAnswer().getId()))
+                    .isPartOfQuestionOrThrow(userAnswer.getQuestion().getId(),
+                            () -> new AnswerNotPartException(ANSWER_NOT_PART_EX_MESSAGE.formatted(userAnswer.getQuestion().getId())));
 
-            return Objects.equals(question.getCorrectAnswerId(), answerRequest.getAnswer().getId());
+            return Objects.equals(question.getCorrectAnswerId(), userAnswer.getAnswer().getId());
         };
     }
 }
