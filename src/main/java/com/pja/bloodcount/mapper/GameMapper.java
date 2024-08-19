@@ -65,10 +65,12 @@ public class GameMapper {
                 .toList();
     }
 
-    public static GameInProgress mapToGameInProgressDTO(Game game) {
+    public static GameInProgress mapToGameInProgressDTO(Game game, Integer numberOfAnsweredQuestions) {
         return GameInProgress.builder()
                 .inProgress(true)
                 .gameId(game.getId())
+                .numberOfQuestions(game.getQuestions().size())
+                .numberOfAnsweredQuestions(numberOfAnsweredQuestions)
                 .build();
     }
 }

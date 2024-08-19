@@ -284,13 +284,20 @@ public class GameServiceImpl implements GameService {
         List<Game> games = user.getGames();
         return games.stream()
                 .filter(Game::isInProgress)
-                .map(GameMapper::mapToGameInProgressDTO)
+                .map(game -> {
+                    Integer numberOfAnsweredQuestions = getNumberOfAnsweredQuestions(userId, game.getId());
+                    return GameMapper.mapToGameInProgressDTO(game, numberOfAnsweredQuestions);
+                })
                 .findFirst()
                 .orElseGet(
                         () -> GameInProgress
                                 .builder()
                                 .build()
                 );
+    }
+
+    private Integer getNumberOfAnsweredQuestions(UUID userId, Long gameId) {
+        return getSavedAnswersOfGame(userId, gameId).size();
     }
 
     private static void checkIfGameCompleted(Game game) {

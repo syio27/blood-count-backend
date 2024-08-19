@@ -12,4 +12,6 @@ import lombok.NoArgsConstructor;
 public class GameInProgress {
     private Long gameId;
     private boolean inProgress;
+    private Integer numberOfQuestions;
+    private Integer numberOfAnsweredQuestions;
 }
