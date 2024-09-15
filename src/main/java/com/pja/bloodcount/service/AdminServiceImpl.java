@@ -11,6 +11,7 @@ import com.pja.bloodcount.mapper.UserMapper;
 import com.pja.bloodcount.model.Group;
 import com.pja.bloodcount.model.User;
 import com.pja.bloodcount.repository.UserRepository;
+import com.pja.bloodcount.service.contract.AdminService;
 import com.pja.bloodcount.service.contract.NotifierService;
 import com.pja.bloodcount.utils.PasswordGeneratorUtil;
 import com.pja.bloodcount.utils.CredentialValidationUtil;
@@ -27,7 +28,7 @@ import java.util.UUID;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class AdminService {
+public class AdminServiceImpl implements AdminService {
 
     @Value("${app.url}")
     private static String url;
@@ -40,6 +41,7 @@ public class AdminService {
     private final NotifierService notifierService;
     private final UserValidator userValidator;
 
+    @Override
     public void invite(InviteUserRequest inviteRequest) {
         if (!CredentialValidationUtil.validateEmail(inviteRequest.getEmail())) {
             throw new EmailValidationException("Email is not valid, doesnt match regex rule");
@@ -71,6 +73,7 @@ public class AdminService {
         log.info("User {} {} is registered", user.getId(), user.getEmail());
     }
 
+    @Override
     public UserResponse toggleBanUser(UUID id) {
         String subject;
         String message;

@@ -47,8 +47,8 @@ public class DataLoader implements CommandLineRunner {
 
         User defaultAdmin = User
                 .builder()
-                .email("defAdmin@gmail.com")
-                .password(passwordEncoder.encode("aaa1212AAA#"))
+                .email("qa")
+                .password(passwordEncoder.encode("qa"))
                 .role(Role.ROOT)
                 .isActive(true)
                 .build();

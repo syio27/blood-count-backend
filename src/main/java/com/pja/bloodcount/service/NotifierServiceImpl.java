@@ -1,5 +1,6 @@
 package com.pja.bloodcount.service;
 
+import com.pja.bloodcount.service.contract.MailService;
 import com.pja.bloodcount.service.contract.NotifierService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,9 +13,9 @@ public class NotifierServiceImpl implements NotifierService {
     private final MailService mailService;
 
     @Override
-    public void notifyUser(String email, String subject, String message) {
+    public void notifyUser(String email, String subject, String content) {
         log.info("Notifying user by sending an email to: {}", email);
-        mailService.sendHtmlEmail(email, subject, message);
+        mailService.sendMail(email, subject, content);
         log.info("User has been notified, email sent");
     }
 }

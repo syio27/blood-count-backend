@@ -5,7 +5,7 @@ import com.pja.bloodcount.dto.response.AuthenticationResponse;
 import com.pja.bloodcount.dto.response.SimpleGameResponse;
 import com.pja.bloodcount.dto.response.UserResponse;
 import com.pja.bloodcount.model.enums.Role;
-import com.pja.bloodcount.service.AdminService;
+import com.pja.bloodcount.service.contract.AdminService;
 import com.pja.bloodcount.service.contract.GameService;
 import com.pja.bloodcount.service.contract.UserService;
 import com.pja.bloodcount.utils.AuthenticationUtil;

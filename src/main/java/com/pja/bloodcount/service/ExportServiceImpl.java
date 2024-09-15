@@ -2,10 +2,8 @@ package com.pja.bloodcount.service;
 
 import com.pja.bloodcount.dto.response.GameToExport;
 import com.pja.bloodcount.model.Game;
-import com.pja.bloodcount.model.enums.Language;
-import com.pja.bloodcount.model.enums.Role;
-import com.pja.bloodcount.model.enums.Status;
 import com.pja.bloodcount.repository.GameRepository;
+import com.pja.bloodcount.service.contract.ExportService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
@@ -20,9 +18,10 @@ import java.util.List;
 @Service
 @Slf4j
 @AllArgsConstructor
-public class ExportService {
+public class ExportServiceImpl implements ExportService {
     private final GameRepository gameRepository;
 
+    @Override
     public byte[] exportData() throws IOException {
 
         List<Game> allGames = gameRepository.findAll();

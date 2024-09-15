@@ -14,6 +14,7 @@ import com.pja.bloodcount.repository.BloodCountRepository;
 import com.pja.bloodcount.repository.PatientRepository;
 import com.pja.bloodcount.service.contract.BCReferenceService;
 import com.pja.bloodcount.service.contract.CaseService;
+import com.pja.bloodcount.service.contract.GenerationService;
 import com.pja.bloodcount.utils.CalculateBCUtil;
 import com.pja.bloodcount.utils.FormatUtil;
 import com.pja.bloodcount.utils.RandomizeUtil;
@@ -31,7 +32,7 @@ import java.util.*;
 @Service
 @Slf4j
 @AllArgsConstructor
-public class GenerationService {
+public class GenerationServiceImpl implements GenerationService {
 
     private final PatientRepository patientRepository;
     private final CaseService caseService;
@@ -40,6 +41,7 @@ public class GenerationService {
     private final BloodCountRepository bloodCountRepository;
     private final CalculateBCUtil calculateBCUtil;
 
+    @Override
     public Patient generatePatient(Long caseId) {
         CaseResponse aCase = caseService.getCaseWithAbnormalities(caseId);
         int age = generateAge(aCase);
@@ -54,6 +56,7 @@ public class GenerationService {
                         .build());
     }
 
+    @Override
     public void generateBloodCount(Long caseId, Long patientId) {
         log.info("Started generation of blood-count values");
         Instant startTime = Instant.now();
