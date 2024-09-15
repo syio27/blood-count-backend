@@ -30,13 +30,10 @@ public class QnAServiceImpl implements QnAService {
     private final ErythrocyteQBRepository erythrocyteQBRepository;
     private final LeukocyteQBRepository leukocyteQBRepository;
     private final VariousQBRepository variousQBRepository;
-    private final PatientValidator patientValidator;
 
     @Override
-    public List<BCAssessmentQuestion> createQnAForBCAssessment(Long gameId) {
-        Game game = gameRepository.findById(gameId)
-                .orElseThrow(() -> new GameNotFoundException(gameId));
-        Patient patient = patientValidator.validateIfExistsAndGet(game.getPatient().getId());
+    public List<BCAssessmentQuestion> createQnAForBCAssessment(Game game) {
+        Patient patient = game.getPatient();
         List<BloodCount> bloodCountList = patient.getBloodCounts();
         List<BCAssessmentQuestion> questionList = new ArrayList<>();
         bloodCountList.forEach(bloodCount -> {
@@ -75,10 +72,7 @@ public class QnAServiceImpl implements QnAService {
     }
 
     @Override
-    public List<MSQuestion> createMSQuestions(Long gameId, Language language) {
-        Game game = gameRepository.findById(gameId)
-                .orElseThrow(() -> new GameNotFoundException(gameId));
-
+    public List<MSQuestion> createMSQuestions(Game game, Language language) {
         MSQuestion msQuestion1 = MSQuestion
                 .builder()
                 .build();

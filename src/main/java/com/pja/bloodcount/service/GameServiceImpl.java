@@ -78,16 +78,15 @@ public class GameServiceImpl implements GameService {
         repository.save(game);
         List<Question> allQuestions = makeQuestionsWithAnswers(language, game);
         game.addAllQuestions(allQuestions);
-        repository.save(game);
         user.addGame(game);
         userRepository.save(user);
-        log.info("Game session is being started");
         delayedGameQueue.put(new DelayedGame(game, durationInMin, TimeUnit.MINUTES));
+        log.info("Game session started for user: {}", userId);
     }
 
     private List<Question> makeQuestionsWithAnswers(Language language, Game game) {
-        List<BCAssessmentQuestion> qnAForBCAssessment = qnAService.createQnAForBCAssessment(game.getId());
-        List<MSQuestion> qnAForMSQ = qnAService.createMSQuestions(game.getId(), language);
+        List<BCAssessmentQuestion> qnAForBCAssessment = qnAService.createQnAForBCAssessment(game);
+        List<MSQuestion> qnAForMSQ = qnAService.createMSQuestions(game, language);
         List<MSQuestion> qnAForTrueFalseMSQ = qnAService.createTrueFalseMSQuestions(language);
         return mergeQuestions(qnAForBCAssessment, qnAForMSQ, qnAForTrueFalseMSQ);
     }
